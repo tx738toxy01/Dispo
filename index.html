@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denná Dispozícia</title>
+    
+    <style>
+        :root {
+            --doc-padding: 25px;
+            --gap-size: 8px;
+            --font-size-base: 12px;
+            --font-size-small: 9px;
+            --table-pad: 5px;
+            --title-size: 18px;
+            --section-margin: 15px;
+            --input-min-height: 16px;
+            
+            --color-primary: #2c3e50;
+            --color-bg-light: #f9f9f9;
+            --color-th-bg: #ecf0f1;
+            --color-border: #bdc3c7;
+            --color-text: #333;
+            --color-label: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #e2e8f0;
+            color: var(--color-text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .top-controls {
+            max-width: 800px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-controls-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-action:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-blue {
+            background-color: #2980b9;
+        }
+
+        .btn-blue:hover {
+            background-color: #1c5980;
+        }
+
+        .document-container {
+            background-color: #ffffff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--doc-padding);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+            transform-origin: top center;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-primary);
+            margin-top: 0;
+            padding-bottom: 5px;
+            font-size: var(--title-size);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .section-container {
+            margin-bottom: var(--section-margin);
+            display: flex;
+            flex-direction: column;
+        }
+
+        table.layout-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px;
+            table-layout: fixed;
+        }
+
+        table.layout-table td.layout-cell {
+            padding: 0 4px;
+            border: none;
+            background: transparent;
+            vertical-align: top;
+            position: relative;
+        }
+
+        .editable-label {
+            font-size: var(--font-size-small);
+            font-weight: bold;
+            color: var(--color-label);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            outline: none;
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        .editable-label:focus {
+            background-color: #e8f4fd;
+            color: #2980b9;
+        }
+
+        .editable {
+            min-height: var(--input-min-height);
+            padding: var(--table-pad);
+            background-color: #fcfcfc;
+            border: 1px dashed var(--color-border);
+            border-radius: 4px;
+            outline: none;
+            word-wrap: break-word;
+            font-size: var(--font-size-base);
+            transition: all 0.2s;
+        }
+
+        .editable:focus {
+            background-color: #e8f4fd;
+            border-color: #3498db;
+        }
+
+        .section-title {
+            background-color: var(--color-primary);
+            color: white;
+            padding: var(--table-pad) 10px;
+            font-size: var(--font-size-base);
+            margin-top: var(--section-margin);
+            margin-bottom: calc(var(--section-margin) / 2);
+            font-weight: bold;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .notes-section {
+            margin-top: 30px !important;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+            table-layout: fixed;
+        }
+
+        table.data-table th, table.data-table td {
+            border: 1px solid var(--color-border);
+            padding: var(--table-pad);
+            text-align: left;
+            vertical-align: top;
+            font-size: var(--font-size-base);
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        table.data-table th {
+            background-color: var(--color-th-bg);
+            font-size: var(--font-size-small);
+            text-transform: uppercase;
+            color: var(--color-label);
+            font-weight: bold;
+        }
+
+        table.data-table tbody tr:nth-child(even) td {
+            background-color: var(--color-bg-light);
+        }
+        
+        table.data-table tbody tr:nth-child(odd) td {
+            background-color: #ffffff;
+        }
+
+        table.data-table td .editable {
+            background-color: transparent;
+            border-color: transparent;
+            padding: 0;
+            min-height: auto;
+        }
+
+        table.data-table td .editable:focus {
+            background-color: #e8f4fd;
+            border: 1px dashed #3498db;
+            padding: 2px;
+        }
+
+        .add-btn, .add-row-btn {
+            align-self: flex-end;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 3px;
+        }
+
+        .add-btn:hover, .add-row-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 10;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .td-delete {
+            left: -8px;
+            right: auto;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #e74c3c;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 10000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .document-container {
+                box-shadow: none;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .top-controls, .add-btn, .add-row-btn, .delete-btn {
+                display: none !important;
+            }
+
+            .editable {
+                border: 1px solid transparent !important;
+                background-color: transparent !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            table.data-table td .editable {
+                background-color: transparent !important;
+            }
+
+            .editable-label {
+                padding: 0 !important;
+            }
+
+            tr, td, .section-title {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-controls">
+        <button class="btn-action" onclick="resetData()">↺ RESETOVAŤ ÚDAJE</button>
+        <div class="btn-controls-right">
+            <button class="btn-action btn-blue" onclick="exportDOCX()">📝 EXPORT WORD</button>
+            <button class="btn-action btn-primary" onclick="exportSpongePDF()">📄 EXPORT PDF</button>
+        </div>
+    </div>
+
+    <div class="document-container" id="dynamic-content">
+        <h1>Denná Dispozícia</h1>
+
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Názov projektu</div>
+                        <div class="editable" contenteditable="true">História chutí</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Dátum natáčania</div>
+                        <div class="editable" contenteditable="true" id="date-field"></div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Filmovací deň č.</div>
+                        <div class="editable" contenteditable="true">1 z 3</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        </div>
+
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Režisér</div>
+                        <div class="editable" contenteditable="true">Meno Priezvisko</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Kamera (DOP)</div>
+                        <div class="editable" contenteditable="true">Meno Priezvisko</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Produkcia</div>
+                        <div class="editable" contenteditable="true">Meno Priezvisko / Kontakt</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        </div>
+
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Hlavná Lokácia (Adresa)</div>
+                        <div class="editable" contenteditable="true" id="location-field">Ulica, Mesto...</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Zázemie (Basecamp)</div>
+                        <div class="editable" contenteditable="true">Kultúrny dom...</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Parkovanie</div>
+                        <div class="editable" contenteditable="true">Detaily o parkovaní pre štáb</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        </div>
+
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Predpoveď počasia</div>
+                        <div class="editable" contenteditable="true" id="weather-field">Slnečno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        </div>
+
+        <div class="section-title" contenteditable="true">Nástupy Oddelení (Crew Calls)</div>
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Réžia / Kamera</div>
+                        <div class="editable" contenteditable="true">08:00</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Produkcia</div>
+                        <div class="editable" contenteditable="true">08:00</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Kostýmy / Masky</div>
+                        <div class="editable" contenteditable="true">06:30</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Rekvizity</div>
+                        <div class="editable" contenteditable="true">08:00</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
+        </div>
+
+        <div class="section-title" contenteditable="true">Logistika a Transport</div>
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Odchod Štáb</div>
+                        <div class="editable" contenteditable="true">07:15 (Stará vratnica)</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Nástup na pľaci</div>
+                        <div class="editable" contenteditable="true">08:00 (Kameňolom)</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ TRANSPORT</button>
+        </div>
+
+        <div class="section-title" contenteditable="true">Dôležité časy (Call Times)</div>
+        <div class="section-container">
+            <table class="layout-table">
+                <tr>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Raňajky</div>
+                        <div class="editable" contenteditable="true">07:30 - 08:30</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Prvá klapka</div>
+                        <div class="editable" contenteditable="true">09:00</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Obed (Lunch)</div>
+                        <div class="editable" contenteditable="true">12:30 - 13:30</div>
+                    </td>
+                    <td class="layout-cell">
+                        <button class="delete-btn">&times;</button>
+                        <div class="editable-label" contenteditable="true">Koniec (Wrap)</div>
+                        <div class="editable" contenteditable="true">17:40</div>
+                    </td>
+                </tr>
+            </table>
+            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        </div>
+
+        <div class="section-title" contenteditable="true">Časový harmonogram a scény</div>
+        <div class="section-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;"><div class="editable-label" contenteditable="true">Čas</div></th>
+                        <th style="width: 10%;"><div class="editable-label" contenteditable="true">Scéna č.</div></th>
+                        <th style="width: 28%;"><div class="editable-label" contenteditable="true">Popis akcie / Lokácia</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Účinkujúci</div></th>
+                        <th style="width: 30%;"><div class="editable-label" contenteditable="true">Rekvizity / Poznámky</div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:00 - 09:40</div></td>
+                        <td><div class="editable" contenteditable="true">6/7</div></td>
+                        <td><div class="editable" contenteditable="true">EXT. Step - Putujú, majú hlad</div></td>
+                        <td><div class="editable" contenteditable="true">Maca, Tibor</div></td>
+                        <td><div class="editable" contenteditable="true">Drevené podložky, koža</div></td>
+                    </tr>
+                    <tr>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:40 - 10:20</div></td>
+                        <td><div class="editable" contenteditable="true">6/8</div></td>
+                        <td><div class="editable" contenteditable="true">EXT. Step - Predstavenie kuchára</div></td>
+                        <td><div class="editable" contenteditable="true">Kuchár Jakub</div></td>
+                        <td><div class="editable" contenteditable="true">Kostené podložky (hlina nie)</div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="add-row-btn">+ PRIDAŤ RIADOK TABUĽKY</button>
+        </div>
+
+        <div class="section-title" contenteditable="true">Herci a Účinkujúci (Cast)</div>
+        <div class="section-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Postava / Herec</div></th>
+                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Odchod (Pick Up)</div></th>
+                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Kostýmy / Masky</div></th>
+                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Na pľaci (On Set)</div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Maca (Zábranská)</div></td>
+                        <td><div class="editable" contenteditable="true">6:30 (STV)</div></td>
+                        <td><div class="editable" contenteditable="true">6:30 - 8:00</div></td>
+                        <td><div class="editable" contenteditable="true">9:00</div></td>
+                    </tr>
+                    <tr>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Tibor (Ferenčík)</div></td>
+                        <td><div class="editable" contenteditable="true">6:30 (STV)</div></td>
+                        <td><div class="editable" contenteditable="true">-</div></td>
+                        <td><div class="editable" contenteditable="true">9:00</div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="add-row-btn">+ PRIDAŤ HERCA</button>
+        </div>
+
+        <div class="section-title notes-section" contenteditable="true">Poznámky pre štáb</div>
+        <div class="editable" contenteditable="true" style="min-height: 40px;">
+            Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod.
+        </div>
+    </div>
+
+    <div id="toast">Zadaj datum</div>
+
+    <script>
+        const STORAGE_KEY = 'callsheetData_v10';
+
+        const defaultPlaceholders = [
+            "Názov projektu", "História chutí", "Dátum natáčania", "DD.MM.RRRR", "Filmovací deň č.", "1 z 3",
+            "Režisér", "Meno Priezvisko", "Kamera (DOP)", "Produkcia", "Meno Priezvisko / Kontakt",
+            "Hlavná Lokácia (Adresa)", "Ulica, Mesto...", "Parkovanie", "Detaily o parkovaní pre štáb",
+            "Zázemie (Basecamp)", "Kultúrny dom...",
+            "Predpoveď počasia", "Slnečno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51",
+            "Nástupy Oddelení (Crew Calls)", "Réžia / Kamera", "08:00", "Kostýmy / Masky", "06:30", "Rekvizity",
+            "Logistika a Transport", "Odchod Štáb", "07:15 (Stará vratnica)", "Nástup na pľaci", "08:00 (Kameňolom)",
+            "Dôležité časy (Call Times)", "Nástup štábu", "07:00", "Raňajky", "07:30 - 08:30", "Prvá klapka", "09:00", 
+            "Obed (Lunch)", "12:30 - 13:30", "Koniec (Wrap)", "17:40", "Časový harmonogram a scény",
+            "Čas", "Scéna č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky",
+            "09:00 - 09:40", "6/7", "EXT. Step - Putujú, majú hlad", "Maca, Tibor", "Drevené podložky, koža",
+            "09:40 - 10:20", "6/8", "EXT. Step - Predstavenie kuchára", "Kuchár Jakub", "Kostené podložky (hlina nie)",
+            "Herci a Účinkujúci (Cast)", "Postava / Herec", "Odchod (Pick Up)", "Na pľaci (On Set)",
+            "Maca (Zábranská)", "6:30 (STV)", "6:30 - 8:00",
+            "Tibor (Ferenčík)", "-",
+            "Poznámky pre štáb", "Nová kolonka", 
+            "Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod."
+        ];
+
+        document.addEventListener('focusin', function(e) {
+            if (e.target.isContentEditable) {
+                const text = e.target.innerText.trim();
+                if (defaultPlaceholders.includes(text)) {
+                    e.target.dataset.placeholder = text;
+                    e.target.innerText = '';
+                }
+            }
+        });
+
+        document.addEventListener('focusout', function(e) {
+            if (e.target.isContentEditable) {
+                const text = e.target.innerText.trim();
+                if (text === '' && e.target.dataset.placeholder) {
+                    e.target.innerText = e.target.dataset.placeholder;
+                }
+            }
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function getTomorrowDate() {
+            const date = new Date();
+            date.setDate(date.getDate() + 1);
+            return date.toLocaleDateString('sk-SK');
+        }
+
+        function parseSlovakDate(dateStr) {
+            const parts = dateStr.split('.').map(p => p.trim());
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0');
+                const month = parts[1].padStart(2, '0');
+                let year = parts[2];
+                if (year.length === 2) {
+                    year = '20' + year;
+                }
+                if (year.length === 4) {
+                    return `${year}-${month}-${day}`;
+                }
+            }
+            return null;
+        }
+
+        function getWeatherDescription(code) {
+            if (code === 0) return "Jasno";
+            if (code === 1 || code === 2) return "Polooblačno";
+            if (code === 3) return "Zamračené";
+            if (code === 45 || code === 48) return "Hmla";
+            if (code >= 51 && code <= 55) return "Mrholenie";
+            if (code >= 61 && code <= 65) return "Dážď";
+            if (code >= 71 && code <= 75) return "Sneženie";
+            if (code >= 80 && code <= 82) return "Prehánky";
+            if (code >= 95 && code <= 99) return "Búrka";
+            return "Neznáme počasie";
+        }
+
+        async function fetchWeather(location, dateStr) {
+            const weatherField = document.getElementById('weather-field');
+            if (!weatherField) return;
+
+            const dateFormatted = parseSlovakDate(dateStr);
+            if (!dateFormatted) {
+                weatherField.innerText = "Zlý formát dátumu";
+                saveData();
+                return;
+            }
+
+            weatherField.innerText = "Načítavam...";
+
+            try {
+                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=sk&format=json`);
+                const geoData = await geoRes.json();
+                
+                if (!geoData.results || geoData.results.length === 0) {
+                    weatherField.innerText = "Zlá lokácia";
+                    saveData();
+                    return;
+                }
+                
+                const { latitude, longitude } = geoData.results[0];
+                
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&start_date=${dateFormatted}&end_date=${dateFormatted}`);
+                
+                if (!weatherRes.ok) {
+                    weatherField.innerText = "Predpoveď pre tento dátum nedostupná";
+                    saveData();
+                    return;
+                }
+                
+                const weatherData = await weatherRes.json();
+                
+                if (weatherData.daily && weatherData.daily.time && weatherData.daily.time.length > 0) {
+                    const code = weatherData.daily.weathercode[0];
+                    const tempMax = Math.round(weatherData.daily.temperature_2m_max[0]);
+                    const desc = getWeatherDescription(code);
+                    
+                    const sunriseStr = weatherData.daily.sunrise[0];
+                    const sunsetStr = weatherData.daily.sunset[0];
+                    const sunriseTime = new Date(sunriseStr).toLocaleTimeString('sk-SK', {hour: '2-digit', minute:'2-digit'});
+                    const sunsetTime = new Date(sunsetStr).toLocaleTimeString('sk-SK', {hour: '2-digit', minute:'2-digit'});
+                    
+                    weatherField.innerText = `${desc}, ${tempMax}°C | Východ slnka: ${sunriseTime} | Západ slnka: ${sunsetTime}`;
+                    saveData();
+                } else {
+                    weatherField.innerText = "Predpoveď nedostupná";
+                    saveData();
+                }
+            } catch (error) {
+                weatherField.innerText = "Chyba API";
+                saveData();
+            }
+        }
+
+        function saveData() {
+            const content = document.getElementById('dynamic-content').innerHTML;
+            localStorage.setItem(STORAGE_KEY, content);
+        }
+
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                document.getElementById('dynamic-content').innerHTML = savedData;
+            } else {
+                const dateField = document.getElementById('date-field');
+                if (dateField) {
+                    dateField.innerText = getTomorrowDate();
+                }
+            }
+        }
+
+        function resetData() {
+            if (confirm("Naozaj chcete vymazať všetky údaje?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        function exportSpongePDF() {
+            const container = document.getElementById('dynamic-content');
+            const printBtn = document.querySelector('.btn-primary');
+            printBtn.innerText = '⚙️ PRIPRAVUJEM...';
+            
+            container.style.transform = 'none';
+            container.style.marginBottom = '0';
+            document.documentElement.style.setProperty('--doc-padding', '25px');
+            document.documentElement.style.setProperty('--gap-size', '8px');
+            document.documentElement.style.setProperty('--font-size-base', '12px');
+            document.documentElement.style.setProperty('--font-size-small', '9px');
+            document.documentElement.style.setProperty('--table-pad', '5px');
+            document.documentElement.style.setProperty('--title-size', '18px');
+            document.documentElement.style.setProperty('--section-margin', '15px');
+            document.documentElement.style.setProperty('--input-min-height', '16px');
+            
+            let currentHeight = container.offsetHeight;
+            const targetHeight = 1050; 
+            let steps = 0;
+            
+            while (currentHeight > targetHeight && steps < 15) {
+                steps++;
+                document.documentElement.style.setProperty('--doc-padding', `${Math.max(10, 25 - steps * 1.5)}px`);
+                document.documentElement.style.setProperty('--gap-size', `${Math.max(2, 8 - steps * 0.5)}px`);
+                document.documentElement.style.setProperty('--font-size-base', `${Math.max(8, 12 - steps * 0.3)}px`);
+                document.documentElement.style.setProperty('--font-size-small', `${Math.max(6, 9 - steps * 0.2)}px`);
+                document.documentElement.style.setProperty('--table-pad', `${Math.max(2, 5 - steps * 0.3)}px`);
+                document.documentElement.style.setProperty('--title-size', `${Math.max(12, 18 - steps * 0.5)}px`);
+                document.documentElement.style.setProperty('--section-margin', `${Math.max(5, 15 - steps * 1)}px`);
+                document.documentElement.style.setProperty('--input-min-height', `${Math.max(10, 16 - steps * 0.5)}px`);
+                
+                currentHeight = container.offsetHeight;
+            }
+
+            if (currentHeight > targetHeight) {
+                const scale = targetHeight / currentHeight;
+                container.style.transform = `scale(${scale})`;
+                container.style.transformOrigin = 'top center';
+                container.style.marginBottom = `-${currentHeight * (1 - scale)}px`;
+            }
+
+            setTimeout(() => {
+                printBtn.innerText = '📄 EXPORT PDF';
+                window.print();
+                
+                setTimeout(() => {
+                    container.style.transform = 'none';
+                    container.style.marginBottom = '0';
+                    document.documentElement.style.removeProperty('--doc-padding');
+                    document.documentElement.style.removeProperty('--gap-size');
+                    document.documentElement.style.removeProperty('--font-size-base');
+                    document.documentElement.style.removeProperty('--font-size-small');
+                    document.documentElement.style.removeProperty('--table-pad');
+                    document.documentElement.style.removeProperty('--title-size');
+                    document.documentElement.style.removeProperty('--section-margin');
+                    document.documentElement.style.removeProperty('--input-min-height');
+                }, 1000); 
+            }, 150);
+        }
+
+        function exportDOCX() {
+            const clone = document.getElementById('dynamic-content').cloneNode(true);
+            
+            const buttons = clone.querySelectorAll('button');
+            buttons.forEach(b => b.remove());
+            
+            const sectionContainers = clone.querySelectorAll('.section-container');
+            
+            sectionContainers.forEach(container => {
+                const prevEl = container.previousElementSibling;
+                const layoutTable = container.querySelector('.layout-table');
+                
+                if (prevEl && prevEl.classList.contains('section-title') && layoutTable) {
+                    const tbody = layoutTable.querySelector('tbody');
+                    const colCount = tbody.querySelector('tr').children.length;
+                    
+                    const titleRow = document.createElement('tr');
+                    const titleCell = document.createElement('td');
+                    
+                    titleCell.colSpan = colCount;
+                    titleCell.innerHTML = prevEl.innerHTML;
+                    
+                    titleCell.style.backgroundColor = '#2c3e50';
+                    titleCell.style.color = '#ffffff';
+                    titleCell.style.padding = '6px 10px';
+                    titleCell.style.fontWeight = 'bold';
+                    titleCell.style.textTransform = 'uppercase';
+                    titleCell.style.border = 'none';
+                    titleCell.style.fontSize = '12px';
+                    
+                    titleRow.appendChild(titleCell);
+                    tbody.insertBefore(titleRow, tbody.firstChild);
+                    
+                    prevEl.remove();
+                }
+            });
+
+            sectionContainers.forEach(container => {
+                const prevEl = container.previousElementSibling;
+                const dataTable = container.querySelector('.data-table');
+                
+                if (prevEl && prevEl.classList.contains('section-title') && dataTable) {
+                    const thead = dataTable.querySelector('thead');
+                    const colCount = thead.querySelector('tr').children.length;
+                    
+                    const titleRow = document.createElement('tr');
+                    const titleCell = document.createElement('td');
+                    
+                    titleCell.colSpan = colCount;
+                    titleCell.innerHTML = prevEl.innerHTML;
+                    
+                    titleCell.style.backgroundColor = '#2c3e50';
+                    titleCell.style.color = '#ffffff';
+                    titleCell.style.padding = '6px 10px';
+                    titleCell.style.fontWeight = 'bold';
+                    titleCell.style.textTransform = 'uppercase';
+                    titleCell.style.border = '1px solid #2c3e50';
+                    titleCell.style.fontSize = '12px';
+                    
+                    titleRow.appendChild(titleCell);
+                    thead.insertBefore(titleRow, thead.firstChild);
+                    
+                    prevEl.remove();
+                }
+            });
+            
+            const layoutTables = clone.querySelectorAll('.layout-table');
+            layoutTables.forEach(t => {
+                t.style.width = '100%';
+                t.style.margin = '8px 0';
+                t.style.borderCollapse = 'collapse';
+                t.style.border = 'none';
+                
+                const cells = t.querySelectorAll('.layout-cell');
+                cells.forEach(c => {
+                    c.style.padding = '4px 6px'; 
+                    c.style.border = 'none';
+                });
+            });
+
+            const remainingTitles = clone.querySelectorAll('.section-title');
+            remainingTitles.forEach(t => {
+                t.style.backgroundColor = '#2c3e50';
+                t.style.color = '#ffffff';
+                t.style.padding = '6px 10px';
+                t.style.fontWeight = 'bold';
+                t.style.fontSize = '12px';
+                if(t.classList.contains('notes-section')) {
+                    t.style.marginTop = '25px';
+                } else {
+                    t.style.marginTop = '10px';
+                }
+            });
+
+            const dataTables = clone.querySelectorAll('.data-table');
+            dataTables.forEach(t => {
+                const trs = t.querySelectorAll('tbody tr');
+                trs.forEach((tr, index) => {
+                    const tds = tr.querySelectorAll('td');
+                    tds.forEach(td => {
+                        if (index % 2 === 0) {
+                            td.style.backgroundColor = '#ffffff';
+                        } else {
+                            td.style.backgroundColor = '#f9f9f9';
+                        }
+                    });
+                });
+            });
+
+            const html = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+            <meta charset='utf-8'>
+            <title>Denná Dispozícia</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #333; }
+                h1 { text-align: center; color: #2c3e50; font-size: 18px; text-transform: uppercase; margin-bottom: 8px; margin-top: 0; padding-bottom: 5px; }
+                .editable-label { font-size: 9px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 4px; }
+                .editable { border: 1px dashed #bdc3c7; background-color: #fcfcfc; padding: 4px; min-height: 14px; }
+                table.data-table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
+                table.data-table th, table.data-table td { border: 1px solid #bdc3c7; padding: 4px; vertical-align: top; text-align: left; }
+                table.data-table th { background-color: #ecf0f1; font-size: 9px; text-transform: uppercase; color: #7f8c8d; font-weight: bold; }
+                table.data-table td .editable { border: none; background-color: transparent; padding: 0; }
+            </style>
+            </head>
+            <body>
+            ${clone.innerHTML}
+            </body>
+            </html>`;
+            
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const dateField = document.getElementById('date-field');
+            const dateStr = (dateField && dateField.innerText.trim() !== "DD.MM.RRRR" && dateField.innerText.trim() !== "") ? dateField.innerText.trim() : 'nepomenovana';
+            
+            link.download = 'Dispozicia_' + dateStr.replace(/[^0-9a-zA-Z]/g, '_') + '.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.addEventListener('input', saveData);
+
+        document.addEventListener('blur', function(e) {
+            if (e.target.id === 'location-field' || e.target.id === 'date-field') {
+                const locationField = document.getElementById('location-field');
+                const dateField = document.getElementById('date-field');
+                
+                if (locationField && dateField) {
+                    const location = locationField.innerText.trim();
+                    const dateStr = dateField.innerText.trim();
+                    
+                    const isLocSet = location && !defaultPlaceholders.includes(location) && location !== "";
+                    const isDateSet = dateStr && dateStr !== "DD.MM.RRRR" && dateStr !== "";
+                    
+                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) {
+                        showToast("Zadaj datum");
+                    } else if (isLocSet && isDateSet) {
+                        fetchWeather(location, dateStr);
+                    }
+                }
+            }
+        }, true);
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-btn')) {
+                const layoutCell = e.target.closest('.layout-cell');
+                const dataRow = e.target.closest('.data-table tr');
+                
+                if (layoutCell) {
+                    layoutCell.remove();
+                } else if (dataRow) {
+                    if(dataRow.closest('tbody')) {
+                        dataRow.remove();
+                    }
+                }
+                saveData();
+            }
+
+            if (e.target.classList.contains('add-btn')) {
+                const layoutTable = e.target.previousElementSibling;
+                const tr = layoutTable.querySelector('tr');
+                
+                const isTitleRow = tr.children[0].colSpan > 1;
+                const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
+
+                const newCol = document.createElement('td');
+                newCol.className = 'layout-cell';
+                newCol.innerHTML = `
+                    <button class="delete-btn">&times;</button>
+                    <div class="editable-label" contenteditable="true">Nová kolonka</div>
+                    <div class="editable" contenteditable="true"></div>
+                `;
+                targetTr.appendChild(newCol);
+                saveData();
+            }
+
+            if (e.target.classList.contains('add-row-btn')) {
+                const table = e.target.previousElementSibling;
+                const tbody = table.querySelector('tbody');
+                
+                const trs = table.querySelectorAll('thead tr');
+                const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
+                const colCount = headerTr.children.length;
+                
+                const newRow = document.createElement('tr');
+                
+                let rowHtml = '';
+                for (let i = 0; i < colCount; i++) {
+                    if (i === 0) {
+                        rowHtml += `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`;
+                    } else {
+                        rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
+                    }
+                }
+                newRow.innerHTML = rowHtml;
+                tbody.appendChild(newRow);
+                saveData();
+            }
+        });
+
+        window.onload = loadData;
+    </script>
+
+</body>
+</html>
