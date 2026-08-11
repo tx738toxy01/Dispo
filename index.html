@@ -70,6 +70,14 @@
             background-color: var(--color-primary);
             color: white;
             border: none;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-select:focus {
+            outline: none !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+            background-color: var(--color-primary) !important;
         }
 
         @media (max-width: 950px) {
