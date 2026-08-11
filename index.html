@@ -72,7 +72,7 @@
             border: none;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 950px) {
             :root {
                 --font-size-base: 16px;
                 --font-size-small: 11px;
@@ -619,7 +619,9 @@
             const selector = document.getElementById('theme-selector');
             if (selector) { 
                 localStorage.setItem('callsheetTheme', selector.value);
-                selector.blur();
+                setTimeout(function() {
+                    selector.blur();
+                }, 100);
             }
         }
 
