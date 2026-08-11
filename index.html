@@ -42,14 +42,14 @@
             margin: 0 auto 15px auto;
             display: flex;
             justify-content: space-between;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 15px;
         }
 
         .btn-controls-right {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .btn-action {
@@ -62,7 +62,8 @@
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            white-space: nowrap;
+            white-space: normal;
+            text-align: center;
         }
 
         .btn-action:hover {
@@ -239,8 +240,8 @@
 
         .delete-btn {
             position: absolute;
-            top: -6px;
-            right: -6px;
+            top: -4px;
+            right: 4px;
             background-color: #e74c3c;
             color: white;
             border: none;
@@ -308,6 +309,23 @@
             visibility: visible;
             opacity: 1;
             bottom: 50px;
+        }
+
+        .split-edit {
+            display: inline-block;
+            min-width: 16px;
+            text-align: center;
+            background-color: #fcfcfc;
+            border: 1px dashed var(--color-border);
+            border-radius: 3px;
+            padding: 1px 3px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .split-edit:focus {
+            background-color: #e8f4fd;
+            border-color: #3498db;
         }
 
         @media print {
@@ -381,7 +399,7 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Názov projektu</div><div class="editable" contenteditable="true">História chutí</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Názov projektu</div><div class="editable" contenteditable="true">Názov</div></td>
                     <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Filmovací deň č.</div><div class="editable" contenteditable="true">1</div></td>
                 </tr>
             </table>
@@ -423,9 +441,9 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Réžia / Kamera</div><div class="editable" contenteditable="true">08:00</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kostýmy / Masky</div><div class="editable" contenteditable="true">06:30</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Rekvizity</div><div class="editable" contenteditable="true">08:00</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Réžia / Kamera</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kostýmy / Masky</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span></div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Rekvizity</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
@@ -435,8 +453,8 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Odchod Štáb</div><div class="editable" contenteditable="true">07:15 (Stará vratnica)</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nástup na pľaci</div><div class="editable" contenteditable="true">08:00 (Kameňolom)</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Odchod Štáb</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">07</span>:<span class="split-edit" contenteditable="true">15</span> <span class="split-edit" contenteditable="true">(Stará vratnica)</span></div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nástup na pľaci</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span> <span class="split-edit" contenteditable="true">(Kameňolom)</span></div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ TRANSPORT</button>
@@ -456,17 +474,17 @@
                 </thead>
                 <tbody id="morning-tbody">
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:00 - 09:40</div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span> - <span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">40</span></div></td>
                         <td><div class="editable" contenteditable="true">6/7</div></td>
                         <td><div class="editable" contenteditable="true">EXT. Step - Putujú, majú hlad</div></td>
-                        <td><div class="editable" contenteditable="true">Maca, Tibor</div></td>
+                        <td><div class="editable" contenteditable="true">Gvendolína, Koloman</div></td>
                         <td><div class="editable" contenteditable="true">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:40 - 10:20</div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">40</span> - <span class="split-edit" contenteditable="true">10</span>:<span class="split-edit" contenteditable="true">20</span></div></td>
                         <td><div class="editable" contenteditable="true">6/8</div></td>
-                        <td><div class="editable" contenteditable="true">EXT. Step - Predstavenie kuchára</div></td>
-                        <td><div class="editable" contenteditable="true">Kuchár Jakub</div></td>
+                        <td><div class="editable" contenteditable="true">EXT. Step - Predstavenie Jakuba</div></td>
+                        <td><div class="editable" contenteditable="true">Jakub</div></td>
                         <td><div class="editable" contenteditable="true">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
@@ -479,7 +497,7 @@
                 </tbody>
                 <tbody id="lunch-tbody">
                     <tr class="lunch-row" style="background-color: #F9E79F;">
-                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">12:30 - 13:30</div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0; font-weight:bold;"><span class="split-edit" contenteditable="true">12</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">13</span>:<span class="split-edit" contenteditable="true">30</span></div></td>
                         <td><div class="editable" contenteditable="true" style="font-weight:bold;">-</div></td>
                         <td><div class="editable" contenteditable="true" style="font-weight:bold;">OBEDOVÁ PAUZA</div></td>
                         <td><div class="editable" contenteditable="true" style="font-weight:bold;"></div></td>
@@ -488,10 +506,10 @@
                 </tbody>
                 <tbody id="afternoon-tbody">
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">13:30 - 14:20</div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">13</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">14</span>:<span class="split-edit" contenteditable="true">20</span></div></td>
                         <td><div class="editable" contenteditable="true">6/18</div></td>
                         <td><div class="editable" contenteditable="true">EXT. Step - Tlupa loví zajaca</div></td>
-                        <td><div class="editable" contenteditable="true">Tibor, tlupa</div></td>
+                        <td><div class="editable" contenteditable="true">Koloman, tlupa</div></td>
                         <td><div class="editable" contenteditable="true">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
@@ -510,24 +528,27 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Postava / Herec</div></th>
-                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Odchod (Pick Up)</div></th>
-                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Kostýmy / Masky</div></th>
-                        <th style="width: 25%;"><div class="editable-label" contenteditable="true">Na pľaci (On Set)</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Postava</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Herec</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Odchod (Pick Up)</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Kostýmy / Masky</div></th>
+                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Na pľaci (On Set)</div></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Maca (Zábranská)</div></td>
-                        <td><div class="editable" contenteditable="true">6:30 (STV)</div></td>
-                        <td><div class="editable" contenteditable="true">6:30 - 8:00</div></td>
-                        <td><div class="editable" contenteditable="true">9:00</div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Gvendolína</div></td>
+                        <td><div class="editable" contenteditable="true">Hilda Premúdra</div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> <span class="split-edit" contenteditable="true">(STV)</span></div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
                     </tr>
                     <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Tibor (Ferenčík)</div></td>
-                        <td><div class="editable" contenteditable="true">6:30 (STV)</div></td>
-                        <td><div class="editable" contenteditable="true">-</div></td>
-                        <td><div class="editable" contenteditable="true">9:00</div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Koloman</div></td>
+                        <td><div class="editable" contenteditable="true">Medard Odolný</div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> <span class="split-edit" contenteditable="true">(STV)</span></div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div></td>
+                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
                     </tr>
                 </tbody>
             </table>
@@ -555,7 +576,10 @@
         function getTomorrowDate() {
             const date = new Date();
             date.setDate(date.getDate() + 1);
-            return date.toLocaleDateString('sk-SK');
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `<span class="split-edit" contenteditable="true">${d}</span>.<span class="split-edit" contenteditable="true">${m}</span>.<span class="split-edit" contenteditable="true">${y}</span>`;
         }
 
         function parseSlovakDate(dateStr) {
@@ -624,7 +648,7 @@
         function loadData() {
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { document.getElementById('dynamic-content').innerHTML = savedData; } 
-            else { const dateField = document.getElementById('date-field'); if (dateField) dateField.innerText = getTomorrowDate(); }
+            else { const dateField = document.getElementById('date-field'); if (dateField) { dateField.innerHTML = getTomorrowDate(); dateField.style.border = 'none'; dateField.style.background = 'transparent'; dateField.removeAttribute('contenteditable'); } }
         }
 
         function resetData() {
@@ -691,7 +715,7 @@
             ws.getRow(1).height = 25; 
             
             ws.mergeCells('A2:G2'); styleCell(ws.getCell('A2'), DARK_BG, WHITE, true, 12, 'center', 'middle');
-            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. NATÁČACÍ DEŇ`; ws.getRow(2).height = 20;
+            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. natáčací deň`; ws.getRow(2).height = 20;
 
             let weatherParts = getVal('Predpoveď počasia').split('|').map(p => p.trim());
             let rawWeatherDesc = weatherParts[0] || '';
@@ -786,9 +810,9 @@
                 ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, WHITE, true, 11, 'center', 'middle', thinBorder);
                 ws.getCell(`A${rowIdx}`).value = "HERCI / CAST"; for(let c=2; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder; rowIdx++;
 
-                const headers = ["Postava / Herec", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
-                const colSpans = [[1,2], [3,4], [5,6], [7,7]];
-                for(let c=0; c<4; c++) {
+                const headers = ["Postava", "Herec", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
+                const colSpans = [[1,1], [2,2], [3,4], [5,6], [7,7]];
+                for(let c=0; c<5; c++) {
                     ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                     const cell = ws.getCell(rowIdx, colSpans[c][0]);
                     cell.value = headers[c].toUpperCase();
@@ -797,7 +821,7 @@
                 }
                 rowIdx++;
                 casts.forEach(rowData => {
-                    for(let c=0; c<4; c++) {
+                    for(let c=0; c<5; c++) {
                         if(c >= rowData.length) break;
                         ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                         const cell = ws.getCell(rowIdx, colSpans[c][0]);
@@ -880,7 +904,7 @@
                     { 
                         table: { widths: ['*'], body: [
                             [{ text: `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`, fontSize: 18, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 8, 0, 4], border: [false, false, false, false] }],
-                            [{ text: `${proj.toUpperCase()}  |  ${day}. NATÁČACÍ DEŇ`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 2, 0, 8], border: [false, false, false, false] }]
+                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 2, 0, 8], border: [false, false, false, false] }]
                         ]},
                         layout: 'noBorders',
                         margin: [0, 0, 0, 15]
@@ -958,7 +982,8 @@
                 });
                 const castBody = [];
                 castBody.push([
-                    { text: 'POSTAVA / HEREC', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'POSTAVA', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'HEREC', bold: true, alignment: 'center', margin:[0,4,0,4] },
                     { text: 'ODCHOD (PICK UP)', bold: true, alignment: 'center', margin:[0,4,0,4] },
                     { text: 'KOSTÝMY / MASKY', bold: true, alignment: 'center', margin:[0,4,0,4] },
                     { text: 'NA PĽACI (ON SET)', bold: true, alignment: 'center', margin:[0,4,0,4] }
@@ -968,11 +993,12 @@
                         { text: row[0], alignment: 'center', margin: [3, 4, 3, 4] },
                         { text: row[1], alignment: 'center', margin: [3, 4, 3, 4] },
                         { text: row[2], alignment: 'center', margin: [3, 4, 3, 4] },
-                        { text: row[3], alignment: 'center', margin: [3, 4, 3, 4] }
+                        { text: row[3], alignment: 'center', margin: [3, 4, 3, 4] },
+                        { text: row[4], alignment: 'center', margin: [3, 4, 3, 4] }
                     ]);
                 });
                 docDefinition.content.push({
-                    table: { headerRows: 1, widths: ['25%', '25%', '25%', '25%'], body: castBody },
+                    table: { headerRows: 1, widths: ['20%', '20%', '20%', '20%', '20%'], body: castBody },
                     layout: {
                         hLineWidth: function(i, node) { return 1; }, vLineWidth: function(i, node) { return 1; },
                         hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
@@ -1032,7 +1058,23 @@
             }
         });
 
-        document.addEventListener('input', saveData);
+        document.addEventListener('input', function(e) {
+            if (e.target.hasAttribute('contenteditable')) {
+                e.target.setAttribute('data-prepisane', 'true');
+            }
+            saveData();
+        });
+
+        document.addEventListener('focus', function(e) {
+            if (e.target.hasAttribute('contenteditable') && e.target.getAttribute('data-prepisane') !== 'true') {
+                e.target.setAttribute('data-prepisane', 'true');
+                if (e.target.innerText.trim() !== '') {
+                    e.target.innerText = '';
+                    saveData();
+                }
+            }
+        }, true);
+
         document.addEventListener('blur', function(e) {
             if (e.target.id === 'location-field' || e.target.id === 'date-field') {
                 const locationField = document.getElementById('location-field');
@@ -1040,13 +1082,19 @@
                 if (locationField && dateField) {
                     const location = locationField.innerText.trim();
                     const dateStr = dateField.innerText.trim();
-                    const isLocSet = location && !defaultPlaceholders.includes(location) && location !== "";
-                    const isDateSet = dateStr && dateStr !== "DD.MM.RRRR" && dateStr !== "";
-                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) { showToast("Zadaj datum"); } 
-                    else if (isLocSet && isDateSet) { fetchWeather(location, dateStr); }
+                    
+                    const isLocSet = location !== "" && location !== "Ulica, Mesto...";
+                    const isDateSet = dateStr !== "" && dateStr !== "DD.MM.RRRR";
+                    
+                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) { 
+                        showToast("Zadaj dátum pre počasie"); 
+                    } else if (isLocSet && isDateSet) { 
+                        fetchWeather(location, dateStr); 
+                    }
                 }
             }
         }, true);
+
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('delete-btn')) {
                 const layoutCell = e.target.closest('.layout-cell'); const dataRow = e.target.closest('.data-table tr');
@@ -1057,7 +1105,14 @@
                 const layoutTable = e.target.previousElementSibling; const tr = layoutTable.querySelector('tr');
                 const isTitleRow = tr.children[0].colSpan > 1; const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
                 const newCol = document.createElement('td'); newCol.className = 'layout-cell';
-                newCol.innerHTML = `<button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nová kolonka</div><div class="editable" contenteditable="true"></div>`;
+                
+                let innerEdit = `<div class="editable" contenteditable="true"></div>`;
+                const btnText = e.target.innerText.toUpperCase();
+                if (btnText.includes('ODDELENIE') || btnText.includes('TRANSPORT')) {
+                    innerEdit = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
+                }
+                
+                newCol.innerHTML = `<button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nová kolonka</div>${innerEdit}`;
                 targetTr.appendChild(newCol); saveData();
             }
             if (e.target.classList.contains('add-row-btn')) {
@@ -1066,8 +1121,16 @@
                 const colCount = headerTr.children.length; const newRow = document.createElement('tr');
                 let rowHtml = '';
                 for (let i = 0; i < colCount; i++) {
-                    if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`; } 
-                    else { rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`; }
+                    let cellContent = `<div class="editable" contenteditable="true"></div>`;
+                    if (i === 2) { 
+                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> <span class="split-edit" contenteditable="true">(Miesto)</span></div>`;
+                    } else if (i === 3) {
+                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
+                    } else if (i === 4) {
+                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
+                    }
+                    if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button>${cellContent}</td>`; } 
+                    else { rowHtml += `<td>${cellContent}</td>`; }
                 }
                 newRow.innerHTML = rowHtml; tbody.appendChild(newRow); saveData();
             }
@@ -1076,7 +1139,7 @@
                 const tbody = document.getElementById(targetId);
                 const newRow = document.createElement('tr');
                 newRow.setAttribute('draggable', 'true');
-                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`;
+                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div></td>`;
                 rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
                 rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
                 rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
