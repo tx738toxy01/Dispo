@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Denná Dispozícia</title>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
     <style>
         :root {
             --doc-padding: 25px;
@@ -37,11 +42,14 @@
             margin: 0 auto 15px auto;
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .btn-controls-right {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn-action {
@@ -54,6 +62,7 @@
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            white-space: nowrap;
         }
 
         .btn-action:hover {
@@ -68,12 +77,12 @@
             background-color: #1a252f;
         }
 
-        .btn-blue {
-            background-color: #2980b9;
+        .btn-green {
+            background-color: #27ae60;
         }
 
-        .btn-blue:hover {
-            background-color: #1c5980;
+        .btn-green:hover {
+            background-color: #219150;
         }
 
         .document-container {
@@ -91,10 +100,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--color-primary);
-            margin-top: 0;
-            padding-bottom: 5px;
             font-size: var(--title-size);
-            margin-bottom: 15px;
             font-weight: bold;
         }
 
@@ -214,7 +220,7 @@
             padding: 2px;
         }
 
-        .add-btn, .add-row-btn {
+        .add-btn, .add-row-btn, .add-scene-btn {
             align-self: flex-end;
             background-color: #3498db;
             color: white;
@@ -227,7 +233,7 @@
             margin-top: 3px;
         }
 
-        .add-btn:hover, .add-row-btn:hover {
+        .add-btn:hover, .add-row-btn:hover, .add-scene-btn:hover {
             background-color: #2980b9;
         }
 
@@ -256,10 +262,26 @@
         }
 
         .td-delete {
-            left: -8px;
+            left: -22px;
             right: auto;
             top: 50%;
             transform: translateY(-50%);
+        }
+
+        .drag-handle {
+            position: absolute;
+            right: -22px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            font-size: 16px;
+            color: #bdc3c7;
+            user-select: none;
+            z-index: 10;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
         }
 
         #toast {
@@ -311,7 +333,7 @@
                 width: 100%;
             }
 
-            .top-controls, .add-btn, .add-row-btn, .delete-btn {
+            .top-controls, .add-btn, .add-row-btn, .add-scene-btn, .delete-btn, .drag-handle {
                 display: none !important;
             }
 
@@ -342,32 +364,25 @@
     <div class="top-controls">
         <button class="btn-action" onclick="resetData()">↺ RESETOVAŤ ÚDAJE</button>
         <div class="btn-controls-right">
-            <button class="btn-action btn-blue" onclick="exportDOCX()">📝 EXPORT WORD</button>
-            <button class="btn-action btn-primary" onclick="exportSpongePDF()">📄 EXPORT PDF</button>
+            <button class="btn-action btn-primary" onclick="exportPDF()">📄 EXPORT PDF</button>
+            <button class="btn-action btn-green btn-excel" onclick="exportExcel()">📊 EXPORT EXCEL</button>
         </div>
     </div>
 
     <div class="document-container" id="dynamic-content">
-        <h1>Denná Dispozícia</h1>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+            <h1 style="margin: 0; padding: 0;">Denná Dispozícia</h1>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <div class="editable-label" contenteditable="true" style="margin: 0;">Dátum</div>
+                <div class="editable" contenteditable="true" id="date-field" style="min-height: auto; padding: 4px 8px;"></div>
+            </div>
+        </div>
 
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Názov projektu</div>
-                        <div class="editable" contenteditable="true">História chutí</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Dátum natáčania</div>
-                        <div class="editable" contenteditable="true" id="date-field"></div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Filmovací deň č.</div>
-                        <div class="editable" contenteditable="true">1 z 3</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Názov projektu</div><div class="editable" contenteditable="true">História chutí</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Filmovací deň č.</div><div class="editable" contenteditable="true">1</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ KOLONKU</button>
@@ -376,21 +391,9 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Režisér</div>
-                        <div class="editable" contenteditable="true">Meno Priezvisko</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Kamera (DOP)</div>
-                        <div class="editable" contenteditable="true">Meno Priezvisko</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Produkcia</div>
-                        <div class="editable" contenteditable="true">Meno Priezvisko / Kontakt</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Režisér</div><div class="editable" contenteditable="true">Meno Priezvisko</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kamera (DOP)</div><div class="editable" contenteditable="true">Meno Priezvisko</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Produkcia</div><div class="editable" contenteditable="true">Meno Priezvisko / Kontakt</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ KOLONKU</button>
@@ -399,21 +402,9 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Hlavná Lokácia (Adresa)</div>
-                        <div class="editable" contenteditable="true" id="location-field">Ulica, Mesto...</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Zázemie (Basecamp)</div>
-                        <div class="editable" contenteditable="true">Kultúrny dom...</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Parkovanie</div>
-                        <div class="editable" contenteditable="true">Detaily o parkovaní pre štáb</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Hlavná Lokácia (Adresa)</div><div class="editable" contenteditable="true" id="location-field">Ulica, Mesto...</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Zázemie (Basecamp)</div><div class="editable" contenteditable="true">Kultúrny dom...</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Parkovanie</div><div class="editable" contenteditable="true">Detaily o parkovaní pre štáb</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ KOLONKU</button>
@@ -422,11 +413,7 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Predpoveď počasia</div>
-                        <div class="editable" contenteditable="true" id="weather-field">Slnečno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Predpoveď počasia</div><div class="editable" contenteditable="true" id="weather-field">☀️ Jasno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ KOLONKU</button>
@@ -436,26 +423,9 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Réžia / Kamera</div>
-                        <div class="editable" contenteditable="true">08:00</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Produkcia</div>
-                        <div class="editable" contenteditable="true">08:00</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Kostýmy / Masky</div>
-                        <div class="editable" contenteditable="true">06:30</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Rekvizity</div>
-                        <div class="editable" contenteditable="true">08:00</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Réžia / Kamera</div><div class="editable" contenteditable="true">08:00</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kostýmy / Masky</div><div class="editable" contenteditable="true">06:30</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Rekvizity</div><div class="editable" contenteditable="true">08:00</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
@@ -465,53 +435,16 @@
         <div class="section-container">
             <table class="layout-table">
                 <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Odchod Štáb</div>
-                        <div class="editable" contenteditable="true">07:15 (Stará vratnica)</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Nástup na pľaci</div>
-                        <div class="editable" contenteditable="true">08:00 (Kameňolom)</div>
-                    </td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Odchod Štáb</div><div class="editable" contenteditable="true">07:15 (Stará vratnica)</div></td>
+                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nástup na pľaci</div><div class="editable" contenteditable="true">08:00 (Kameňolom)</div></td>
                 </tr>
             </table>
             <button class="add-btn">+ PRIDAŤ TRANSPORT</button>
         </div>
 
-        <div class="section-title" contenteditable="true">Dôležité časy (Call Times)</div>
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Raňajky</div>
-                        <div class="editable" contenteditable="true">07:30 - 08:30</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Prvá klapka</div>
-                        <div class="editable" contenteditable="true">09:00</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Obed (Lunch)</div>
-                        <div class="editable" contenteditable="true">12:30 - 13:30</div>
-                    </td>
-                    <td class="layout-cell">
-                        <button class="delete-btn">&times;</button>
-                        <div class="editable-label" contenteditable="true">Koniec (Wrap)</div>
-                        <div class="editable" contenteditable="true">17:40</div>
-                    </td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
-        </div>
-
         <div class="section-title" contenteditable="true">Časový harmonogram a scény</div>
         <div class="section-container">
-            <table class="data-table">
+            <table class="data-table scenes-table">
                 <thead>
                     <tr>
                         <th style="width: 12%;"><div class="editable-label" contenteditable="true">Čas</div></th>
@@ -521,24 +454,55 @@
                         <th style="width: 30%;"><div class="editable-label" contenteditable="true">Rekvizity / Poznámky</div></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
+                <tbody id="morning-tbody">
+                    <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:00 - 09:40</div></td>
                         <td><div class="editable" contenteditable="true">6/7</div></td>
                         <td><div class="editable" contenteditable="true">EXT. Step - Putujú, majú hlad</div></td>
                         <td><div class="editable" contenteditable="true">Maca, Tibor</div></td>
-                        <td><div class="editable" contenteditable="true">Drevené podložky, koža</div></td>
+                        <td><div class="editable" contenteditable="true">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
-                    <tr>
+                    <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">09:40 - 10:20</div></td>
                         <td><div class="editable" contenteditable="true">6/8</div></td>
                         <td><div class="editable" contenteditable="true">EXT. Step - Predstavenie kuchára</div></td>
                         <td><div class="editable" contenteditable="true">Kuchár Jakub</div></td>
-                        <td><div class="editable" contenteditable="true">Kostené podložky (hlina nie)</div></td>
+                        <td><div class="editable" contenteditable="true">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                    </tr>
+                </tbody>
+                <tbody class="ignore-export">
+                    <tr>
+                        <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
+                            <button class="add-scene-btn" data-target="morning-tbody" style="margin-top: 0;">+ PRIDAŤ RIADOK (PRED OBEDOM)</button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody id="lunch-tbody">
+                    <tr class="lunch-row" style="background-color: #F9E79F;">
+                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">12:30 - 13:30</div></td>
+                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">-</div></td>
+                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">OBEDOVÁ PAUZA</div></td>
+                        <td><div class="editable" contenteditable="true" style="font-weight:bold;"></div></td>
+                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">Zázemie (Kultúrny dom)</div></td>
+                    </tr>
+                </tbody>
+                <tbody id="afternoon-tbody">
+                    <tr draggable="true">
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">13:30 - 14:20</div></td>
+                        <td><div class="editable" contenteditable="true">6/18</div></td>
+                        <td><div class="editable" contenteditable="true">EXT. Step - Tlupa loví zajaca</div></td>
+                        <td><div class="editable" contenteditable="true">Tibor, tlupa</div></td>
+                        <td><div class="editable" contenteditable="true">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                    </tr>
+                </tbody>
+                <tbody class="ignore-export">
+                    <tr>
+                        <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
+                            <button class="add-scene-btn" data-target="afternoon-tbody" style="margin-top: 0;">+ PRIDAŤ RIADOK (PO OBEDE)</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            <button class="add-row-btn">+ PRIDAŤ RIADOK TABUĽKY</button>
         </div>
 
         <div class="section-title" contenteditable="true">Herci a Účinkujúci (Cast)</div>
@@ -580,46 +544,7 @@
 
     <script>
         const STORAGE_KEY = 'callsheetData_v10';
-
-        const defaultPlaceholders = [
-            "Názov projektu", "História chutí", "Dátum natáčania", "DD.MM.RRRR", "Filmovací deň č.", "1 z 3",
-            "Režisér", "Meno Priezvisko", "Kamera (DOP)", "Produkcia", "Meno Priezvisko / Kontakt",
-            "Hlavná Lokácia (Adresa)", "Ulica, Mesto...", "Parkovanie", "Detaily o parkovaní pre štáb",
-            "Zázemie (Basecamp)", "Kultúrny dom...",
-            "Predpoveď počasia", "Slnečno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51",
-            "Nástupy Oddelení (Crew Calls)", "Réžia / Kamera", "08:00", "Kostýmy / Masky", "06:30", "Rekvizity",
-            "Logistika a Transport", "Odchod Štáb", "07:15 (Stará vratnica)", "Nástup na pľaci", "08:00 (Kameňolom)",
-            "Dôležité časy (Call Times)", "Nástup štábu", "07:00", "Raňajky", "07:30 - 08:30", "Prvá klapka", "09:00", 
-            "Obed (Lunch)", "12:30 - 13:30", "Koniec (Wrap)", "17:40", "Časový harmonogram a scény",
-            "Čas", "Scéna č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky",
-            "09:00 - 09:40", "6/7", "EXT. Step - Putujú, majú hlad", "Maca, Tibor", "Drevené podložky, koža",
-            "09:40 - 10:20", "6/8", "EXT. Step - Predstavenie kuchára", "Kuchár Jakub", "Kostené podložky (hlina nie)",
-            "Herci a Účinkujúci (Cast)", "Postava / Herec", "Odchod (Pick Up)", "Na pľaci (On Set)",
-            "Maca (Zábranská)", "6:30 (STV)", "6:30 - 8:00",
-            "Tibor (Ferenčík)", "-",
-            "Poznámky pre štáb", "Nová kolonka", 
-            "Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod."
-        ];
-
-        document.addEventListener('focusin', function(e) {
-            if (e.target.isContentEditable) {
-                const text = e.target.innerText.trim();
-                if (defaultPlaceholders.includes(text)) {
-                    e.target.dataset.placeholder = text;
-                    e.target.innerText = '';
-                }
-            }
-        });
-
-        document.addEventListener('focusout', function(e) {
-            if (e.target.isContentEditable) {
-                const text = e.target.innerText.trim();
-                if (text === '' && e.target.dataset.placeholder) {
-                    e.target.innerText = e.target.dataset.placeholder;
-                }
-            }
-        });
-
+        
         function showToast(message) {
             const toast = document.getElementById("toast");
             toast.innerText = message;
@@ -639,27 +564,23 @@
                 const day = parts[0].padStart(2, '0');
                 const month = parts[1].padStart(2, '0');
                 let year = parts[2];
-                if (year.length === 2) {
-                    year = '20' + year;
-                }
-                if (year.length === 4) {
-                    return `${year}-${month}-${day}`;
-                }
+                if (year.length === 2) { year = '20' + year; }
+                if (year.length === 4) { return `${year}-${month}-${day}`; }
             }
             return null;
         }
 
         function getWeatherDescription(code) {
-            if (code === 0) return "Jasno";
-            if (code === 1 || code === 2) return "Polooblačno";
-            if (code === 3) return "Zamračené";
-            if (code === 45 || code === 48) return "Hmla";
-            if (code >= 51 && code <= 55) return "Mrholenie";
-            if (code >= 61 && code <= 65) return "Dážď";
-            if (code >= 71 && code <= 75) return "Sneženie";
-            if (code >= 80 && code <= 82) return "Prehánky";
-            if (code >= 95 && code <= 99) return "Búrka";
-            return "Neznáme počasie";
+            if (code === 0) return "☀️ Jasno";
+            if (code === 1 || code === 2) return "⛅ Polooblačno";
+            if (code === 3) return "☁️ Zamračené";
+            if (code === 45 || code === 48) return "🌫️ Hmla";
+            if (code >= 51 && code <= 55) return "🌧️ Mrholenie";
+            if (code >= 61 && code <= 65) return "🌧️ Dážď";
+            if (code >= 71 && code <= 75) return "❄️ Sneženie";
+            if (code >= 80 && code <= 82) return "🌦️ Prehánky";
+            if (code >= 95 && code <= 99) return "⛈️ Búrka";
+            return "🌡️ Neznáme počasie";
         }
 
         async function fetchWeather(location, dateStr) {
@@ -667,41 +588,22 @@
             if (!weatherField) return;
 
             const dateFormatted = parseSlovakDate(dateStr);
-            if (!dateFormatted) {
-                weatherField.innerText = "Zlý formát dátumu";
-                saveData();
-                return;
-            }
+            if (!dateFormatted) { weatherField.innerText = "Zlý formát dátumu"; saveData(); return; }
 
             weatherField.innerText = "Načítavam...";
-
             try {
                 const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=sk&format=json`);
                 const geoData = await geoRes.json();
-                
-                if (!geoData.results || geoData.results.length === 0) {
-                    weatherField.innerText = "Zlá lokácia";
-                    saveData();
-                    return;
-                }
-                
+                if (!geoData.results || geoData.results.length === 0) { weatherField.innerText = "Zlá lokácia"; saveData(); return; }
                 const { latitude, longitude } = geoData.results[0];
-                
                 const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&start_date=${dateFormatted}&end_date=${dateFormatted}`);
-                
-                if (!weatherRes.ok) {
-                    weatherField.innerText = "Predpoveď pre tento dátum nedostupná";
-                    saveData();
-                    return;
-                }
-                
+                if (!weatherRes.ok) { weatherField.innerText = "Predpoveď pre tento dátum nedostupná"; saveData(); return; }
                 const weatherData = await weatherRes.json();
                 
                 if (weatherData.daily && weatherData.daily.time && weatherData.daily.time.length > 0) {
                     const code = weatherData.daily.weathercode[0];
                     const tempMax = Math.round(weatherData.daily.temperature_2m_max[0]);
                     const desc = getWeatherDescription(code);
-                    
                     const sunriseStr = weatherData.daily.sunrise[0];
                     const sunsetStr = weatherData.daily.sunset[0];
                     const sunriseTime = new Date(sunriseStr).toLocaleTimeString('sk-SK', {hour: '2-digit', minute:'2-digit'});
@@ -710,317 +612,475 @@
                     weatherField.innerText = `${desc}, ${tempMax}°C | Východ slnka: ${sunriseTime} | Západ slnka: ${sunsetTime}`;
                     saveData();
                 } else {
-                    weatherField.innerText = "Predpoveď nedostupná";
-                    saveData();
+                    weatherField.innerText = "Predpoveď nedostupná"; saveData();
                 }
             } catch (error) {
-                weatherField.innerText = "Chyba API";
-                saveData();
+                weatherField.innerText = "Chyba API"; saveData();
             }
         }
 
-        function saveData() {
-            const content = document.getElementById('dynamic-content').innerHTML;
-            localStorage.setItem(STORAGE_KEY, content);
-        }
+        function saveData() { localStorage.setItem(STORAGE_KEY, document.getElementById('dynamic-content').innerHTML); }
 
         function loadData() {
             const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) {
-                document.getElementById('dynamic-content').innerHTML = savedData;
-            } else {
-                const dateField = document.getElementById('date-field');
-                if (dateField) {
-                    dateField.innerText = getTomorrowDate();
-                }
-            }
+            if (savedData) { document.getElementById('dynamic-content').innerHTML = savedData; } 
+            else { const dateField = document.getElementById('date-field'); if (dateField) dateField.innerText = getTomorrowDate(); }
         }
 
         function resetData() {
-            if (confirm("Naozaj chcete vymazať všetky údaje?")) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
+            if (confirm("Naozaj chcete vymazať všetky údaje?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
         }
 
-        function exportSpongePDF() {
-            const container = document.getElementById('dynamic-content');
-            const printBtn = document.querySelector('.btn-primary');
-            printBtn.innerText = '⚙️ PRIPRAVUJEM...';
-            
-            container.style.transform = 'none';
-            container.style.marginBottom = '0';
-            document.documentElement.style.setProperty('--doc-padding', '25px');
-            document.documentElement.style.setProperty('--gap-size', '8px');
-            document.documentElement.style.setProperty('--font-size-base', '12px');
-            document.documentElement.style.setProperty('--font-size-small', '9px');
-            document.documentElement.style.setProperty('--table-pad', '5px');
-            document.documentElement.style.setProperty('--title-size', '18px');
-            document.documentElement.style.setProperty('--section-margin', '15px');
-            document.documentElement.style.setProperty('--input-min-height', '16px');
-            
-            let currentHeight = container.offsetHeight;
-            const targetHeight = 1050; 
-            let steps = 0;
-            
-            while (currentHeight > targetHeight && steps < 15) {
-                steps++;
-                document.documentElement.style.setProperty('--doc-padding', `${Math.max(10, 25 - steps * 1.5)}px`);
-                document.documentElement.style.setProperty('--gap-size', `${Math.max(2, 8 - steps * 0.5)}px`);
-                document.documentElement.style.setProperty('--font-size-base', `${Math.max(8, 12 - steps * 0.3)}px`);
-                document.documentElement.style.setProperty('--font-size-small', `${Math.max(6, 9 - steps * 0.2)}px`);
-                document.documentElement.style.setProperty('--table-pad', `${Math.max(2, 5 - steps * 0.3)}px`);
-                document.documentElement.style.setProperty('--title-size', `${Math.max(12, 18 - steps * 0.5)}px`);
-                document.documentElement.style.setProperty('--section-margin', `${Math.max(5, 15 - steps * 1)}px`);
-                document.documentElement.style.setProperty('--input-min-height', `${Math.max(10, 16 - steps * 0.5)}px`);
-                
-                currentHeight = container.offsetHeight;
-            }
-
-            if (currentHeight > targetHeight) {
-                const scale = targetHeight / currentHeight;
-                container.style.transform = `scale(${scale})`;
-                container.style.transformOrigin = 'top center';
-                container.style.marginBottom = `-${currentHeight * (1 - scale)}px`;
-            }
-
-            setTimeout(() => {
-                printBtn.innerText = '📄 EXPORT PDF';
-                window.print();
-                
-                setTimeout(() => {
-                    container.style.transform = 'none';
-                    container.style.marginBottom = '0';
-                    document.documentElement.style.removeProperty('--doc-padding');
-                    document.documentElement.style.removeProperty('--gap-size');
-                    document.documentElement.style.removeProperty('--font-size-base');
-                    document.documentElement.style.removeProperty('--font-size-small');
-                    document.documentElement.style.removeProperty('--table-pad');
-                    document.documentElement.style.removeProperty('--title-size');
-                    document.documentElement.style.removeProperty('--section-margin');
-                    document.documentElement.style.removeProperty('--input-min-height');
-                }, 1000); 
-            }, 150);
+        function getVal(labelTxt) {
+            const labels = Array.from(document.querySelectorAll('.editable-label'));
+            const lbl = labels.find(l => l.innerText.toLowerCase().includes(labelTxt.toLowerCase()));
+            if(lbl && lbl.nextElementSibling) return lbl.nextElementSibling.innerText.trim();
+            return '';
         }
 
-        function exportDOCX() {
-            const clone = document.getElementById('dynamic-content').cloneNode(true);
+        function getTableData(sectionKeyword) {
+            const section = Array.from(document.querySelectorAll('.section-title')).find(el => el.innerText.toLowerCase().includes(sectionKeyword));
+            if (!section) return [];
+            const table = section.nextElementSibling.querySelector('.data-table');
+            if (!table) return [];
             
-            const buttons = clone.querySelectorAll('button');
-            buttons.forEach(b => b.remove());
-            
-            const sectionContainers = clone.querySelectorAll('.section-container');
-            
-            sectionContainers.forEach(container => {
-                const prevEl = container.previousElementSibling;
-                const layoutTable = container.querySelector('.layout-table');
-                
-                if (prevEl && prevEl.classList.contains('section-title') && layoutTable) {
-                    const tbody = layoutTable.querySelector('tbody');
-                    const colCount = tbody.querySelector('tr').children.length;
-                    
-                    const titleRow = document.createElement('tr');
-                    const titleCell = document.createElement('td');
-                    
-                    titleCell.colSpan = colCount;
-                    titleCell.innerHTML = prevEl.innerHTML;
-                    
-                    titleCell.style.backgroundColor = '#2c3e50';
-                    titleCell.style.color = '#ffffff';
-                    titleCell.style.padding = '6px 10px';
-                    titleCell.style.fontWeight = 'bold';
-                    titleCell.style.textTransform = 'uppercase';
-                    titleCell.style.border = 'none';
-                    titleCell.style.fontSize = '12px';
-                    
-                    titleRow.appendChild(titleCell);
-                    tbody.insertBefore(titleRow, tbody.firstChild);
-                    
-                    prevEl.remove();
+            const rows = [];
+            const trs = table.querySelectorAll('tbody:not(.ignore-export) tr');
+            trs.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                const rowData = [];
+                tds.forEach(td => rowData.push(td.innerText.replace(/[×☰]/g, '').trim()));
+                rows.push(rowData);
+            });
+            return rows;
+        }
+
+        async function exportExcel() {
+            const btn = document.querySelector('.btn-excel');
+            btn.innerText = '⚙️ PRIPRAVUJEM...';
+
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Call Sheet', {
+                pageSetup: {
+                    paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+                    margins: { left: 0.25, right: 0.25, top: 0.5, bottom: 0.5, header: 0, footer: 0 }
                 }
             });
 
-            sectionContainers.forEach(container => {
-                const prevEl = container.previousElementSibling;
-                const dataTable = container.querySelector('.data-table');
-                
-                if (prevEl && prevEl.classList.contains('section-title') && dataTable) {
-                    const thead = dataTable.querySelector('thead');
-                    const colCount = thead.querySelector('tr').children.length;
-                    
-                    const titleRow = document.createElement('tr');
-                    const titleCell = document.createElement('td');
-                    
-                    titleCell.colSpan = colCount;
-                    titleCell.innerHTML = prevEl.innerHTML;
-                    
-                    titleCell.style.backgroundColor = '#2c3e50';
-                    titleCell.style.color = '#ffffff';
-                    titleCell.style.padding = '6px 10px';
-                    titleCell.style.fontWeight = 'bold';
-                    titleCell.style.textTransform = 'uppercase';
-                    titleCell.style.border = '1px solid #2c3e50';
-                    titleCell.style.fontSize = '12px';
-                    
-                    titleRow.appendChild(titleCell);
-                    thead.insertBefore(titleRow, thead.firstChild);
-                    
-                    prevEl.remove();
-                }
-            });
+            ws.columns = [ { width: 12 }, { width: 14 }, { width: 35 }, { width: 25 }, { width: 15 }, { width: 15 }, { width: 45 } ];
+
+            const DARK_BG = 'FF2C3E50', ACCENT = 'FF2980B9', ACCENT_LIGHT = 'FFD6EAF8', LIGHT_GRAY = 'FFF2F4F4', TEXT_COLOR = 'FF2C3E50', WHITE = 'FFFFFFFF', BORDER_COLOR = 'FFBDC3C7';
+            const YELLOW_LUNCH = 'FFF9E79F';
+            const thinBorder = { top: {style:'thin', color:{argb:BORDER_COLOR}}, left: {style:'thin', color:{argb:BORDER_COLOR}}, bottom: {style:'thin', color:{argb:BORDER_COLOR}}, right: {style:'thin', color:{argb:BORDER_COLOR}} };
+
+            function styleCell(cell, bg, color, bold, size, alignH, alignV, border) {
+                if (bg) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+                cell.font = { name: 'Arial', color: { argb: color }, bold: bold, size: size };
+                cell.alignment = { horizontal: alignH, vertical: alignV, wrapText: true };
+                if (border) cell.border = border;
+            }
+
+            const proj = getVal('Názov projektu') || 'PROJEKT';
+            const date = getVal('Dátum') || 'DÁTUM';
+            const day = getVal('Filmovací deň') || '';
+
+            ws.mergeCells('A1:G1'); 
+            const titleCell = ws.getCell('A1');
+            titleCell.value = `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`;
+            styleCell(titleCell, DARK_BG, WHITE, true, 16, 'center', 'middle');
+            ws.getRow(1).height = 25; 
             
-            const layoutTables = clone.querySelectorAll('.layout-table');
-            layoutTables.forEach(t => {
-                t.style.width = '100%';
-                t.style.margin = '8px 0';
-                t.style.borderCollapse = 'collapse';
-                t.style.border = 'none';
-                
-                const cells = t.querySelectorAll('.layout-cell');
-                cells.forEach(c => {
-                    c.style.padding = '4px 6px'; 
-                    c.style.border = 'none';
+            ws.mergeCells('A2:G2'); styleCell(ws.getCell('A2'), DARK_BG, WHITE, true, 12, 'center', 'middle');
+            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. NATÁČACÍ DEŇ`; ws.getRow(2).height = 20;
+
+            let weatherParts = getVal('Predpoveď počasia').split('|').map(p => p.trim());
+            let rawWeatherDesc = weatherParts[0] || '';
+            let emojiMatchEx = rawWeatherDesc.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/u);
+            let wEmoji = emojiMatchEx ? emojiMatchEx[0] : '';
+            let wDescText = rawWeatherDesc.replace(wEmoji, '').trim();
+            let wSunr = weatherParts[1] || '';
+            let wSuns = weatherParts[2] || '';
+
+            ws.mergeCells('A4:B4'); styleCell(ws.getCell('A4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('A4').value = "PRODUKCIA";
+            ws.mergeCells('A5:B5'); styleCell(ws.getCell('A5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A5').value = "Režisér: " + getVal('Režisér');
+            ws.mergeCells('A6:B6'); styleCell(ws.getCell('A6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A6').value = "Kamera: " + getVal('Kamera (DOP)');
+            ws.mergeCells('A7:B7'); styleCell(ws.getCell('A7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A7').value = "Produkcia: " + getVal('Produkcia');
+
+            ws.mergeCells('C4:E4'); styleCell(ws.getCell('C4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('C4').value = "POČASIE";
+            ws.mergeCells('C5:E7'); 
+            const weatherCellEx = ws.getCell('C5');
+            weatherCellEx.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ACCENT_LIGHT } };
+            weatherCellEx.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            if (wEmoji) {
+                weatherCellEx.value = {
+                    richText: [
+                        { font: { name: 'Arial', size: 28 }, text: wEmoji + '\n' },
+                        { font: { name: 'Arial', size: 10, bold: true, color: { argb: TEXT_COLOR } }, text: wDescText + '\n' },
+                        { font: { name: 'Arial', size: 10, color: { argb: TEXT_COLOR } }, text: wSunr + '\n' },
+                        { font: { name: 'Arial', size: 10, color: { argb: TEXT_COLOR } }, text: wSuns }
+                    ]
+                };
+            } else {
+                weatherCellEx.value = {
+                    richText: [
+                        { font: { name: 'Arial', size: 10, bold: true, color: { argb: TEXT_COLOR } }, text: wDescText + '\n' },
+                        { font: { name: 'Arial', size: 10, color: { argb: TEXT_COLOR } }, text: wSunr + '\n' },
+                        { font: { name: 'Arial', size: 10, color: { argb: TEXT_COLOR } }, text: wSuns }
+                    ]
+                };
+            }
+
+            ws.mergeCells('F4:G4'); styleCell(ws.getCell('F4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('F4').value = "LOKÁCIA A ZÁZEMIE";
+            ws.mergeCells('F5:G5'); styleCell(ws.getCell('F5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F5').value = "Adresa: " + getVal('Hlavná Lokácia');
+            ws.mergeCells('F6:G6'); styleCell(ws.getCell('F6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F6').value = "Zázemie: " + getVal('Zázemie');
+            ws.mergeCells('F7:G7'); styleCell(ws.getCell('F7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F7').value = "Parkovanie: " + getVal('Parkovanie');
+            
+            ws.getRow(4).height = 20; ws.getRow(5).height = 24; ws.getRow(6).height = 24; ws.getRow(7).height = 24;
+
+            ws.mergeCells('A10:G10'); styleCell(ws.getCell('A10'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('A10').value = "NÁSTUPY NA PLAC";
+            let crewStr = [];
+            ['Réžia', 'Kostýmy', 'Rekvizity', 'Odchod Štáb', 'Nástup na pľaci'].forEach(lbl => {
+                const v = getVal(lbl); if(v) crewStr.push(`${lbl.split(' ')[0]}: ${v}`);
+            });
+            ws.mergeCells('A11:G11'); styleCell(ws.getCell('A11'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
+            ws.getCell('A11').value = crewStr.join('  |  '); ws.getRow(11).height = 25;
+
+            let rowIdx = 13;
+
+            const scenes = getTableData('scény');
+            if (scenes.length > 0) {
+                const headers = ["Čas", "Scéna č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky"];
+                const colSpans = [[1,1], [2,2], [3,3], [4,5], [6,7]];
+                for(let c=0; c<5; c++) {
+                    ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
+                    const cell = ws.getCell(rowIdx, colSpans[c][0]);
+                    cell.value = headers[c].toUpperCase();
+                    styleCell(cell, ACCENT, WHITE, true, 10, 'center', 'middle', thinBorder);
+                    ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
+                }
+                rowIdx++;
+                scenes.forEach(rowData => {
+                    let maxLines = 1;
+                    const isLunch = rowData.some(txt => txt.toLowerCase().includes('obed') || txt.toLowerCase().includes('lunch'));
+                    const bgColor = isLunch ? YELLOW_LUNCH : null;
+                    const isBold = isLunch;
+
+                    for(let c=0; c<5; c++) {
+                        if(c >= rowData.length) break;
+                        ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
+                        const cell = ws.getCell(rowIdx, colSpans[c][0]);
+                        cell.value = rowData[c];
+                        styleCell(cell, bgColor, TEXT_COLOR, isBold, 10, 'left', 'top', thinBorder);
+                        ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
+                        const lines = (rowData[c].match(/\n/g) || []).length + 1 + Math.floor(rowData[c].length / (c===4?40:20));
+                        if(lines > maxLines) maxLines = lines;
+                    }
+                    ws.getRow(rowIdx).height = Math.max(25, maxLines * 15);
+                    rowIdx++;
                 });
-            });
+            }
+            rowIdx++;
 
-            const remainingTitles = clone.querySelectorAll('.section-title');
-            remainingTitles.forEach(t => {
-                t.style.backgroundColor = '#2c3e50';
-                t.style.color = '#ffffff';
-                t.style.padding = '6px 10px';
-                t.style.fontWeight = 'bold';
-                t.style.fontSize = '12px';
-                if(t.classList.contains('notes-section')) {
-                    t.style.marginTop = '25px';
-                } else {
-                    t.style.marginTop = '10px';
+            const casts = getTableData('herci');
+            if (casts.length > 0) {
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, WHITE, true, 11, 'center', 'middle', thinBorder);
+                ws.getCell(`A${rowIdx}`).value = "HERCI / CAST"; for(let c=2; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder; rowIdx++;
+
+                const headers = ["Postava / Herec", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
+                const colSpans = [[1,2], [3,4], [5,6], [7,7]];
+                for(let c=0; c<4; c++) {
+                    ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
+                    const cell = ws.getCell(rowIdx, colSpans[c][0]);
+                    cell.value = headers[c].toUpperCase();
+                    styleCell(cell, LIGHT_GRAY, TEXT_COLOR, true, 10, 'center', 'middle', thinBorder);
+                    ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
                 }
-            });
-
-            const dataTables = clone.querySelectorAll('.data-table');
-            dataTables.forEach(t => {
-                const trs = t.querySelectorAll('tbody tr');
-                trs.forEach((tr, index) => {
-                    const tds = tr.querySelectorAll('td');
-                    tds.forEach(td => {
-                        if (index % 2 === 0) {
-                            td.style.backgroundColor = '#ffffff';
-                        } else {
-                            td.style.backgroundColor = '#f9f9f9';
-                        }
-                    });
+                rowIdx++;
+                casts.forEach(rowData => {
+                    for(let c=0; c<4; c++) {
+                        if(c >= rowData.length) break;
+                        ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
+                        const cell = ws.getCell(rowIdx, colSpans[c][0]);
+                        cell.value = rowData[c];
+                        styleCell(cell, null, TEXT_COLOR, false, 10, 'center', 'middle', thinBorder);
+                        ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
+                    }
+                    rowIdx++;
                 });
+            }
+            rowIdx++;
+            
+            const notesSection = document.querySelector('.notes-section');
+            if (notesSection && notesSection.nextElementSibling) {
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`);
+                ws.getCell(`A${rowIdx}`).value = "POZNÁMKY PRE ŠTÁB\n" + notesSection.nextElementSibling.innerText.trim();
+                styleCell(ws.getCell(`A${rowIdx}`), null, TEXT_COLOR, false, 10, 'left', 'top');
+                ws.getRow(rowIdx).height = 60;
+            }
+
+            const fileName = 'Dispozícia_' + (date || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.xlsx';
+            const buffer = await wb.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            saveAs(blob, fileName);
+            btn.innerText = '📊 EXPORT EXCEL';
+        }
+
+        function exportPDF() {
+            const btn = document.querySelector('.btn-primary');
+            btn.innerText = '⚙️ PRIPRAVUJEM...';
+
+            const proj = getVal('Názov projektu') || 'PROJEKT';
+            const date = getVal('Dátum') || 'DÁTUM';
+            const day = getVal('Filmovací deň') || '';
+
+            let crewStr = [];
+            ['Réžia', 'Kostýmy', 'Rekvizity', 'Odchod Štáb', 'Nástup na pľaci'].forEach(lbl => {
+                const v = getVal(lbl); if(v) crewStr.push(`${lbl.split(' ')[0]}: ${v}`);
             });
 
-            const html = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head>
-            <meta charset='utf-8'>
-            <title>Denná Dispozícia</title>
-            <style>
-                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #333; }
-                h1 { text-align: center; color: #2c3e50; font-size: 18px; text-transform: uppercase; margin-bottom: 8px; margin-top: 0; padding-bottom: 5px; }
-                .editable-label { font-size: 9px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 4px; }
-                .editable { border: 1px dashed #bdc3c7; background-color: #fcfcfc; padding: 4px; min-height: 14px; }
-                table.data-table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
-                table.data-table th, table.data-table td { border: 1px solid #bdc3c7; padding: 4px; vertical-align: top; text-align: left; }
-                table.data-table th { background-color: #ecf0f1; font-size: 9px; text-transform: uppercase; color: #7f8c8d; font-weight: bold; }
-                table.data-table td .editable { border: none; background-color: transparent; padding: 0; }
-            </style>
-            </head>
-            <body>
-            ${clone.innerHTML}
-            </body>
-            </html>`;
+            const weatherSvgs = {
+                '☀️': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f1c40f"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.364 7.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414" stroke="#f39c12" stroke-width="2" stroke-linecap="round"/></svg>',
+                '⛅': '<svg viewBox="0 0 24 24"><circle cx="16" cy="10" r="4" fill="#f1c40f"/><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/></svg>',
+                '☁️': '<svg viewBox="0 0 24 24"><path d="M6 15a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/></svg>',
+                '🌫️': '<svg viewBox="0 0 24 24"><path d="M4 10h16M4 14h16M8 18h8M8 6h8" stroke="#95a5a6" stroke-width="2" stroke-linecap="round"/></svg>',
+                '🌧️': '<svg viewBox="0 0 24 24"><path d="M6 13a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/><path d="M10 16v3m4-3v3" stroke="#3498db" stroke-width="2" stroke-linecap="round"/></svg>',
+                '❄️': '<svg viewBox="0 0 24 24"><path d="M12 2v20m10-10H2m17.07-7.07l-14.14 14.14m14.14 0L4.93 4.93" stroke="#85c1e9" stroke-width="2" stroke-linecap="round"/></svg>',
+                '🌦️': '<svg viewBox="0 0 24 24"><circle cx="16" cy="10" r="4" fill="#f1c40f"/><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/><path d="M10 17v3m4-3v3" stroke="#3498db" stroke-width="2" stroke-linecap="round"/></svg>',
+                '⛈️': '<svg viewBox="0 0 24 24"><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#7f8c8d" stroke="#34495e" stroke-width="1.5"/><path d="M13 14l-3 4h4l-3 4" fill="none" stroke="#f1c40f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                '🌡️': '<svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" fill="#ecf0f1" stroke="#e74c3c" stroke-width="2"/><circle cx="11.5" cy="17.5" r="2.5" fill="#e74c3c"/><path d="M11.5 15v-7" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/></svg>'
+            };
+
+            let rawWeather = getVal('Predpoveď počasia');
+            let matchedEmoji = Object.keys(weatherSvgs).find(emoji => rawWeather.includes(emoji) || rawWeather.includes(emoji.charAt(0)));
+            let cleanWeather = rawWeather.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/gu, '').trim();
             
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            
-            const dateField = document.getElementById('date-field');
-            const dateStr = (dateField && dateField.innerText.trim() !== "DD.MM.RRRR" && dateField.innerText.trim() !== "") ? dateField.innerText.trim() : 'nepomenovana';
-            
-            link.download = 'Dispozicia_' + dateStr.replace(/[^0-9a-zA-Z]/g, '_') + '.doc';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            let weatherCell = { fillColor: '#D6EAF8', margin: [5, 5, 5, 5], border: [false, false, false, false], stack: [] };
+            if (matchedEmoji && weatherSvgs[matchedEmoji]) {
+                weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 28, alignment: 'center', margin: [0, 0, 0, 4] });
+            }
+            weatherCell.stack.push({ text: cleanWeather.split('|').map(p => p.trim()).join('\n'), alignment: 'center', bold: true });
+
+            const tableLayout = {
+                hLineWidth: function(i, node) { return 1; },
+                vLineWidth: function(i, node) { return 1; },
+                hLineColor: function(i, node) { return '#BDC3C7'; },
+                vLineColor: function(i, node) { return '#BDC3C7'; },
+                fillColor: function (rowIndex, node, columnIndex) {
+                    if (rowIndex === 0) return '#2980B9'; 
+                    return (rowIndex % 2 === 0) ? '#F2F4F4' : '#FFFFFF'; 
+                }
+            };
+
+            const docDefinition = {
+                pageSize: 'A4',
+                pageOrientation: 'portrait',
+                pageMargins: [30, 30, 30, 30],
+                defaultStyle: { font: 'Roboto', fontSize: 10, color: '#2c3e50' },
+                content: [
+                    { 
+                        table: { widths: ['*'], body: [
+                            [{ text: `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`, fontSize: 18, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 8, 0, 4], border: [false, false, false, false] }],
+                            [{ text: `${proj.toUpperCase()}  |  ${day}. NATÁČACÍ DEŇ`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 2, 0, 8], border: [false, false, false, false] }]
+                        ]},
+                        layout: 'noBorders',
+                        margin: [0, 0, 0, 15]
+                    },
+                    {
+                        table: {
+                            widths: ['32%', '2%', '32%', '2%', '32%'],
+                            body: [
+                                [
+                                    { text: 'PRODUKCIA', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: '', border: [false, false, false, false] },
+                                    { text: 'POČASIE', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: '', border: [false, false, false, false] },
+                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }
+                                ],
+                                [
+                                    { text: `Režisér: ${getVal('Režisér')}\nKamera: ${getVal('Kamera (DOP)')}\nProdukcia: ${getVal('Produkcia')}`, fillColor: '#F2F4F4', margin: [5, 5, 5, 5], border: [false, false, false, false] },
+                                    { text: '', border: [false, false, false, false] },
+                                    weatherCell,
+                                    { text: '', border: [false, false, false, false] },
+                                    { text: `Adresa: ${getVal('Hlavná Lokácia')}\nZázemie: ${getVal('Zázemie')}\nParkovanie: ${getVal('Parkovanie')}`, fillColor: '#F2F4F4', margin: [5, 5, 5, 5], border: [false, false, false, false] }
+                                ]
+                            ]
+                        },
+                        layout: 'noBorders',
+                        margin: [0, 0, 0, 15]
+                    },
+                    {
+                        table: {
+                            widths: ['*'],
+                            body: [
+                                [{ text: 'NÁSTUPY NA PLAC', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }],
+                                [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 6, 0, 6], border: [false, false, false, false] }]
+                            ]
+                        },
+                        layout: 'noBorders',
+                        margin: [0, 0, 0, 15]
+                    }
+                ]
+            };
+
+            const scenes = getTableData('scény');
+            if (scenes.length > 0) {
+                const sceneBody = [];
+                sceneBody.push([
+                    { text: 'ČAS', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'SCÉNA', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'POPIS AKCIE', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'ÚČINKUJÚCI', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'REKVIZITY', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] }
+                ]);
+                scenes.forEach(row => {
+                    const isLunch = row.some(txt => txt.toLowerCase().includes('obed') || txt.toLowerCase().includes('lunch'));
+                    const cellBg = isLunch ? '#F9E79F' : null;
+
+                    sceneBody.push([
+                        { text: row[0], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
+                        { text: row[1], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
+                        { text: row[2], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
+                        { text: row[3], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
+                        { text: row[4], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch }
+                    ]);
+                });
+                docDefinition.content.push({
+                    table: { headerRows: 1, widths: ['14%', '10%', '28%', '18%', '30%'], body: sceneBody },
+                    layout: tableLayout, margin: [0, 0, 0, 15]
+                });
+            }
+
+            const casts = getTableData('herci');
+            if (casts.length > 0) {
+                docDefinition.content.push({
+                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }]] },
+                    layout: 'noBorders'
+                });
+                const castBody = [];
+                castBody.push([
+                    { text: 'POSTAVA / HEREC', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'ODCHOD (PICK UP)', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'KOSTÝMY / MASKY', bold: true, alignment: 'center', margin:[0,4,0,4] },
+                    { text: 'NA PĽACI (ON SET)', bold: true, alignment: 'center', margin:[0,4,0,4] }
+                ]);
+                casts.forEach(row => {
+                    castBody.push([
+                        { text: row[0], alignment: 'center', margin: [3, 4, 3, 4] },
+                        { text: row[1], alignment: 'center', margin: [3, 4, 3, 4] },
+                        { text: row[2], alignment: 'center', margin: [3, 4, 3, 4] },
+                        { text: row[3], alignment: 'center', margin: [3, 4, 3, 4] }
+                    ]);
+                });
+                docDefinition.content.push({
+                    table: { headerRows: 1, widths: ['25%', '25%', '25%', '25%'], body: castBody },
+                    layout: {
+                        hLineWidth: function(i, node) { return 1; }, vLineWidth: function(i, node) { return 1; },
+                        hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
+                        fillColor: function (rowIndex, node, columnIndex) { return (rowIndex === 0) ? '#F2F4F4' : '#FFFFFF'; }
+                    },
+                    margin: [0, 0, 0, 15]
+                });
+            }
+
+            const notesSection = document.querySelector('.notes-section');
+            if (notesSection && notesSection.nextElementSibling) {
+                docDefinition.content.push({
+                    text: 'POZNÁMKY PRE ŠTÁB:\n' + notesSection.nextElementSibling.innerText.trim(),
+                    fontSize: 10, margin: [0, 10, 0, 0]
+                });
+            }
+
+            const fileName = 'Dispozícia_' + (date || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.pdf';
+            pdfMake.createPdf(docDefinition).download(fileName);
+            btn.innerText = '📄 EXPORT PDF';
         }
+
+        // Drag and drop events pre riadky scén
+        let dragSrcEl = null;
+
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.tagName === 'TR' && e.target.closest('.scenes-table') && !e.target.classList.contains('lunch-row')) {
+                dragSrcEl = e.target;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.innerHTML);
+                e.target.style.opacity = '0.4';
+            }
+        });
+
+        document.addEventListener('dragover', function(e) {
+            if (dragSrcEl) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const tr = e.target.closest('tr');
+                if (tr && tr.closest('.scenes-table') && !tr.classList.contains('lunch-row') && tr.parentNode === dragSrcEl.parentNode && tr !== dragSrcEl) {
+                    const rect = tr.getBoundingClientRect();
+                    const offset = e.clientY - rect.top;
+                    if (offset > rect.height / 2) {
+                        tr.parentNode.insertBefore(dragSrcEl, tr.nextSibling);
+                    } else {
+                        tr.parentNode.insertBefore(dragSrcEl, tr);
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('dragend', function(e) {
+            if (dragSrcEl) {
+                dragSrcEl.style.opacity = '1';
+                dragSrcEl = null;
+                saveData();
+            }
+        });
 
         document.addEventListener('input', saveData);
-
         document.addEventListener('blur', function(e) {
             if (e.target.id === 'location-field' || e.target.id === 'date-field') {
                 const locationField = document.getElementById('location-field');
                 const dateField = document.getElementById('date-field');
-                
                 if (locationField && dateField) {
                     const location = locationField.innerText.trim();
                     const dateStr = dateField.innerText.trim();
-                    
                     const isLocSet = location && !defaultPlaceholders.includes(location) && location !== "";
                     const isDateSet = dateStr && dateStr !== "DD.MM.RRRR" && dateStr !== "";
-                    
-                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) {
-                        showToast("Zadaj datum");
-                    } else if (isLocSet && isDateSet) {
-                        fetchWeather(location, dateStr);
-                    }
+                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) { showToast("Zadaj datum"); } 
+                    else if (isLocSet && isDateSet) { fetchWeather(location, dateStr); }
                 }
             }
         }, true);
-
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('delete-btn')) {
-                const layoutCell = e.target.closest('.layout-cell');
-                const dataRow = e.target.closest('.data-table tr');
-                
-                if (layoutCell) {
-                    layoutCell.remove();
-                } else if (dataRow) {
-                    if(dataRow.closest('tbody')) {
-                        dataRow.remove();
-                    }
-                }
+                const layoutCell = e.target.closest('.layout-cell'); const dataRow = e.target.closest('.data-table tr');
+                if (layoutCell) { layoutCell.remove(); } else if (dataRow && dataRow.closest('tbody')) { dataRow.remove(); }
                 saveData();
             }
-
             if (e.target.classList.contains('add-btn')) {
-                const layoutTable = e.target.previousElementSibling;
-                const tr = layoutTable.querySelector('tr');
-                
-                const isTitleRow = tr.children[0].colSpan > 1;
-                const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
-
-                const newCol = document.createElement('td');
-                newCol.className = 'layout-cell';
-                newCol.innerHTML = `
-                    <button class="delete-btn">&times;</button>
-                    <div class="editable-label" contenteditable="true">Nová kolonka</div>
-                    <div class="editable" contenteditable="true"></div>
-                `;
-                targetTr.appendChild(newCol);
-                saveData();
+                const layoutTable = e.target.previousElementSibling; const tr = layoutTable.querySelector('tr');
+                const isTitleRow = tr.children[0].colSpan > 1; const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
+                const newCol = document.createElement('td'); newCol.className = 'layout-cell';
+                newCol.innerHTML = `<button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nová kolonka</div><div class="editable" contenteditable="true"></div>`;
+                targetTr.appendChild(newCol); saveData();
             }
-
             if (e.target.classList.contains('add-row-btn')) {
-                const table = e.target.previousElementSibling;
-                const tbody = table.querySelector('tbody');
-                
-                const trs = table.querySelectorAll('thead tr');
-                const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
-                const colCount = headerTr.children.length;
-                
-                const newRow = document.createElement('tr');
-                
+                const table = e.target.previousElementSibling; const tbody = table.querySelector('tbody');
+                const trs = table.querySelectorAll('thead tr'); const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
+                const colCount = headerTr.children.length; const newRow = document.createElement('tr');
                 let rowHtml = '';
                 for (let i = 0; i < colCount; i++) {
-                    if (i === 0) {
-                        rowHtml += `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`;
-                    } else {
-                        rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
-                    }
+                    if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`; } 
+                    else { rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`; }
                 }
+                newRow.innerHTML = rowHtml; tbody.appendChild(newRow); saveData();
+            }
+            if (e.target.classList.contains('add-scene-btn')) {
+                const targetId = e.target.getAttribute('data-target');
+                const tbody = document.getElementById(targetId);
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('draggable', 'true');
+                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true"></div></td>`;
+                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
+                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
+                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
+                rowHtml += `<td><div class="editable" contenteditable="true"></div><span class="drag-handle" title="Presunúť riadok">☰</span></td>`;
                 newRow.innerHTML = rowHtml;
                 tbody.appendChild(newRow);
                 saveData();
@@ -1029,6 +1089,5 @@
 
         window.onload = loadData;
     </script>
-
 </body>
 </html>
