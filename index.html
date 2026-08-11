@@ -80,6 +80,49 @@
             background-color: var(--color-primary) !important;
         }
 
+        .custom-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-radius: 6px;
+            z-index: 1000;
+            margin-top: 4px;
+            overflow: hidden;
+            font-size: 11px;
+            border: 1px solid var(--color-border);
+        }
+
+        .custom-dropdown-menu.show {
+            display: block;
+        }
+
+        .custom-dropdown-menu div {
+            padding: 10px;
+            cursor: pointer;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .custom-dropdown-menu div:last-child {
+            border-bottom: none;
+        }
+
+        .custom-dropdown-menu div:hover {
+            opacity: 0.85;
+        }
+
+        @media (max-width: 950px) {
+            .custom-dropdown-menu { font-size: 10px; }
+            .custom-dropdown-menu div { padding: 12px 4px; }
+        }
+
         @media (max-width: 950px) {
             :root {
                 --font-size-base: 16px;
@@ -418,15 +461,18 @@
 
     <div class="top-controls">
         <button class="btn-action" onclick="resetData()">↺ RESETOVAŤ ÚDAJE</button>
-        <select id="theme-selector" class="btn-action theme-select" onchange="changeTheme()" style="cursor: pointer; outline: none; font-family: inherit;">
-            <option value="blue">🔵 Modrá</option>
-            <option value="green">🟢 Zelená</option>
-            <option value="red">🔴 Červená</option>
-            <option value="purple">🟣 Fialová</option>
-            <option value="orange">🟠 Oranžová</option>
-            <option value="yellow">🟡 Žltá</option>
-            <option value="gray">⚪ Sivá</option>
-        </select>
+        <div style="flex: 1 1 0; position: relative; min-width: 0; display: flex;">
+            <button id="theme-btn" class="btn-action theme-select" style="width: 100%; margin: 0;" onclick="toggleThemeMenu(event)">Modrá</button>
+            <div id="theme-menu" class="custom-dropdown-menu">
+                <div style="background-color: #6a859e; color: white;" onclick="selectTheme('blue', 'Modrá')">Modrá</div>
+                <div style="background-color: #6c8e76; color: white;" onclick="selectTheme('green', 'Zelená')">Zelená</div>
+                <div style="background-color: #a77676; color: white;" onclick="selectTheme('red', 'Červená')">Červená</div>
+                <div style="background-color: #9b89b3; color: white;" onclick="selectTheme('purple', 'Fialová')">Fialová</div>
+                <div style="background-color: #d49a6a; color: white;" onclick="selectTheme('orange', 'Oranžová')">Oranžová</div>
+                <div style="background-color: #c4b771; color: white;" onclick="selectTheme('yellow', 'Žltá')">Žltá</div>
+                <div style="background-color: #7f8c8d; color: white;" onclick="selectTheme('gray', 'Sivá')">Sivá</div>
+            </div>
+        </div>
         <button class="btn-action btn-primary" onclick="exportPDF()">📄 EXPORT PDF</button>
         <button class="btn-action btn-green btn-excel" onclick="exportExcel()">📊 EXPORT EXCEL</button>
     </div>
@@ -611,7 +657,7 @@
         const STORAGE_KEY = 'callsheetData_v10';
         
         function getThemeColors() {
-            const theme = document.getElementById('theme-selector') ? document.getElementById('theme-selector').value : 'blue';
+            const theme = localStorage.getItem('callsheetTheme') || 'blue';
             if (theme === 'green') return { primary: '#6c8e76', accent: '#8fb89a', light: '#e4efe7', exPrimary: 'FF6C8E76', exAccent: 'FF8FB89A', exLight: 'FFE4EFE7' };
             if (theme === 'red') return { primary: '#a77676', accent: '#d29b9b', light: '#f5e4e4', exPrimary: 'FFA77676', exAccent: 'FFD29B9B', exLight: 'FFF5E4E4' };
             if (theme === 'purple') return { primary: '#9b89b3', accent: '#b0a0c4', light: '#eae4f2', exPrimary: 'FF9B89B3', exAccent: 'FFB0A0C4', exLight: 'FFEAE4F2' };
@@ -621,17 +667,26 @@
             return { primary: '#6a859e', accent: '#8ba8c4', light: '#e3ecf3', exPrimary: 'FF6A859E', exAccent: 'FF8BA8C4', exLight: 'FFE3ECF3' };
         }
 
-        function changeTheme() {
+        function toggleThemeMenu(event) {
+            document.getElementById('theme-menu').classList.toggle('show');
+            if (event) event.stopPropagation();
+        }
+
+        function selectTheme(themeValue, themeText) {
+            localStorage.setItem('callsheetTheme', themeValue);
+            document.getElementById('theme-btn').innerText = themeText;
             const colors = getThemeColors();
             document.documentElement.style.setProperty('--color-primary', colors.primary);
-            const selector = document.getElementById('theme-selector');
-            if (selector) { 
-                localStorage.setItem('callsheetTheme', selector.value);
-                setTimeout(function() {
-                    selector.blur();
-                }, 100);
-            }
+            document.getElementById('theme-menu').classList.remove('show');
         }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('theme-menu');
+            const btn = document.getElementById('theme-btn');
+            if (menu && menu.classList.contains('show') && e.target !== btn) {
+                menu.classList.remove('show');
+            }
+        });
 
         function showToast(message) {
             const toast = document.getElementById("toast");
@@ -715,8 +770,11 @@
         function loadData() {
             const savedTheme = localStorage.getItem('callsheetTheme');
             if (savedTheme) {
-                const selector = document.getElementById('theme-selector');
-                if (selector) { selector.value = savedTheme; changeTheme(); }
+                const labels = { 'blue': 'Modrá', 'green': 'Zelená', 'red': 'Červená', 'purple': 'Fialová', 'orange': 'Oranžová', 'yellow': 'Žltá', 'gray': 'Sivá' };
+                const btn = document.getElementById('theme-btn');
+                if (btn && labels[savedTheme]) { btn.innerText = labels[savedTheme]; }
+                const colors = getThemeColors();
+                document.documentElement.style.setProperty('--color-primary', colors.primary);
             }
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { document.getElementById('dynamic-content').innerHTML = savedData; } 
