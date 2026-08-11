@@ -21,7 +21,7 @@
             --section-margin: 15px;
             --input-min-height: 16px;
             
-            --color-primary: #2c3e50;
+            --color-primary: #6a859e;
             --color-bg-light: #f9f9f9;
             --color-th-bg: #ecf0f1;
             --color-border: #bdc3c7;
@@ -43,27 +43,40 @@
             display: flex;
             justify-content: space-between;
             flex-wrap: nowrap;
-            gap: 15px;
-        }
-
-        .btn-controls-right {
-            display: flex;
-            gap: 10px;
-            flex-wrap: nowrap;
+            gap: 6px;
         }
 
         .btn-action {
+            flex: 1 1 0;
+            min-width: 0;
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 10px 16px;
-            font-size: 12px;
+            padding: 8px 4px;
+            font-size: 11px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             white-space: normal;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-wrap: break-word;
+        }
+
+        .theme-select {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #bdc3c7;
+        }
+
+        @media (max-width: 500px) {
+            .btn-action {
+                font-size: 8px;
+                padding: 6px 2px;
+            }
         }
 
         .btn-action:hover {
@@ -75,7 +88,7 @@
         }
 
         .btn-primary:hover {
-            background-color: #1a252f;
+            opacity: 0.9;
         }
 
         .btn-green {
@@ -361,6 +374,12 @@
                 padding-left: 0 !important;
                 padding-right: 0 !important;
             }
+            
+            .split-edit {
+                border: none !important;
+                background-color: transparent !important;
+                padding: 0 !important;
+            }
 
             table.data-table td .editable {
                 background-color: transparent !important;
@@ -381,10 +400,17 @@
 
     <div class="top-controls">
         <button class="btn-action" onclick="resetData()">↺ RESETOVAŤ ÚDAJE</button>
-        <div class="btn-controls-right">
-            <button class="btn-action btn-primary" onclick="exportPDF()">📄 EXPORT PDF</button>
-            <button class="btn-action btn-green btn-excel" onclick="exportExcel()">📊 EXPORT EXCEL</button>
-        </div>
+        <select id="theme-selector" class="btn-action theme-select" onchange="changeTheme()" style="cursor: pointer; outline: none; font-family: inherit;">
+            <option value="blue">🔵 Modrá</option>
+            <option value="green">🟢 Zelená</option>
+            <option value="red">🔴 Červená</option>
+            <option value="purple">🟣 Fialová</option>
+            <option value="orange">🟠 Oranžová</option>
+            <option value="yellow">🟡 Žltá</option>
+            <option value="gray">⚪ Sivá</option>
+        </select>
+        <button class="btn-action btn-primary" onclick="exportPDF()">📄 EXPORT PDF</button>
+        <button class="btn-action btn-green btn-excel" onclick="exportExcel()">📊 EXPORT EXCEL</button>
     </div>
 
     <div class="document-container" id="dynamic-content">
@@ -392,7 +418,7 @@
             <h1 style="margin: 0; padding: 0;">Denná Dispozícia</h1>
             <div style="display: flex; align-items: center; gap: 5px;">
                 <div class="editable-label" contenteditable="true" style="margin: 0;">Dátum</div>
-                <div class="editable" contenteditable="true" id="date-field" style="min-height: auto; padding: 4px 8px;"></div>
+                <div class="editable" id="date-field" style="min-height: auto; padding: 4px 8px;"></div>
             </div>
         </div>
 
@@ -561,11 +587,29 @@
         </div>
     </div>
 
-    <div id="toast">Zadaj datum</div>
+    <div id="toast">Zadaj datum pre počasie</div>
 
     <script>
         const STORAGE_KEY = 'callsheetData_v10';
         
+        function getThemeColors() {
+            const theme = document.getElementById('theme-selector') ? document.getElementById('theme-selector').value : 'blue';
+            if (theme === 'green') return { primary: '#6c8e76', accent: '#8fb89a', light: '#e4efe7', exPrimary: 'FF6C8E76', exAccent: 'FF8FB89A', exLight: 'FFE4EFE7' };
+            if (theme === 'red') return { primary: '#a77676', accent: '#d29b9b', light: '#f5e4e4', exPrimary: 'FFA77676', exAccent: 'FFD29B9B', exLight: 'FFF5E4E4' };
+            if (theme === 'purple') return { primary: '#9b89b3', accent: '#b0a0c4', light: '#eae4f2', exPrimary: 'FF9B89B3', exAccent: 'FFB0A0C4', exLight: 'FFEAE4F2' };
+            if (theme === 'orange') return { primary: '#d49a6a', accent: '#e0b089', light: '#f5e3d7', exPrimary: 'FFD49A6A', exAccent: 'FFE0B089', exLight: 'FFF5E3D7' };
+            if (theme === 'yellow') return { primary: '#c4b771', accent: '#d1c68e', light: '#f2eed5', exPrimary: 'FFC4B771', exAccent: 'FFD1C68E', exLight: 'FFF2EED5' };
+            if (theme === 'gray') return { primary: '#7f8c8d', accent: '#95a5a6', light: '#eaeded', exPrimary: 'FF7F8C8D', exAccent: 'FF95A5A6', exLight: 'FFEAEDED' };
+            return { primary: '#6a859e', accent: '#8ba8c4', light: '#e3ecf3', exPrimary: 'FF6A859E', exAccent: 'FF8BA8C4', exLight: 'FFE3ECF3' };
+        }
+
+        function changeTheme() {
+            const colors = getThemeColors();
+            document.documentElement.style.setProperty('--color-primary', colors.primary);
+            const selector = document.getElementById('theme-selector');
+            if (selector) localStorage.setItem('callsheetTheme', selector.value);
+        }
+
         function showToast(message) {
             const toast = document.getElementById("toast");
             toast.innerText = message;
@@ -646,6 +690,11 @@
         function saveData() { localStorage.setItem(STORAGE_KEY, document.getElementById('dynamic-content').innerHTML); }
 
         function loadData() {
+            const savedTheme = localStorage.getItem('callsheetTheme');
+            if (savedTheme) {
+                const selector = document.getElementById('theme-selector');
+                if (selector) { selector.value = savedTheme; changeTheme(); }
+            }
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { document.getElementById('dynamic-content').innerHTML = savedData; } 
             else { const dateField = document.getElementById('date-field'); if (dateField) { dateField.innerHTML = getTomorrowDate(); dateField.style.border = 'none'; dateField.style.background = 'transparent'; dateField.removeAttribute('contenteditable'); } }
@@ -693,7 +742,8 @@
 
             ws.columns = [ { width: 12 }, { width: 14 }, { width: 35 }, { width: 25 }, { width: 15 }, { width: 15 }, { width: 45 } ];
 
-            const DARK_BG = 'FF2C3E50', ACCENT = 'FF2980B9', ACCENT_LIGHT = 'FFD6EAF8', LIGHT_GRAY = 'FFF2F4F4', TEXT_COLOR = 'FF2C3E50', WHITE = 'FFFFFFFF', BORDER_COLOR = 'FFBDC3C7';
+            const tC = getThemeColors();
+            const DARK_BG = tC.exPrimary, ACCENT = tC.exAccent, ACCENT_LIGHT = tC.exLight, LIGHT_GRAY = 'FFF2F4F4', TEXT_COLOR = 'FF2C3E50', WHITE = 'FFFFFFFF', BORDER_COLOR = 'FFBDC3C7';
             const YELLOW_LUNCH = 'FFF9E79F';
             const thinBorder = { top: {style:'thin', color:{argb:BORDER_COLOR}}, left: {style:'thin', color:{argb:BORDER_COLOR}}, bottom: {style:'thin', color:{argb:BORDER_COLOR}}, right: {style:'thin', color:{argb:BORDER_COLOR}} };
 
@@ -878,7 +928,8 @@
             let matchedEmoji = Object.keys(weatherSvgs).find(emoji => rawWeather.includes(emoji) || rawWeather.includes(emoji.charAt(0)));
             let cleanWeather = rawWeather.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/gu, '').trim();
             
-            let weatherCell = { fillColor: '#D6EAF8', margin: [5, 5, 5, 5], border: [false, false, false, false], stack: [] };
+            const tC = getThemeColors();
+            let weatherCell = { fillColor: tC.light, margin: [5, 5, 5, 5], border: [false, false, false, false], stack: [] };
             if (matchedEmoji && weatherSvgs[matchedEmoji]) {
                 weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 28, alignment: 'center', margin: [0, 0, 0, 4] });
             }
@@ -890,7 +941,7 @@
                 hLineColor: function(i, node) { return '#BDC3C7'; },
                 vLineColor: function(i, node) { return '#BDC3C7'; },
                 fillColor: function (rowIndex, node, columnIndex) {
-                    if (rowIndex === 0) return '#2980B9'; 
+                    if (rowIndex === 0) return tC.accent; 
                     return (rowIndex % 2 === 0) ? '#F2F4F4' : '#FFFFFF'; 
                 }
             };
@@ -903,8 +954,8 @@
                 content: [
                     { 
                         table: { widths: ['*'], body: [
-                            [{ text: `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`, fontSize: 18, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 8, 0, 4], border: [false, false, false, false] }],
-                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: '#2c3e50', margin: [0, 2, 0, 8], border: [false, false, false, false] }]
+                            [{ text: `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`, fontSize: 18, bold: true, color: 'white', alignment: 'center', fillColor: tC.primary, margin: [0, 8, 0, 4], border: [false, false, false, false] }],
+                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: tC.primary, margin: [0, 2, 0, 8], border: [false, false, false, false] }]
                         ]},
                         layout: 'noBorders',
                         margin: [0, 0, 0, 15]
@@ -914,11 +965,11 @@
                             widths: ['32%', '2%', '32%', '2%', '32%'],
                             body: [
                                 [
-                                    { text: 'PRODUKCIA', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: 'PRODUKCIA', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
                                     { text: '', border: [false, false, false, false] },
-                                    { text: 'POČASIE', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: 'POČASIE', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
                                     { text: '', border: [false, false, false, false] },
-                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }
+                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }
                                 ],
                                 [
                                     { text: `Režisér: ${getVal('Režisér')}\nKamera: ${getVal('Kamera (DOP)')}\nProdukcia: ${getVal('Produkcia')}`, fillColor: '#F2F4F4', margin: [5, 5, 5, 5], border: [false, false, false, false] },
@@ -936,7 +987,7 @@
                         table: {
                             widths: ['*'],
                             body: [
-                                [{ text: 'NÁSTUPY NA PLAC', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }],
+                                [{ text: 'NÁSTUPY NA PLAC', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }],
                                 [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 6, 0, 6], border: [false, false, false, false] }]
                             ]
                         },
@@ -977,7 +1028,7 @@
             const casts = getTableData('herci');
             if (casts.length > 0) {
                 docDefinition.content.push({
-                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: '#2980B9', color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }]] },
+                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }]] },
                     layout: 'noBorders'
                 });
                 const castBody = [];
@@ -1021,7 +1072,6 @@
             btn.innerText = '📄 EXPORT PDF';
         }
 
-        // Drag and drop events pre riadky scén
         let dragSrcEl = null;
 
         document.addEventListener('dragstart', function(e) {
@@ -1071,6 +1121,9 @@
                 if (e.target.innerText.trim() !== '') {
                     e.target.innerText = '';
                     saveData();
+                    setTimeout(function() {
+                        e.target.focus();
+                    }, 50);
                 }
             }
         }, true);
@@ -1094,7 +1147,7 @@
                 }
             }
         }, true);
-
+        
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('delete-btn')) {
                 const layoutCell = e.target.closest('.layout-cell'); const dataRow = e.target.closest('.data-table tr');
