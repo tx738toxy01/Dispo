@@ -21,7 +21,7 @@
             --section-margin: 15px;
             --input-min-height: 16px;
             
-            --color-primary: #6a859e;
+            --color-primary: #3b82f6;
             --color-bg-light: #f9f9f9;
             --color-th-bg: #ecf0f1;
             --color-border: #bdc3c7;
@@ -66,6 +66,26 @@
             word-wrap: break-word;
         }
 
+        .btn-action:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-primary {
+            background-color: #2c3e50;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-green {
+            background-color: #27ae60;
+        }
+
+        .btn-green:hover {
+            background-color: #219150;
+        }
+
         .theme-select {
             background-color: var(--color-primary);
             color: white;
@@ -107,7 +127,7 @@
             text-align: center;
             font-weight: bold;
             border-bottom: 1px solid #eee;
-            transition: background-color 0.2s;
+            transition: opacity 0.2s;
         }
 
         .custom-dropdown-menu div:last-child {
@@ -116,48 +136,6 @@
 
         .custom-dropdown-menu div:hover {
             opacity: 0.85;
-        }
-
-        @media (max-width: 950px) {
-            .custom-dropdown-menu { font-size: 10px; }
-            .custom-dropdown-menu div { padding: 12px 4px; }
-        }
-
-        @media (max-width: 950px) {
-            :root {
-                --font-size-base: 16px;
-                --font-size-small: 11px;
-                --title-size: 22px;
-                --table-pad: 8px;
-                --input-min-height: 24px;
-            }
-            .btn-action {
-                font-size: 10px;
-                padding: 8px 2px;
-            }
-            .split-edit {
-                padding: 4px 6px;
-            }
-        }
-
-        .btn-action:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-primary {
-            background-color: #2c3e50;
-        }
-
-        .btn-primary:hover {
-            background-color: #1a252f;
-        }
-
-        .btn-green {
-            background-color: #27ae60;
-        }
-
-        .btn-green:hover {
-            background-color: #219150;
         }
 
         .document-container {
@@ -206,14 +184,17 @@
             color: var(--color-label);
             margin-bottom: 2px;
             text-transform: uppercase;
-            outline: none;
             padding: 2px;
             border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            min-height: 12px;
         }
 
-        .editable-label:focus {
-            background-color: #e8f4fd;
-            color: #2980b9;
+        .editable-label:empty::before {
+            content: "NÁZOV KOLONKY...";
+            font-style: italic;
+            opacity: 0.6;
         }
 
         .editable {
@@ -222,15 +203,20 @@
             background-color: #fcfcfc;
             border: 1px dashed var(--color-border);
             border-radius: 4px;
-            outline: none;
             word-wrap: break-word;
             font-size: var(--font-size-base);
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .editable:focus {
-            background-color: #e8f4fd;
-            border-color: #3498db;
+        .editable:empty::before {
+            content: "Hodnota...";
+            font-style: italic;
+            opacity: 0.6;
+        }
+
+        .editable:hover {
+            border-color: var(--color-primary);
         }
 
         .section-title {
@@ -242,7 +228,7 @@
             margin-bottom: calc(var(--section-margin) / 2);
             font-weight: bold;
             text-transform: uppercase;
-            outline: none;
+            cursor: pointer;
         }
 
         .notes-section {
@@ -289,15 +275,9 @@
             min-height: auto;
         }
 
-        table.data-table td .editable:focus {
-            background-color: #e8f4fd;
-            border: 1px dashed #3498db;
-            padding: 2px;
-        }
-
         .add-btn, .add-row-btn, .add-scene-btn {
             align-self: flex-end;
-            background-color: #3498db;
+            background-color: #2c3e50;
             color: white;
             border: none;
             border-radius: 4px;
@@ -309,7 +289,7 @@
         }
 
         .add-btn:hover, .add-row-btn:hover, .add-scene-btn:hover {
-            background-color: #2980b9;
+            background-color: #1a252f;
         }
 
         .delete-btn {
@@ -359,47 +339,186 @@
             cursor: grabbing;
         }
 
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #e74c3c;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 10000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-size: 16px;
+        .drag-col-handle {
+            position: absolute;
+            top: -4px;
+            right: 24px;
+            background-color: #95a5a6;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
-        }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-
-        .split-edit {
-            display: inline-block;
-            min-width: 16px;
-            text-align: center;
-            background-color: #fcfcfc;
-            border: 1px dashed var(--color-border);
-            border-radius: 3px;
-            padding: 1px 3px;
-            outline: none;
-            transition: all 0.2s;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
         
-        .split-edit:focus {
-            background-color: #e8f4fd;
-            border-color: #3498db;
+        .drag-col-handle:hover {
+            background-color: #7f8c8d;
+        }
+
+        .drag-col-handle:active {
+            cursor: grabbing;
+        }
+
+        .export-toggle-wrapper { position: relative; margin-top: 15px; margin-bottom: 7.5px; }
+        .export-toggle-wrapper:first-of-type { margin-top: 0; }
+        .export-toggle-wrapper .section-title { margin: 0; padding-right: 90px; }
+        
+        .toggle-vis-btn {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            background: transparent; border: none; cursor: pointer; font-size: 11px; font-weight: normal; color: white; z-index: 10; text-transform: none; padding: 0;
+        }
+        .toggle-vis-btn:hover { opacity: 0.8; text-decoration: underline; }
+        
+        .ignored-in-export { 
+            opacity: 0.4; 
+            filter: grayscale(100%); 
+            transition: 0.3s; 
+            pointer-events: none; 
+            user-select: none; 
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-sizing: border-box;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+        
+        .modal-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+        }
+        
+        .modal-textarea:focus, .modal-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .color-dot {
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            border: 2px solid #bdc3c7; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s; display: flex; align-items: center; justify-content: center; font-size: 12px;
+        }
+        .color-dot:active { transform: scale(0.9); }
+        .color-dot.selected { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .btn-modal {
+            padding: 12px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-cancel {
+            background: #ecf0f1;
+            color: #333;
+        }
+        
+        .btn-save {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .autocomplete-results {
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            margin-top: 4px;
+            display: none;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .autocomplete-item {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .autocomplete-item:hover {
+            background: #f1f5f9;
+        }
+
+        @media (max-width: 950px) {
+            :root {
+                --font-size-base: 16px;
+                --font-size-small: 11px;
+                --title-size: 22px;
+                --table-pad: 8px;
+                --input-min-height: 24px;
+            }
+            .btn-action {
+                font-size: 10px;
+                padding: 8px 2px;
+            }
+            .custom-dropdown-menu { font-size: 10px; }
+            .custom-dropdown-menu div { padding: 12px 4px; }
         }
 
         @media print {
@@ -407,53 +526,18 @@
                 size: A4 portrait;
                 margin: 8mm;
             }
-
             * {
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-
-            body {
-                background-color: white;
-                padding: 0;
-            }
-
-            .document-container {
-                box-shadow: none;
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .top-controls, .add-btn, .add-row-btn, .add-scene-btn, .delete-btn, .drag-handle {
-                display: none !important;
-            }
-
-            .editable {
-                border: 1px solid transparent !important;
-                background-color: transparent !important;
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-            }
-            
-            .split-edit {
-                border: none !important;
-                background-color: transparent !important;
-                padding: 0 !important;
-            }
-
-            table.data-table td .editable {
-                background-color: transparent !important;
-            }
-
-            .editable-label {
-                padding: 0 !important;
-            }
-
-            tr, td, .section-title {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
+            body { background-color: white; padding: 0; }
+            .document-container { box-shadow: none; max-width: 100%; width: 100%; }
+            .top-controls, .add-btn, .add-row-btn, .add-scene-btn, .delete-btn, .drag-handle, .drag-col-handle, .modal-overlay { display: none !important; }
+            .editable { border: 1px solid transparent !important; background-color: transparent !important; padding-left: 0 !important; padding-right: 0 !important; }
+            table.data-table td .editable { background-color: transparent !important; }
+            .editable-label { padding: 0 !important; }
+            tr, td, .section-title { page-break-inside: avoid; break-inside: avoid; }
         }
     </style>
 </head>
@@ -478,104 +562,153 @@
     </div>
 
     <div class="document-container" id="dynamic-content">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
-            <h1 style="margin: 0; padding: 0;">Denná Dispozícia</h1>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <div class="editable-label" contenteditable="true" style="margin: 0;">Dátum</div>
-                <div class="editable" id="date-field" style="min-height: auto; padding: 4px 8px;"></div>
+        <div id="header-section" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">HLAVIČKA</div>
+            
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px;">
+                <h1 style="margin: 0; padding: 0;">Denná Dispozícia</h1>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div class="editable-label" style="margin: 0;">Dátum</div>
+                    <div class="editable" id="date-field" data-type="date" style="min-height: auto; padding: 4px 8px; border: none; background: transparent; font-weight: bold; font-size: 16px;">DD.MM.RRRR</div>
+                </div>
+            </div>
+
+            <div class="section-container" id="project-section" style="margin-bottom: 0;">
+                <table class="layout-table">
+                    <tbody>
+                        <tr>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Názov projektu</div><div class="editable">Názov</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Filmovací deň č.</div><div class="editable">1</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-btn" data-type="project">+ PRIDAŤ KOLONKU</button>
             </div>
         </div>
 
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Názov projektu</div><div class="editable" contenteditable="true">Názov</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Filmovací deň č.</div><div class="editable" contenteditable="true">1</div></td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        <div id="management-section" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">VEDENIE PROJEKTU</div>
+            
+            <div class="section-container" id="production-section" style="margin-bottom: 0;">
+                <table class="layout-table">
+                    <tbody>
+                        <tr>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Režisér</div><div class="editable">Meno Priezvisko</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Kamera</div><div class="editable">Meno Priezvisko</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Produkcia</div><div class="editable">Meno Priezvisko / Kontakt</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-btn" data-type="production">+ PRIDAŤ KOLONKU</button>
+            </div>
         </div>
 
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Režisér</div><div class="editable" contenteditable="true">Meno Priezvisko</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kamera (DOP)</div><div class="editable" contenteditable="true">Meno Priezvisko</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Produkcia</div><div class="editable" contenteditable="true">Meno Priezvisko / Kontakt</div></td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        <div id="locations-section" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">LOKÁCIE</div>
+            
+            <div class="section-container" style="margin-bottom: 0;">
+                <table class="layout-table">
+                    <tbody>
+                        <tr>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Hlavná Lokácia (Adresa)</div><div class="editable" id="location-field" data-type="location">Ulica, Mesto...</div></td>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Zázemie (Basecamp)</div><div class="editable">Kultúrny dom...</div></td>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Parkovanie</div><div class="editable">Detaily o parkovaní pre štáb</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+            </div>
         </div>
 
-        <div class="section-container">
+        <div id="weather-box" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">PREDPOVEĎ POČASIA</div>
+            
             <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Hlavná Lokácia (Adresa)</div><div class="editable" contenteditable="true" id="location-field">Ulica, Mesto...</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Zázemie (Basecamp)</div><div class="editable" contenteditable="true">Kultúrny dom...</div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Parkovanie</div><div class="editable" contenteditable="true">Detaily o parkovaní pre štáb</div></td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" id="weather-label">Počasie pre...</div><div class="editable" id="weather-field"><span style="color: #94a3b8;">(automaticky podľa mesta lokácie. Ak nemáš internet, pridaj ručne)</span></div></td>
+                    </tr>
+                </tbody>
             </table>
-            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
         </div>
 
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Predpoveď počasia</div><div class="editable" contenteditable="true" id="weather-field">☀️ Jasno, 24°C | Východ slnka: 06:10 | Západ slnka: 17:51</div></td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+        <div id="notices-section-wrapper" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">OZNAMY</div>
+            
+            <div class="section-container" id="notices-section" style="margin-bottom: 0;">
+                <table class="layout-table">
+                    <tbody>
+                    </tbody>
+                </table>
+                <div style="text-align: right;">
+                    <button class="add-btn" data-type="notice" style="margin-top: 0;">+ PRIDAŤ POLOŽKU</button>
+                </div>
+            </div>
         </div>
 
-        <div class="section-title" contenteditable="true">Nástupy Oddelení (Crew Calls)</div>
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Réžia / Kamera</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Kostýmy / Masky</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span></div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Rekvizity</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
+        <div id="logistics-section-wrapper" style="background-color: #f1f5f9; padding: 30px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+            <div style="position: absolute; top: -1px; left: -1px; background-color: #475569; color: white; padding: 4px 10px; font-size: 10px; font-weight: bold; border-top-left-radius: 8px; border-bottom-right-radius: 8px; letter-spacing: 1px;">LOGISTIKA</div>
+            
+            <div class="export-toggle-wrapper">
+                <div class="section-title editable" style="margin-top: 0;">Nástupy na pľac</div>
+                <button class="toggle-vis-btn" data-target="crew-section">(skryť v exporte)</button>
+            </div>
+            <div class="section-container" id="crew-section">
+                <table class="layout-table">
+                    <tbody>
+                        <tr>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Réžia / Kamera</div><div class="editable" data-type="time">08:00</div></td>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Kostýmy / Masky</div><div class="editable" data-type="time">06:30</div></td>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Rekvizity</div><div class="editable" data-type="time">08:00</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
+            </div>
+
+            <div class="export-toggle-wrapper">
+                <div class="section-title editable">Transport</div>
+                <button class="toggle-vis-btn" data-target="transport-section">(skryť v exporte)</button>
+            </div>
+            <div class="section-container" id="transport-section" style="margin-bottom: 0;">
+                <table class="layout-table">
+                    <tbody>
+                        <tr>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Odchod Štáb</div><div class="editable" data-type="time-loc">07:15 (Stará vratnica)</div></td>
+                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Nástup na pľaci</div><div class="editable" data-type="time-loc">08:00 (Kameňolom)</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="add-btn">+ PRIDAŤ TRANSPORT</button>
+            </div>
         </div>
 
-        <div class="section-title" contenteditable="true">Logistika a Transport</div>
-        <div class="section-container">
-            <table class="layout-table">
-                <tr>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Odchod Štáb</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">07</span>:<span class="split-edit" contenteditable="true">15</span> <span class="split-edit" contenteditable="true">(Stará vratnica)</span></div></td>
-                    <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nástup na pľaci</div><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span> <span class="split-edit" contenteditable="true">(Kameňolom)</span></div></td>
-                </tr>
-            </table>
-            <button class="add-btn">+ PRIDAŤ TRANSPORT</button>
-        </div>
-
-        <div class="section-title" contenteditable="true">Časový harmonogram a scény</div>
+        <div class="section-title editable">Časový harmonogram a scény</div>
         <div class="section-container">
             <table class="data-table scenes-table">
                 <thead>
                     <tr>
-                        <th style="width: 12%;"><div class="editable-label" contenteditable="true">Čas</div></th>
-                        <th style="width: 10%;"><div class="editable-label" contenteditable="true">Scéna č.</div></th>
-                        <th style="width: 28%;"><div class="editable-label" contenteditable="true">Popis akcie / Lokácia</div></th>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Účinkujúci</div></th>
-                        <th style="width: 30%;"><div class="editable-label" contenteditable="true">Rekvizity / Poznámky</div></th>
+                        <th style="width: 12%;"><div class="editable-label">Čas</div></th>
+                        <th style="width: 10%;"><div class="editable-label">Scéna č.</div></th>
+                        <th style="width: 28%;"><div class="editable-label">Popis akcie / Lokácia</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Účinkujúci</div></th>
+                        <th style="width: 30%;"><div class="editable-label">Rekvizity / Poznámky</div></th>
                     </tr>
                 </thead>
                 <tbody id="morning-tbody">
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span> - <span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">40</span></div></td>
-                        <td><div class="editable" contenteditable="true">6/7</div></td>
-                        <td><div class="editable" contenteditable="true">EXT. Step - Putujú, majú hlad</div></td>
-                        <td><div class="editable" contenteditable="true">Gvendolína, Koloman</div></td>
-                        <td><div class="editable" contenteditable="true">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:00 - 09:40</div></td>
+                        <td><div class="editable">6/7</div></td>
+                        <td><div class="editable">EXT. Step - Putujú, majú hlad</div></td>
+                        <td><div class="editable">Gvendolína, Koloman</div></td>
+                        <td><div class="editable">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">40</span> - <span class="split-edit" contenteditable="true">10</span>:<span class="split-edit" contenteditable="true">20</span></div></td>
-                        <td><div class="editable" contenteditable="true">6/8</div></td>
-                        <td><div class="editable" contenteditable="true">EXT. Step - Predstavenie Jakuba</div></td>
-                        <td><div class="editable" contenteditable="true">Jakub</div></td>
-                        <td><div class="editable" contenteditable="true">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:40 - 10:20</div></td>
+                        <td><div class="editable">6/8</div></td>
+                        <td><div class="editable">EXT. Step - Predstavenie Jakuba</div></td>
+                        <td><div class="editable">Jakub</div></td>
+                        <td><div class="editable">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
                 <tbody class="ignore-export">
@@ -586,21 +719,21 @@
                     </tr>
                 </tbody>
                 <tbody id="lunch-tbody">
-                    <tr class="lunch-row" style="background-color: #F9E79F;">
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0; font-weight:bold;"><span class="split-edit" contenteditable="true">12</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">13</span>:<span class="split-edit" contenteditable="true">30</span></div></td>
-                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">-</div></td>
-                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">OBEDOVÁ PAUZA</div></td>
-                        <td><div class="editable" contenteditable="true" style="font-weight:bold;"></div></td>
-                        <td><div class="editable" contenteditable="true" style="font-weight:bold;">Zázemie (Kultúrny dom)</div></td>
+                    <tr class="lunch-row" style="background-color: #F9E79F !important;">
+                        <td style="background-color: transparent !important;"><div class="editable" data-type="time-range" style="font-weight:bold; background-color: #F9E79F;">12:30 - 13:30</div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">-</div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">OBEDOVÁ PAUZA</div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;"></div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">Zázemie (Kultúrny dom)</div></td>
                     </tr>
                 </tbody>
                 <tbody id="afternoon-tbody">
                     <tr draggable="true">
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">13</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">14</span>:<span class="split-edit" contenteditable="true">20</span></div></td>
-                        <td><div class="editable" contenteditable="true">6/18</div></td>
-                        <td><div class="editable" contenteditable="true">EXT. Step - Tlupa loví zajaca</div></td>
-                        <td><div class="editable" contenteditable="true">Koloman, tlupa</div></td>
-                        <td><div class="editable" contenteditable="true">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">13:30 - 14:20</div></td>
+                        <td><div class="editable">6/18</div></td>
+                        <td><div class="editable">EXT. Step - Tlupa loví zajaca</div></td>
+                        <td><div class="editable">Koloman, tlupa</div></td>
+                        <td><div class="editable">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
                 <tbody class="ignore-export">
@@ -613,48 +746,117 @@
             </table>
         </div>
 
-        <div class="section-title" contenteditable="true">Herci a Účinkujúci (Cast)</div>
+        <div class="section-title editable">Herci a Účinkujúci (Cast)</div>
         <div class="section-container">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Postava</div></th>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Herec</div></th>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Odchod (Pick Up)</div></th>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Kostýmy / Masky</div></th>
-                        <th style="width: 20%;"><div class="editable-label" contenteditable="true">Na pľaci (On Set)</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Postava</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Herec</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Odchod (Pick Up)</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Kostýmy / Masky</div></th>
+                        <th style="width: 20%;"><div class="editable-label">Na pľaci (On Set)</div></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Gvendolína</div></td>
-                        <td><div class="editable" contenteditable="true">Hilda Premúdra</div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> <span class="split-edit" contenteditable="true">(STV)</span></div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> - <span class="split-edit" contenteditable="true">08</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Gvendolína</div></td>
+                        <td><div class="editable">Hilda Premúdra</div></td>
+                        <td><div class="editable" data-type="time-loc">06:30 (STV)</div></td>
+                        <td><div class="editable" data-type="time-range">06:30 - 08:00</div></td>
+                        <td><div class="editable" data-type="time">09:00</div></td>
                     </tr>
                     <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable" contenteditable="true">Koloman</div></td>
-                        <td><div class="editable" contenteditable="true">Medard Odolný</div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">06</span>:<span class="split-edit" contenteditable="true">30</span> <span class="split-edit" contenteditable="true">(STV)</span></div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div></td>
-                        <td><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">09</span>:<span class="split-edit" contenteditable="true">00</span></div></td>
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Koloman</div></td>
+                        <td><div class="editable">Medard Odolný</div></td>
+                        <td><div class="editable" data-type="time-loc">06:30 (STV)</div></td>
+                        <td><div class="editable" data-type="time-range">HH:MM - HH:MM</div></td>
+                        <td><div class="editable" data-type="time">09:00</div></td>
                     </tr>
                 </tbody>
             </table>
             <button class="add-row-btn">+ PRIDAŤ HERCA</button>
         </div>
 
-        <div class="section-title notes-section" contenteditable="true">Poznámky pre štáb</div>
-        <div class="editable" contenteditable="true" style="min-height: 40px;">
-            Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod.
+        <div class="section-title notes-section editable">Poznámky pre štáb</div>
+        <div class="editable" style="min-height: 40px;">Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod.</div>
+    </div>
+
+    <!-- Modálne okno pre úpravu -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-title" class="modal-title">Upraviť</div>
+            
+            <div id="modal-text-container" style="display: none; width: 100%;">
+                <textarea id="modal-textarea" class="modal-textarea"></textarea>
+            </div>
+            
+            <div id="modal-loc-container" style="display: none; flex-direction: column; gap: 10px; width: 100%;">
+                <input type="text" id="loc-street" class="modal-input" placeholder="Ulica (nepovinné)">
+                <input type="text" id="loc-number" class="modal-input" placeholder="Číslo domu / budovy (nepovinné)">
+                <div style="position: relative;">
+                    <input type="text" id="loc-city" class="modal-input" placeholder="Mesto / Obec (povinný údaj)" autocomplete="off">
+                    <div id="autocomplete-results" class="autocomplete-results"></div>
+                </div>
+            </div>
+
+            <div id="modal-time-container" style="display: none; justify-content: center; gap: 5px; align-items: center; width: 100%;">
+                <input type="tel" id="time-h" class="modal-input auto-next" maxlength="2" placeholder="HH" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px;">:</span>
+                <input type="tel" id="time-m" class="modal-input auto-next" maxlength="2" placeholder="MM" style="width: 65px; text-align: center;">
+            </div>
+
+            <div id="modal-timerange-container" style="display: none; justify-content: center; gap: 5px; align-items: center; width: 100%;">
+                <input type="tel" id="tr-h1" class="modal-input auto-next" maxlength="2" placeholder="HH" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px;">:</span>
+                <input type="tel" id="tr-m1" class="modal-input auto-next" maxlength="2" placeholder="MM" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px; margin: 0 5px;">-</span>
+                <input type="tel" id="tr-h2" class="modal-input auto-next" maxlength="2" placeholder="HH" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px;">:</span>
+                <input type="tel" id="tr-m2" class="modal-input auto-next" maxlength="2" placeholder="MM" style="width: 65px; text-align: center;">
+            </div>
+
+            <div id="modal-timeloc-container" style="display: none; flex-direction: column; gap: 15px; width: 100%;">
+                <div style="display: flex; justify-content: center; gap: 5px; align-items: center;">
+                    <input type="tel" id="tl-h" class="modal-input auto-next" maxlength="2" placeholder="HH" style="width: 65px; text-align: center;">
+                    <span style="font-weight: bold; font-size: 20px;">:</span>
+                    <input type="tel" id="tl-m" class="modal-input auto-next" maxlength="2" placeholder="MM" style="width: 65px; text-align: center;">
+                </div>
+                <input type="text" id="tl-loc" class="modal-input auto-next" placeholder="Miesto (napr. Stará vratnica)">
+            </div>
+
+            <div id="modal-date-container" style="display: none; justify-content: center; gap: 5px; align-items: center; width: 100%;">
+                <input type="tel" id="date-d" class="modal-input auto-next" maxlength="2" placeholder="DD" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px;">.</span>
+                <input type="tel" id="date-m" class="modal-input auto-next" maxlength="2" placeholder="MM" style="width: 65px; text-align: center;">
+                <span style="font-weight: bold; font-size: 20px;">.</span>
+                <input type="tel" id="date-y" class="modal-input auto-next" maxlength="4" placeholder="RRRR" style="width: 90px; text-align: center;">
+            </div>
+            
+            <div id="modal-color-picker" style="display: none; justify-content: center; gap: 12px; align-items: center; width: 100%; margin-top: 10px; padding-top: 15px; border-top: 1px solid #eee;">
+                <div class="color-dot" style="background-color: #ffffff;" data-color="">🚫</div>
+                <div class="color-dot" style="background-color: #f43f5e;" data-color="#f43f5e"></div>
+                <div class="color-dot" style="background-color: #f97316;" data-color="#f97316"></div>
+                <div class="color-dot" style="background-color: #f59e0b;" data-color="#f59e0b"></div>
+                <div class="color-dot" style="background-color: #10b981;" data-color="#10b981"></div>
+                <div class="color-dot" style="background-color: #3b82f6;" data-color="#3b82f6"></div>
+                <div class="color-dot" style="background-color: #8b5cf6;" data-color="#8b5cf6"></div>
+                <div class="color-dot" style="background-color: #64748b;" data-color="#64748b"></div>
+                <div class="color-dot" style="background-color: #333333;" data-color="#333333"></div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-modal btn-cancel" onclick="closeModal()">Zrušiť</button>
+                <button class="btn-modal btn-save" onclick="saveModal()">Uložiť</button>
+            </div>
         </div>
     </div>
 
-    <div id="toast">Zadaj datum pre počasie</div>
-
     <script>
-        const STORAGE_KEY = 'callsheetData_v10';
+        const STORAGE_KEY = 'callsheetData_v18';
+        let currentEditElement = null;
+        let debounceTimer;
+        let tempNoticeColor = '';
         
         function getThemeColors() {
             const theme = localStorage.getItem('callsheetTheme') || 'blue';
@@ -680,28 +882,13 @@
             document.getElementById('theme-menu').classList.remove('show');
         }
 
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('theme-menu');
-            const btn = document.getElementById('theme-btn');
-            if (menu && menu.classList.contains('show') && e.target !== btn) {
-                menu.classList.remove('show');
-            }
-        });
-
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerText = message;
-            toast.className = "show";
-            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
         function getTomorrowDate() {
             const date = new Date();
             date.setDate(date.getDate() + 1);
             const d = String(date.getDate()).padStart(2, '0');
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const y = date.getFullYear();
-            return `<span class="split-edit" contenteditable="true">${d}</span>.<span class="split-edit" contenteditable="true">${m}</span>.<span class="split-edit" contenteditable="true">${y}</span>`;
+            return `${d}.${m}.${y}`;
         }
 
         function parseSlovakDate(dateStr) {
@@ -777,13 +964,577 @@
                 document.documentElement.style.setProperty('--color-primary', colors.primary);
             }
             const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) { document.getElementById('dynamic-content').innerHTML = savedData; } 
-            else { const dateField = document.getElementById('date-field'); if (dateField) { dateField.innerHTML = getTomorrowDate(); dateField.style.border = 'none'; dateField.style.background = 'transparent'; dateField.removeAttribute('contenteditable'); } }
+            if (savedData) { 
+                document.getElementById('dynamic-content').innerHTML = savedData; 
+            } else { 
+                const dateField = document.getElementById('date-field'); 
+                if (dateField) { 
+                    dateField.innerHTML = getTomorrowDate();
+                } 
+            }
         }
 
         function resetData() {
-            if (confirm("Naozaj chcete vymazať všetky údaje?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+            if (confirm("Naozaj chcete vymazať všetky údaje a nastavenia farieb?")) { 
+                localStorage.removeItem(STORAGE_KEY); 
+                localStorage.removeItem('callsheetTheme');
+                location.reload(); 
+            }
         }
+
+        function selectText(el) {
+            setTimeout(() => {
+                el.focus();
+                if (typeof el.setSelectionRange === 'function') {
+                    try { el.setSelectionRange(0, 9999); } catch(e) { el.select(); }
+                } else {
+                    el.select();
+                }
+            }, 50);
+        }
+
+        function openModal(el) {
+            currentEditElement = el;
+            const modal = document.getElementById('edit-modal');
+            const title = document.getElementById('modal-title');
+            
+            const containers = ['modal-text-container', 'modal-loc-container', 'modal-time-container', 'modal-timerange-container', 'modal-timeloc-container', 'modal-date-container', 'modal-color-picker'];
+            containers.forEach(id => {
+                const c = document.getElementById(id);
+                if (c) c.style.display = 'none';
+            });
+            
+            let rawText = el.innerText.trim();
+            if (el.id === 'weather-field' && rawText.includes('automaticky podľa mesta')) rawText = '';
+            
+            const dataType = el.dataset.type || (el.id === 'location-field' ? 'location' : 'text');
+            
+            let elementToFocus = null;
+
+            if (dataType === 'location') {
+                title.innerText = 'Upraviť Lokáciu';
+                document.getElementById('modal-loc-container').style.display = 'flex';
+                
+                if (el.hasAttribute('data-city') || el.hasAttribute('data-street')) {
+                    document.getElementById('loc-street').value = el.getAttribute('data-street') || '';
+                    document.getElementById('loc-number').value = el.getAttribute('data-num') || '';
+                    document.getElementById('loc-city').value = el.getAttribute('data-city') || '';
+                } else {
+                    document.getElementById('loc-street').value = '';
+                    document.getElementById('loc-number').value = '';
+                    document.getElementById('loc-city').value = '';
+                    const parts = rawText.split('\n');
+                    if(parts.length > 1) {
+                        const streetNum = parts[0].trim();
+                        const lastSpace = streetNum.lastIndexOf(' ');
+                        if(lastSpace !== -1 && !isNaN(streetNum.substring(lastSpace + 1).charAt(0))) {
+                            document.getElementById('loc-street').value = streetNum.substring(0, lastSpace);
+                            document.getElementById('loc-number').value = streetNum.substring(lastSpace + 1);
+                        } else {
+                            document.getElementById('loc-street').value = streetNum;
+                        }
+                        document.getElementById('loc-city').value = parts.slice(1).join(' ').trim();
+                    } else if (rawText !== 'Ulica, Mesto...') {
+                        document.getElementById('loc-street').value = rawText;
+                    }
+                }
+                elementToFocus = document.getElementById('loc-street');
+            } else if (dataType === 'time') {
+                title.innerText = 'Upraviť čas';
+                document.getElementById('modal-time-container').style.display = 'flex';
+                const parts = rawText.split(':');
+                document.getElementById('time-h').value = parts[0] === 'HH' ? '' : (parts[0] || '');
+                document.getElementById('time-m').value = parts[1] === 'MM' ? '' : (parts[1] || '');
+                elementToFocus = document.getElementById('time-h');
+            } else if (dataType === 'time-range') {
+                title.innerText = 'Upraviť časové rozmedzie';
+                document.getElementById('modal-timerange-container').style.display = 'flex';
+                const parts = rawText.split('-');
+                const t1 = (parts[0] || '').trim().split(':');
+                const t2 = (parts[1] || '').trim().split(':');
+                document.getElementById('tr-h1').value = t1[0] === 'HH' ? '' : (t1[0] || '');
+                document.getElementById('tr-m1').value = t1[1] === 'MM' ? '' : (t1[1] || '');
+                document.getElementById('tr-h2').value = t2[0] === 'HH' ? '' : (t2[0] || '');
+                document.getElementById('tr-m2').value = t2[1] === 'MM' ? '' : (t2[1] || '');
+                elementToFocus = document.getElementById('tr-h1');
+            } else if (dataType === 'time-loc') {
+                title.innerText = 'Upraviť čas a miesto';
+                document.getElementById('modal-timeloc-container').style.display = 'flex';
+                const match = rawText.match(/^(\d{1,2}|HH):(\d{2}|MM)\s*(?:\((.*?)\))?$/);
+                if (match) {
+                    document.getElementById('tl-h').value = match[1] === 'HH' ? '' : match[1];
+                    document.getElementById('tl-m').value = match[2] === 'MM' ? '' : match[2];
+                    document.getElementById('tl-loc').value = match[3] || '';
+                } else {
+                    document.getElementById('tl-h').value = '';
+                    document.getElementById('tl-m').value = '';
+                    document.getElementById('tl-loc').value = '';
+                }
+                elementToFocus = document.getElementById('tl-h');
+            } else if (dataType === 'date') {
+                title.innerText = 'Upraviť dátum';
+                document.getElementById('modal-date-container').style.display = 'flex';
+                const parts = rawText.split('.');
+                document.getElementById('date-d').value = parts[0] === 'DD' ? '' : (parts[0] || '');
+                document.getElementById('date-m').value = parts[1] === 'MM' ? '' : (parts[1] || '');
+                document.getElementById('date-y').value = parts[2] === 'RRRR' ? '' : (parts[2] || '');
+                elementToFocus = document.getElementById('date-d');
+            } else {
+                let label = 'Upraviť text';
+                const isLabel = el.classList.contains('editable-label') || el.classList.contains('section-title');
+                if (isLabel) label = 'Upraviť nadpis';
+                title.innerText = label;
+                document.getElementById('modal-text-container').style.display = 'block';
+                document.getElementById('modal-textarea').value = rawText;
+                elementToFocus = document.getElementById('modal-textarea');
+            }
+
+            const isNoColorSection = el.closest('#header-section') || el.closest('#management-section') || el.closest('#locations-section') || el.closest('#weather-box') || el.closest('#logistics-section-wrapper');
+            const cp = document.getElementById('modal-color-picker');
+            if(cp) cp.style.display = isNoColorSection ? 'none' : 'flex';
+            
+            let currentColor = el.style.backgroundColor || '';
+            if (currentColor.startsWith('rgb')) {
+                const match = currentColor.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                if (match) {
+                    function hex(x) { return ("0" + parseInt(x).toString(16)).slice(-2); }
+                    currentColor = "#" + hex(match[1]) + hex(match[2]) + hex(match[3]);
+                }
+            }
+            tempNoticeColor = isNoColorSection ? '' : currentColor;
+            
+            document.querySelectorAll('.color-dot').forEach(d => {
+                d.classList.remove('selected');
+                if (d.dataset.color === tempNoticeColor || (!d.dataset.color && !tempNoticeColor)) {
+                    d.classList.add('selected');
+                }
+            });
+
+            const inputs = document.querySelectorAll('#edit-modal .modal-input, #edit-modal .modal-textarea');
+            inputs.forEach(input => {
+                if (tempNoticeColor) {
+                    input.style.backgroundColor = tempNoticeColor;
+                    input.style.color = tempNoticeColor === '#333333' ? 'white' : '#111827';
+                } else {
+                    input.style.backgroundColor = '';
+                    input.style.color = '';
+                }
+            });
+            
+            modal.classList.add('show');
+            if (elementToFocus) selectText(elementToFocus);
+        }
+        
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('show');
+            currentEditElement = null;
+        }
+        
+        function saveModal() {
+            if (!currentEditElement) return;
+            const dataType = currentEditElement.dataset.type || (currentEditElement.id === 'location-field' ? 'location' : 'text');
+            
+            if (dataType === 'location') {
+                const street = document.getElementById('loc-street').value.trim();
+                const num = document.getElementById('loc-number').value.trim();
+                const city = document.getElementById('loc-city').value.trim();
+                
+                if (!city) {
+                    alert('Prosím, zadajte Mesto / Obec. Je to povinný údaj.');
+                    document.getElementById('loc-city').focus();
+                    return;
+                }
+                
+                currentEditElement.setAttribute('data-street', street);
+                currentEditElement.setAttribute('data-num', num);
+                currentEditElement.setAttribute('data-city', city);
+                
+                let address = [];
+                let streetLine = street;
+                if (num) streetLine += ' ' + num;
+                if (streetLine) address.push(streetLine);
+                if (city) address.push(city);
+                
+                currentEditElement.innerText = address.join('\n') || 'Ulica, Mesto...';
+                
+                const wLabel = document.getElementById('weather-label');
+                const dateField = document.getElementById('date-field');
+                const dateStr = dateField ? dateField.innerText.trim() : '';
+
+                if (wLabel) {
+                    wLabel.innerText = city ? `Počasie pre ${city}${dateStr && dateStr !== "DD.MM.RRRR" ? ' ' + dateStr : ''}` : 'Počasie pre...';
+                }
+                
+                const weatherField = document.getElementById('weather-field');
+                
+                if (city && dateStr && dateStr !== "DD.MM.RRRR") {
+                    fetchWeather(city, dateStr);
+                } else if (!city && weatherField) {
+                    weatherField.innerHTML = '<span style="color: #94a3b8;">(automaticky podľa mesta lokácie. Ak nemáš internet, pridaj ručne)</span>';
+                }
+            } else if (dataType === 'time') {
+                const h = document.getElementById('time-h').value.padStart(2, '0') || 'HH';
+                const m = document.getElementById('time-m').value.padStart(2, '0') || 'MM';
+                currentEditElement.innerText = `${h}:${m}`;
+            } else if (dataType === 'time-range') {
+                const h1 = document.getElementById('tr-h1').value.padStart(2, '0') || 'HH';
+                const m1 = document.getElementById('tr-m1').value.padStart(2, '0') || 'MM';
+                const h2 = document.getElementById('tr-h2').value.padStart(2, '0') || 'HH';
+                const m2 = document.getElementById('tr-m2').value.padStart(2, '0') || 'MM';
+                currentEditElement.innerText = `${h1}:${m1} - ${h2}:${m2}`;
+            } else if (dataType === 'time-loc') {
+                const h = document.getElementById('tl-h').value.padStart(2, '0') || 'HH';
+                const m = document.getElementById('tl-m').value.padStart(2, '0') || 'MM';
+                const loc = document.getElementById('tl-loc').value.trim();
+                currentEditElement.innerText = `${h}:${m}${loc ? ' (' + loc + ')' : ''}`;
+            } else if (dataType === 'date') {
+                const d = document.getElementById('date-d').value.padStart(2, '0') || 'DD';
+                const m = document.getElementById('date-m').value.padStart(2, '0') || 'MM';
+                const y = document.getElementById('date-y').value || 'RRRR';
+                const newDate = `${d}.${m}.${y}`;
+                currentEditElement.innerText = newDate;
+
+                const locField = document.getElementById('location-field');
+                const city = locField ? locField.getAttribute('data-city') : '';
+                const wLabel = document.getElementById('weather-label');
+                
+                if (city && newDate !== "DD.MM.RRRR") {
+                    if (wLabel) wLabel.innerText = `Počasie pre ${city} ${newDate}`;
+                    fetchWeather(city, newDate);
+                } else {
+                    if (wLabel) wLabel.innerText = city ? `Počasie pre ${city}` : 'Počasie pre...';
+                }
+            } else {
+                currentEditElement.innerText = document.getElementById('modal-textarea').value.trim();
+            }
+
+            if (tempNoticeColor) {
+                currentEditElement.style.backgroundColor = tempNoticeColor;
+                currentEditElement.style.color = tempNoticeColor === '#333333' ? 'white' : '#111827';
+                if (!currentEditElement.classList.contains('editable-label') && !currentEditElement.classList.contains('section-title')) {
+                    currentEditElement.style.borderColor = tempNoticeColor;
+                }
+            } else {
+                currentEditElement.style.backgroundColor = '';
+                currentEditElement.style.color = '';
+                if (!currentEditElement.classList.contains('editable-label') && !currentEditElement.classList.contains('section-title')) {
+                    currentEditElement.style.borderColor = '';
+                }
+            }
+            
+            saveData();
+            closeModal();
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('auto-next')) {
+                if (e.target.value.length >= e.target.maxLength) {
+                    const container = e.target.closest('div[id^="modal-"]');
+                    const inputs = Array.from(container.querySelectorAll('.auto-next'));
+                    const idx = inputs.indexOf(e.target);
+                    if (idx > -1 && idx < inputs.length - 1) {
+                        selectText(inputs[idx + 1]);
+                    }
+                }
+            }
+        });
+
+        document.getElementById('loc-city').addEventListener('input', function(e) {
+            clearTimeout(debounceTimer);
+            const query = e.target.value.trim();
+            const resContainer = document.getElementById('autocomplete-results');
+            if (query.length < 2) { resContainer.style.display = 'none'; return; }
+            
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=sk&format=json`);
+                    const data = await res.json();
+                    resContainer.innerHTML = '';
+                    if (data.results && data.results.length > 0) {
+                        data.results.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'autocomplete-item';
+                            const region = item.admin1 ? `, ${item.admin1}` : '';
+                            div.innerText = `${item.name}${region}`;
+                            div.onclick = function() {
+                                document.getElementById('loc-city').value = item.name;
+                                resContainer.style.display = 'none';
+                            };
+                            resContainer.appendChild(div);
+                        });
+                        resContainer.style.display = 'block';
+                    } else {
+                        resContainer.style.display = 'none';
+                    }
+                } catch (err) {}
+            }, 300);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('color-dot')) {
+                const isSelected = e.target.classList.contains('selected');
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                
+                if (isSelected) {
+                    tempNoticeColor = '';
+                    const noColorDot = document.querySelector('.color-dot[data-color=""]');
+                    if (noColorDot) noColorDot.classList.add('selected');
+                } else {
+                    e.target.classList.add('selected');
+                    tempNoticeColor = e.target.getAttribute('data-color');
+                }
+
+                const inputs = document.querySelectorAll('#edit-modal .modal-input, #edit-modal .modal-textarea');
+                inputs.forEach(input => {
+                    if (tempNoticeColor) {
+                        input.style.backgroundColor = tempNoticeColor;
+                        input.style.color = '#111827';
+                    } else {
+                        input.style.backgroundColor = '';
+                        input.style.color = '';
+                    }
+                });
+                return;
+            }
+
+            if (document.getElementById('edit-modal').classList.contains('show')) {
+                if (e.target.classList.contains('modal-overlay')) closeModal();
+                return;
+            }
+
+            const menu = document.getElementById('theme-menu');
+            const btn = document.getElementById('theme-btn');
+            if (menu && menu.classList.contains('show') && e.target !== btn) {
+                menu.classList.remove('show');
+            }
+
+            if (e.target.closest('.toggle-vis-btn')) {
+                const btn = e.target.closest('.toggle-vis-btn');
+                const targetId = btn.getAttribute('data-target');
+                const targetContainer = document.getElementById(targetId);
+                const titleDiv = btn.previousElementSibling;
+                if (targetContainer) {
+                    targetContainer.classList.toggle('ignored-in-export');
+                    if (titleDiv) titleDiv.classList.toggle('ignored-in-export');
+                    
+                    if (targetContainer.classList.contains('ignored-in-export')) {
+                        btn.innerText = '(zobraziť v exporte)';
+                    } else {
+                        btn.innerText = '(skryť v exporte)';
+                    }
+                    saveData();
+                }
+                return;
+            }
+
+            if (e.target.closest('.ignored-in-export')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            if (e.target.closest('.delete-btn')) {
+                const delBtn = e.target.closest('.delete-btn');
+                const layoutCell = delBtn.closest('.layout-cell'); 
+                const dataRow = delBtn.closest('.data-table tr');
+                
+                if (layoutCell) { 
+                    const tr = layoutCell.closest('tr');
+                    layoutCell.remove(); 
+                    if (tr && tr.children.length === 0) {
+                        const prev = tr.previousElementSibling;
+                        if (prev && prev.innerHTML.includes('height: 15px')) prev.remove();
+                        tr.remove();
+                    }
+                } else if (dataRow && dataRow.closest('tbody')) { 
+                    dataRow.remove(); 
+                }
+                saveData();
+                return;
+            }
+            if (e.target.closest('.add-btn')) {
+                const addBtn = e.target.closest('.add-btn');
+                let targetContainer = addBtn.previousElementSibling;
+                if (!targetContainer) targetContainer = addBtn.parentElement.previousElementSibling;
+                const layoutTable = targetContainer.classList.contains('layout-table') ? targetContainer : targetContainer.querySelector('.layout-table');
+                let tbody = layoutTable.querySelector('tbody');
+                if (!tbody) {
+                    tbody = document.createElement('tbody');
+                    layoutTable.appendChild(tbody);
+                }
+                const tr = layoutTable.querySelector('tr');
+                const isTitleRow = tr && tr.children[0] && tr.children[0].colSpan > 1; 
+                const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
+                const newCol = document.createElement('td'); 
+                newCol.className = 'layout-cell';
+                
+                let innerEdit = `<div class="editable"></div>`;
+                const btnText = addBtn.innerText.toUpperCase();
+                let dragHandle = '';
+                
+                if (addBtn.dataset.type === 'project' || addBtn.dataset.type === 'production') {
+                    newCol.setAttribute('draggable', 'true');
+                    dragHandle = `<span class="drag-col-handle" title="Presunúť">↔</span>`;
+                } else if (addBtn.dataset.type === 'notice') {
+                    dragHandle = `<span class="drag-col-handle" style="display:none;"></span>`;
+                } else if (btnText.includes('ODDELENIE')) {
+                    innerEdit = `<div class="editable" data-type="time">HH:MM</div>`;
+                } else if (btnText.includes('TRANSPORT')) {
+                    innerEdit = `<div class="editable" data-type="time-loc">HH:MM</div>`;
+                }
+                
+                const labelText = addBtn.dataset.type === 'notice' ? 'Nová položka' : 'Nová kolonka';
+                newCol.innerHTML = `${dragHandle}<button class="delete-btn">&times;</button><div class="editable-label">${labelText}</div>${innerEdit}`;
+                
+                if (addBtn.dataset.type === 'notice') {
+                    if (tbody.children.length > 0) {
+                        const spacerRow = document.createElement('tr');
+                        spacerRow.innerHTML = `<td style="height: 15px; border: none; padding: 0;"></td>`;
+                        tbody.appendChild(spacerRow);
+                    }
+                    const newRow = document.createElement('tr');
+                    newRow.appendChild(newCol);
+                    tbody.appendChild(newRow);
+                } else {
+                    if (targetTr) {
+                        targetTr.appendChild(newCol);
+                    } else {
+                        const newRow = document.createElement('tr');
+                        newRow.appendChild(newCol);
+                        tbody.appendChild(newRow);
+                    }
+                }
+                saveData();
+                return;
+            }
+            if (e.target.closest('.add-row-btn')) {
+                const addBtn = e.target.closest('.add-row-btn');
+                const table = addBtn.previousElementSibling; const tbody = table.querySelector('tbody');
+                const trs = table.querySelectorAll('thead tr'); const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
+                const colCount = headerTr.children.length; const newRow = document.createElement('tr');
+                let rowHtml = '';
+                for (let i = 0; i < colCount; i++) {
+                    let cellContent = `<div class="editable"></div>`;
+                    if (i === 2) { 
+                        cellContent = `<div class="editable" data-type="time-loc">HH:MM (Miesto)</div>`;
+                    } else if (i === 3) {
+                        cellContent = `<div class="editable" data-type="time-range">HH:MM - HH:MM</div>`;
+                    } else if (i === 4) {
+                        cellContent = `<div class="editable" data-type="time">HH:MM</div>`;
+                    }
+                    if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button>${cellContent}</td>`; } 
+                    else { rowHtml += `<td>${cellContent}</td>`; }
+                }
+                newRow.innerHTML = rowHtml; tbody.appendChild(newRow); saveData();
+                return;
+            }
+            if (e.target.closest('.add-scene-btn')) {
+                const addBtn = e.target.closest('.add-scene-btn');
+                const targetId = addBtn.getAttribute('data-target');
+                const tbody = document.getElementById(targetId);
+                const newRow = document.createElement('tr');
+                newRow.setAttribute('draggable', 'true');
+                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">HH:MM - HH:MM</div></td>`;
+                rowHtml += `<td><div class="editable"></div></td>`;
+                rowHtml += `<td><div class="editable"></div></td>`;
+                rowHtml += `<td><div class="editable"></div></td>`;
+                rowHtml += `<td><div class="editable"></div><span class="drag-handle" title="Presunúť riadok">☰</span></td>`;
+                newRow.innerHTML = rowHtml;
+                tbody.appendChild(newRow);
+                saveData();
+                return;
+            }
+
+            const editable = e.target.closest('.editable, .editable-label, .section-title');
+            if (editable && !e.target.closest('.drag-handle') && !e.target.closest('.delete-btn') && !e.target.closest('.drag-col-handle')) {
+                e.preventDefault();
+                e.stopPropagation();
+                openModal(editable);
+            }
+        });
+
+        let dragSrcEl = null;
+        let dragColEl = null;
+        let dOffX = 0;
+        let dOffY = 0;
+        
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.closest('.ignored-in-export')) {
+                e.preventDefault();
+                return;
+            }
+            if (e.target.tagName === 'TR' && e.target.closest('.scenes-table') && !e.target.classList.contains('lunch-row')) {
+                dragSrcEl = e.target;
+                dOffY = e.clientY - dragSrcEl.getBoundingClientRect().top;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.innerHTML);
+                e.target.style.opacity = '0.4';
+            } else if (e.target.classList.contains('layout-cell') && (e.target.closest('#project-section') || e.target.closest('#production-section'))) {
+                dragColEl = e.target;
+                dOffX = e.clientX - dragColEl.getBoundingClientRect().left;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.innerHTML);
+                e.target.style.opacity = '0.4';
+            }
+        });
+        
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            if (dragSrcEl) {
+                e.dataTransfer.dropEffect = 'move';
+                const tbody = dragSrcEl.parentNode;
+                if (!tbody) return;
+                const rows = Array.from(tbody.children).filter(r => !r.classList.contains('lunch-row'));
+                const rectDrag = dragSrcEl.getBoundingClientRect();
+                const simTop = e.clientY - dOffY;
+                const simBottom = simTop + rectDrag.height;
+                
+                let target = null;
+                for (let r of rows) {
+                    if (r === dragSrcEl) continue;
+                    const rect = r.getBoundingClientRect();
+                    const targetCenter = rect.top + rect.height / 2;
+                    const isBefore = (r.compareDocumentPosition(dragSrcEl) & Node.DOCUMENT_POSITION_FOLLOWING); 
+                    
+                    if (isBefore && simTop < targetCenter) { target = r; break; } 
+                    else if (!isBefore && simBottom > targetCenter) { target = r; break; }
+                }
+                if (target) {
+                    const isBefore = (target.compareDocumentPosition(dragSrcEl) & Node.DOCUMENT_POSITION_FOLLOWING);
+                    if (isBefore) tbody.insertBefore(dragSrcEl, target);
+                    else tbody.insertBefore(dragSrcEl, target.nextSibling);
+                }
+            } else if (dragColEl) {
+                e.dataTransfer.dropEffect = 'move';
+                const tr = dragColEl.parentNode;
+                if (!tr) return;
+                const cells = Array.from(tr.children);
+                const rectDrag = dragColEl.getBoundingClientRect();
+                const simLeft = e.clientX - dOffX;
+                const simRight = simLeft + rectDrag.width;
+                
+                let target = null;
+                for (let c of cells) {
+                    if (c === dragColEl) continue;
+                    const rect = c.getBoundingClientRect();
+                    const targetCenter = rect.left + rect.width / 2;
+                    const isBefore = (c.compareDocumentPosition(dragColEl) & Node.DOCUMENT_POSITION_FOLLOWING);
+                    
+                    if (isBefore && simLeft < targetCenter) { target = c; break; } 
+                    else if (!isBefore && simRight > targetCenter) { target = c; break; }
+                }
+                if (target) {
+                    const isBefore = (target.compareDocumentPosition(dragColEl) & Node.DOCUMENT_POSITION_FOLLOWING);
+                    if (isBefore) tr.insertBefore(dragColEl, target);
+                    else tr.insertBefore(dragColEl, target.nextSibling);
+                }
+            }
+        });
+        
+        document.addEventListener('dragend', function(e) {
+            if (dragSrcEl) { dragSrcEl.style.opacity = '1'; dragSrcEl = null; saveData(); }
+            if (dragColEl) { dragColEl.style.opacity = '1'; dragColEl = null; saveData(); }
+        });
 
         function getVal(labelTxt) {
             const labels = Array.from(document.querySelectorAll('.editable-label'));
@@ -803,10 +1554,41 @@
             trs.forEach(tr => {
                 const tds = tr.querySelectorAll('td');
                 const rowData = [];
-                tds.forEach(td => rowData.push(td.innerText.replace(/[×☰]/g, '').trim()));
+                tds.forEach(td => {
+                    const editable = td.querySelector('.editable');
+                    const bg = editable ? editable.style.backgroundColor : td.style.backgroundColor;
+                    rowData.push({
+                        text: td.innerText.replace(/[×☰]/g, '').trim(),
+                        bg: bg || ''
+                    });
+                });
                 rows.push(rowData);
             });
             return rows;
+        }
+
+        function getArgbFromRgb(colorStr) {
+            if (!colorStr) return null;
+            const match = colorStr.match(/\d+/g);
+            if (match && match.length >= 3) {
+                const r = parseInt(match[0]).toString(16).padStart(2, '0').toUpperCase();
+                const g = parseInt(match[1]).toString(16).padStart(2, '0').toUpperCase();
+                const b = parseInt(match[2]).toString(16).padStart(2, '0').toUpperCase();
+                return `FF${r}${g}${b}`;
+            }
+            return null;
+        }
+
+        function getHexFromRgb(colorStr) {
+            if (!colorStr) return null;
+            const match = colorStr.match(/\d+/g);
+            if (match && match.length >= 3) {
+                const r = parseInt(match[0]).toString(16).padStart(2, '0');
+                const g = parseInt(match[1]).toString(16).padStart(2, '0');
+                const b = parseInt(match[2]).toString(16).padStart(2, '0');
+                return `#${r}${g}${b}`;
+            }
+            return null;
         }
 
         async function exportExcel() {
@@ -836,19 +1618,33 @@
             }
 
             const proj = getVal('Názov projektu') || 'PROJEKT';
-            const date = getVal('Dátum') || 'DÁTUM';
+            const dateFieldText = document.getElementById('date-field') ? document.getElementById('date-field').innerText : 'DÁTUM';
             const day = getVal('Filmovací deň') || '';
+
+            let extraProjInfo = [];
+            const projCells = document.getElementById('project-section') ? document.getElementById('project-section').querySelectorAll('.layout-cell') : [];
+            projCells.forEach(cell => {
+                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                if (!lbl.toLowerCase().includes('názov projektu') && !lbl.toLowerCase().includes('filmovací deň') && val) {
+                    extraProjInfo.push(val);
+                }
+            });
+            const extraProjStr = extraProjInfo.length > 0 ? '  |  ' + extraProjInfo.join('  |  ') : '';
 
             ws.mergeCells('A1:G1'); 
             const titleCell = ws.getCell('A1');
-            titleCell.value = `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`;
-            styleCell(titleCell, DARK_BG, WHITE, true, 16, 'center', 'middle');
+            titleCell.value = `DENNÁ DISPOZÍCIA  |  ${dateFieldText.toUpperCase()}`;
+            styleCell(titleCell, DARK_BG, 'FF111827', true, 16, 'center', 'middle');
             ws.getRow(1).height = 25; 
             
-            ws.mergeCells('A2:G2'); styleCell(ws.getCell('A2'), DARK_BG, WHITE, true, 12, 'center', 'middle');
-            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. natáčací deň`; ws.getRow(2).height = 20;
+            ws.mergeCells('A2:G2'); styleCell(ws.getCell('A2'), DARK_BG, 'FF111827', true, 12, 'center', 'middle');
+            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`; ws.getRow(2).height = 20;
 
-            let weatherParts = getVal('Predpoveď počasia').split('|').map(p => p.trim());
+            let wfEx = document.getElementById('weather-field');
+            let rawWeatherText = wfEx ? wfEx.innerText : '';
+            if (rawWeatherText.includes('automaticky')) rawWeatherText = '';
+            let weatherParts = rawWeatherText.split('|').map(p => p.trim());
             let rawWeatherDesc = weatherParts[0] || '';
             let emojiMatchEx = rawWeatherDesc.match(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/u);
             let wEmoji = emojiMatchEx ? emojiMatchEx[0] : '';
@@ -856,12 +1652,20 @@
             let wSunr = weatherParts[1] || '';
             let wSuns = weatherParts[2] || '';
 
-            ws.mergeCells('A4:B4'); styleCell(ws.getCell('A4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('A4').value = "PRODUKCIA";
-            ws.mergeCells('A5:B5'); styleCell(ws.getCell('A5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A5').value = "Režisér: " + getVal('Režisér');
-            ws.mergeCells('A6:B6'); styleCell(ws.getCell('A6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A6').value = "Kamera: " + getVal('Kamera (DOP)');
-            ws.mergeCells('A7:B7'); styleCell(ws.getCell('A7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('A7').value = "Produkcia: " + getVal('Produkcia');
+            let prodInfo = [];
+            const prodCells = document.getElementById('production-section') ? document.getElementById('production-section').querySelectorAll('.layout-cell') : [];
+            prodCells.forEach(cell => {
+                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                if (lbl && val) prodInfo.push(`${lbl}: ${val}`);
+            });
+            const prodStr = prodInfo.join('\n');
 
-            ws.mergeCells('C4:E4'); styleCell(ws.getCell('C4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('C4').value = "POČASIE";
+            ws.mergeCells('A4:B4'); styleCell(ws.getCell('A4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('A4').value = "PRODUKCIA";
+            ws.mergeCells('A5:B7'); styleCell(ws.getCell('A5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'top'); ws.getCell('A5').value = prodStr;
+
+            const weatherTitleEx = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : "POČASIE";
+            ws.mergeCells('C4:E4'); styleCell(ws.getCell('C4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('C4').value = weatherTitleEx;
             ws.mergeCells('C5:E7'); 
             const weatherCellEx = ws.getCell('C5');
             weatherCellEx.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ACCENT_LIGHT } };
@@ -885,22 +1689,85 @@
                 };
             }
 
-            ws.mergeCells('F4:G4'); styleCell(ws.getCell('F4'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('F4').value = "LOKÁCIA A ZÁZEMIE";
-            ws.mergeCells('F5:G5'); styleCell(ws.getCell('F5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F5').value = "Adresa: " + getVal('Hlavná Lokácia');
+            ws.mergeCells('F4:G4'); styleCell(ws.getCell('F4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('F4').value = "LOKÁCIA A ZÁZEMIE";
+            ws.mergeCells('F5:G5'); styleCell(ws.getCell('F5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F5').value = "Adresa: " + getVal('Hlavná Lokácia').replace(/\n/g, ', ');
             ws.mergeCells('F6:G6'); styleCell(ws.getCell('F6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F6').value = "Zázemie: " + getVal('Zázemie');
             ws.mergeCells('F7:G7'); styleCell(ws.getCell('F7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F7').value = "Parkovanie: " + getVal('Parkovanie');
             
-            ws.getRow(4).height = 20; ws.getRow(5).height = 24; ws.getRow(6).height = 24; ws.getRow(7).height = 24;
+            ws.getRow(4).height = 30; ws.getRow(5).height = 24; ws.getRow(6).height = 24; ws.getRow(7).height = 24;
 
-            ws.mergeCells('A10:G10'); styleCell(ws.getCell('A10'), ACCENT, WHITE, true, 11, 'center', 'middle'); ws.getCell('A10').value = "NÁSTUPY NA PLAC";
-            let crewStr = [];
-            ['Réžia', 'Kostýmy', 'Rekvizity', 'Odchod Štáb', 'Nástup na pľaci'].forEach(lbl => {
-                const v = getVal(lbl); if(v) crewStr.push(`${lbl.split(' ')[0]}: ${v}`);
+            let rowIdx = 9;
+            const noticeCells = document.getElementById('notices-section') ? document.getElementById('notices-section').querySelectorAll('.layout-cell') : [];
+            noticeCells.forEach(cell => {
+                
+                const lblEl = cell.querySelector('.editable-label');
+                const valEl = cell.querySelector('.editable');
+                let lbl = lblEl ? lblEl.innerText.trim() : '';
+                let val = valEl ? valEl.innerText.trim() : '';
+                
+                if (lbl.toUpperCase() === 'NOVÁ POLOŽKA') lbl = '';
+                
+                if (!lbl && !val) return;
+
+                const argbLblColor = getArgbFromRgb(lblEl ? lblEl.style.backgroundColor : '') || ACCENT;
+                const argbValColor = getArgbFromRgb(valEl ? valEl.style.backgroundColor : '');
+                
+                if (lbl) {
+                    ws.mergeCells(`A${rowIdx}:G${rowIdx}`); 
+                    const lCell = ws.getCell(`A${rowIdx}`);
+                    lCell.value = lbl.toUpperCase();
+                    styleCell(lCell, argbLblColor, 'FF111827', true, 11, 'center', 'middle', thinBorder);
+                    ws.getRow(rowIdx).height = 20;
+                    rowIdx++;
+                }
+                
+                if (val) {
+                    ws.mergeCells(`A${rowIdx}:G${rowIdx}`); 
+                    const vCell = ws.getCell(`A${rowIdx}`);
+                    vCell.value = val;
+                    const vFont = argbValColor === 'FF333333' ? WHITE : (argbValColor ? 'FF111827' : TEXT_COLOR);
+                    const vBg = argbValColor || LIGHT_GRAY;
+                    styleCell(vCell, vBg, vFont, !!argbValColor, 11, 'center', 'middle', thinBorder);
+                    const lines = (val.match(/\n/g) || []).length + 1;
+                    ws.getRow(rowIdx).height = Math.max(25, lines * 15);
+                    rowIdx++;
+                }
+                
+                ws.getRow(rowIdx).height = 10;
+                rowIdx++;
             });
-            ws.mergeCells('A11:G11'); styleCell(ws.getCell('A11'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
-            ws.getCell('A11').value = crewStr.join('  |  '); ws.getRow(11).height = 25;
 
-            let rowIdx = 13;
+            const crewSec = document.getElementById('crew-section');
+            if (crewSec && !crewSec.classList.contains('ignored-in-export')) {
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell(`A${rowIdx}`).value = "NÁSTUPY NA PĽAC";
+                let crewStr = [];
+                crewSec.querySelectorAll('.layout-cell').forEach(cell => {
+                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    if (lbl && val) crewStr.push(`${lbl}: ${val}`);
+                });
+                rowIdx++;
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
+                ws.getCell(`A${rowIdx}`).value = crewStr.join('  |  '); ws.getRow(rowIdx).height = 25;
+                rowIdx++;
+            }
+
+            const transSec = document.getElementById('transport-section');
+            if (transSec && !transSec.classList.contains('ignored-in-export')) {
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell(`A${rowIdx}`).value = "TRANSPORT";
+                let transStr = [];
+                transSec.querySelectorAll('.layout-cell').forEach(cell => {
+                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    if (lbl && val) transStr.push(`${lbl}: ${val}`);
+                });
+                rowIdx++;
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
+                ws.getCell(`A${rowIdx}`).value = transStr.join('  |  '); ws.getRow(rowIdx).height = 25;
+                rowIdx++;
+            }
+
+            rowIdx += 2;
 
             const scenes = getTableData('scény');
             if (scenes.length > 0) {
@@ -910,24 +1777,29 @@
                     ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                     const cell = ws.getCell(rowIdx, colSpans[c][0]);
                     cell.value = headers[c].toUpperCase();
-                    styleCell(cell, ACCENT, WHITE, true, 10, 'center', 'middle', thinBorder);
+                    styleCell(cell, ACCENT, 'FF111827', true, 10, 'center', 'middle', thinBorder);
                     ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
                 }
                 rowIdx++;
                 scenes.forEach(rowData => {
                     let maxLines = 1;
-                    const isLunch = rowData.some(txt => txt.toLowerCase().includes('obed') || txt.toLowerCase().includes('lunch'));
-                    const bgColor = isLunch ? YELLOW_LUNCH : null;
+                    const isLunch = rowData.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
                     const isBold = isLunch;
 
                     for(let c=0; c<5; c++) {
                         if(c >= rowData.length) break;
                         ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                         const cell = ws.getCell(rowIdx, colSpans[c][0]);
-                        cell.value = rowData[c];
-                        styleCell(cell, bgColor, TEXT_COLOR, isBold, 10, 'left', 'top', thinBorder);
+                        cell.value = rowData[c].text;
+                        
+                        let argbBg = getArgbFromRgb(rowData[c].bg);
+                        let isCustomDark = argbBg && argbBg !== 'FFF9E79F' && argbBg !== 'FFFFFFFF';
+                        let cellBgColor = argbBg || (isLunch ? YELLOW_LUNCH : null);
+                        let cellFontColor = argbBg === 'FF333333' ? WHITE : (isCustomDark ? 'FF111827' : TEXT_COLOR);
+                        
+                        styleCell(cell, cellBgColor, cellFontColor, isBold || isCustomDark, 10, 'left', 'top', thinBorder);
                         ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
-                        const lines = (rowData[c].match(/\n/g) || []).length + 1 + Math.floor(rowData[c].length / (c===4?40:20));
+                        const lines = (rowData[c].text.match(/\n/g) || []).length + 1 + Math.floor(rowData[c].text.length / (c===4?40:20));
                         if(lines > maxLines) maxLines = lines;
                     }
                     ws.getRow(rowIdx).height = Math.max(25, maxLines * 15);
@@ -938,7 +1810,7 @@
 
             const casts = getTableData('herci');
             if (casts.length > 0) {
-                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, WHITE, true, 11, 'center', 'middle', thinBorder);
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder);
                 ws.getCell(`A${rowIdx}`).value = "HERCI / CAST"; for(let c=2; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder; rowIdx++;
 
                 const headers = ["Postava", "Herec", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
@@ -956,8 +1828,13 @@
                         if(c >= rowData.length) break;
                         ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                         const cell = ws.getCell(rowIdx, colSpans[c][0]);
-                        cell.value = rowData[c];
-                        styleCell(cell, null, TEXT_COLOR, false, 10, 'center', 'middle', thinBorder);
+                        cell.value = rowData[c].text;
+
+                        let argbBg = getArgbFromRgb(rowData[c].bg);
+                        let isCustomDark = argbBg && argbBg !== 'FFFFFFFF';
+                        let cellFontColor = argbBg === 'FF333333' ? WHITE : (isCustomDark ? 'FF111827' : TEXT_COLOR);
+
+                        styleCell(cell, argbBg || null, cellFontColor, !!isCustomDark, 10, 'center', 'middle', thinBorder);
                         ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
                     }
                     rowIdx++;
@@ -973,7 +1850,7 @@
                 ws.getRow(rowIdx).height = 60;
             }
 
-            const fileName = 'Dispozícia_' + (date || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.xlsx';
+            const fileName = 'Dispozícia_' + (dateFieldText || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.xlsx';
             const buffer = await wb.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             saveAs(blob, fileName);
@@ -985,13 +1862,48 @@
             btn.innerText = '⚙️ PRIPRAVUJEM...';
 
             const proj = getVal('Názov projektu') || 'PROJEKT';
-            const date = getVal('Dátum') || 'DÁTUM';
+            const dateFieldText = document.getElementById('date-field') ? document.getElementById('date-field').innerText : 'DÁTUM';
             const day = getVal('Filmovací deň') || '';
 
-            let crewStr = [];
-            ['Réžia', 'Kostýmy', 'Rekvizity', 'Odchod Štáb', 'Nástup na pľaci'].forEach(lbl => {
-                const v = getVal(lbl); if(v) crewStr.push(`${lbl.split(' ')[0]}: ${v}`);
+            let extraProjInfo = [];
+            const projCells = document.getElementById('project-section') ? document.getElementById('project-section').querySelectorAll('.layout-cell') : [];
+            projCells.forEach(cell => {
+                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                if (!lbl.toLowerCase().includes('názov projektu') && !lbl.toLowerCase().includes('filmovací deň') && val) {
+                    extraProjInfo.push(val);
+                }
             });
+            const extraProjStr = extraProjInfo.length > 0 ? '  |  ' + extraProjInfo.join('  |  ') : '';
+
+            let crewStr = [];
+            const crewSecPdf = document.getElementById('crew-section');
+            if (crewSecPdf && !crewSecPdf.classList.contains('ignored-in-export')) {
+                crewSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
+                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    if (lbl && val) crewStr.push(`${lbl}: ${val}`);
+                });
+            }
+
+            let transStr = [];
+            const transSecPdf = document.getElementById('transport-section');
+            if (transSecPdf && !transSecPdf.classList.contains('ignored-in-export')) {
+                transSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
+                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    if (lbl && val) transStr.push(`${lbl}: ${val}`);
+                });
+            }
+
+            let prodInfo = [];
+            const prodCells = document.getElementById('production-section') ? document.getElementById('production-section').querySelectorAll('.layout-cell') : [];
+            prodCells.forEach(cell => {
+                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                if (lbl && val) prodInfo.push(`${lbl}: ${val}`);
+            });
+            const prodStr = prodInfo.join('\n');
 
             const weatherSvgs = {
                 '☀️': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f1c40f"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.364 7.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414" stroke="#f39c12" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -1005,20 +1917,24 @@
                 '🌡️': '<svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" fill="#ecf0f1" stroke="#e74c3c" stroke-width="2"/><circle cx="11.5" cy="17.5" r="2.5" fill="#e74c3c"/><path d="M11.5 15v-7" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/></svg>'
             };
 
-            let rawWeather = getVal('Predpoveď počasia');
+            let wfPdf = document.getElementById('weather-field');
+            let rawWeather = wfPdf ? wfPdf.innerText : '';
+            if (rawWeather.includes('automaticky')) rawWeather = '';
             let matchedEmoji = Object.keys(weatherSvgs).find(emoji => rawWeather.includes(emoji) || rawWeather.includes(emoji.charAt(0)));
             let cleanWeather = rawWeather.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/gu, '').trim();
             
             const tC = getThemeColors();
-            let weatherCell = { fillColor: tC.light, margin: [5, 5, 5, 5], border: [false, false, false, false], stack: [] };
+            const weatherTitlePdf = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : 'POČASIE';
+            
+            let weatherCell = { fillColor: tC.light, margin: [2, 2, 2, 2], border: [false, false, false, false], stack: [] };
             if (matchedEmoji && weatherSvgs[matchedEmoji]) {
-                weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 28, alignment: 'center', margin: [0, 0, 0, 4] });
+                weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 16, alignment: 'center', margin: [0, 0, 0, 2] });
             }
             weatherCell.stack.push({ text: cleanWeather.split('|').map(p => p.trim()).join('\n'), alignment: 'center', bold: true });
 
             const tableLayout = {
-                hLineWidth: function(i, node) { return 1; },
-                vLineWidth: function(i, node) { return 1; },
+                hLineWidth: function(i, node) { return 0.5; },
+                vLineWidth: function(i, node) { return 0.5; },
                 hLineColor: function(i, node) { return '#BDC3C7'; },
                 vLineColor: function(i, node) { return '#BDC3C7'; },
                 fillColor: function (rowIndex, node, columnIndex) {
@@ -1030,113 +1946,151 @@
             const docDefinition = {
                 pageSize: 'A4',
                 pageOrientation: 'portrait',
-                pageMargins: [30, 30, 30, 30],
-                defaultStyle: { font: 'Roboto', fontSize: 10, color: '#2c3e50' },
+                pageMargins: [10, 10, 10, 10], // Zúžené okraje na minimum (vľavo, hore, vpravo, dole)
+                defaultStyle: { font: 'Roboto', fontSize: 7.5, color: '#2c3e50' },
                 content: [
                     { 
                         table: { widths: ['*'], body: [
-                            [{ text: `DENNÁ DISPOZÍCIA  |  ${date.toUpperCase()}`, fontSize: 18, bold: true, color: 'white', alignment: 'center', fillColor: tC.primary, margin: [0, 8, 0, 4], border: [false, false, false, false] }],
-                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň`, fontSize: 12, bold: true, color: 'white', alignment: 'center', fillColor: tC.primary, margin: [0, 2, 0, 8], border: [false, false, false, false] }]
+                            [{ text: `DENNÁ DISPOZÍCIA  |  ${dateFieldText.toUpperCase()}`, fontSize: 12, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 4, 0, 2], border: [false, false, false, false] }],
+                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`, fontSize: 8.5, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 2, 0, 4], border: [false, false, false, false] }]
                         ]},
                         layout: 'noBorders',
-                        margin: [0, 0, 0, 15]
+                        margin: [0, 0, 0, 5]
                     },
                     {
                         table: {
                             widths: ['32%', '2%', '32%', '2%', '32%'],
                             body: [
                                 [
-                                    { text: 'PRODUKCIA', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: 'PRODUKCIA', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] },
                                     { text: '', border: [false, false, false, false] },
-                                    { text: 'POČASIE', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] },
+                                    { text: weatherTitlePdf, fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] },
                                     { text: '', border: [false, false, false, false] },
-                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }
+                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }
                                 ],
                                 [
-                                    { text: `Režisér: ${getVal('Režisér')}\nKamera: ${getVal('Kamera (DOP)')}\nProdukcia: ${getVal('Produkcia')}`, fillColor: '#F2F4F4', margin: [5, 5, 5, 5], border: [false, false, false, false] },
+                                    { text: prodStr, fillColor: '#F2F4F4', margin: [2, 2, 2, 2], border: [false, false, false, false] },
                                     { text: '', border: [false, false, false, false] },
                                     weatherCell,
                                     { text: '', border: [false, false, false, false] },
-                                    { text: `Adresa: ${getVal('Hlavná Lokácia')}\nZázemie: ${getVal('Zázemie')}\nParkovanie: ${getVal('Parkovanie')}`, fillColor: '#F2F4F4', margin: [5, 5, 5, 5], border: [false, false, false, false] }
+                                    { text: `Adresa: ${getVal('Hlavná Lokácia').replace(/\n/g, ', ')}\nZázemie: ${getVal('Zázemie')}\nParkovanie: ${getVal('Parkovanie')}`, fillColor: '#F2F4F4', margin: [2, 2, 2, 2], border: [false, false, false, false] }
                                 ]
                             ]
                         },
                         layout: 'noBorders',
-                        margin: [0, 0, 0, 15]
-                    },
-                    {
-                        table: {
-                            widths: ['*'],
-                            body: [
-                                [{ text: 'NÁSTUPY NA PLAC', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }],
-                                [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 6, 0, 6], border: [false, false, false, false] }]
-                            ]
-                        },
-                        layout: 'noBorders',
-                        margin: [0, 0, 0, 15]
+                        margin: [0, 0, 0, 5]
                     }
                 ]
             };
+
+            const noticeCells = document.getElementById('notices-section') ? document.getElementById('notices-section').querySelectorAll('.layout-cell') : [];
+            noticeCells.forEach(cell => {
+                const lblEl = cell.querySelector('.editable-label');
+                const valEl = cell.querySelector('.editable');
+                let lbl = lblEl ? lblEl.innerText.trim() : '';
+                let val = valEl ? valEl.innerText.trim() : '';
+                
+                if (lbl.toUpperCase() === 'NOVÁ POLOŽKA') lbl = '';
+                
+                if (!lbl && !val) return;
+
+                const hexLblColor = getHexFromRgb(lblEl ? lblEl.style.backgroundColor : '') || tC.accent;
+                const hexValColor = getHexFromRgb(valEl ? valEl.style.backgroundColor : '');
+                
+                const blockBody = [];
+                if (lbl) {
+                    blockBody.push([{ text: lbl.toUpperCase(), fontSize: 8, bold: true, color: '#111827', alignment: 'center', fillColor: hexLblColor, margin: [0, 2, 0, 2], border: [false, false, false, false] }]);
+                }
+                if (val) {
+                    const fontColor = (hexValColor && hexValColor.toUpperCase() === '#333333') ? 'white' : (hexValColor ? '#111827' : '#2c3e50');
+                    const bgColor = hexValColor || '#F2F4F4';
+                    blockBody.push([{ text: val, fontSize: 8, bold: !!hexValColor, color: fontColor, alignment: 'center', fillColor: bgColor, margin: [0, 2, 0, 2], border: [false, false, false, false] }]);
+                }
+                
+                docDefinition.content.push({ table: { widths: ['*'], body: blockBody }, layout: 'noBorders', margin: [0, 0, 0, 5] });
+            });
+
+            if (crewStr.length > 0) {
+                docDefinition.content.push({
+                    table: { widths: ['*'], body: [
+                        [{ text: 'NÁSTUPY NA PĽAC', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }],
+                        [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [false, false, false, false] }]
+                    ]},
+                    layout: 'noBorders', margin: [0, 0, 0, 5]
+                });
+            }
+
+            if (transStr.length > 0) {
+                docDefinition.content.push({
+                    table: { widths: ['*'], body: [
+                        [{ text: 'TRANSPORT', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }],
+                        [{ text: transStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [false, false, false, false] }]
+                    ]},
+                    layout: 'noBorders', margin: [0, 0, 0, 5]
+                });
+            }
 
             const scenes = getTableData('scény');
             if (scenes.length > 0) {
                 const sceneBody = [];
                 sceneBody.push([
-                    { text: 'ČAS', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'SCÉNA', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'POPIS AKCIE', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'ÚČINKUJÚCI', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'REKVIZITY', color: 'white', bold: true, alignment: 'center', margin:[0,4,0,4] }
+                    { text: 'ČAS', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'SCÉNA', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'POPIS AKCIE', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'ÚČINKUJÚCI', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'REKVIZITY', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] }
                 ]);
                 scenes.forEach(row => {
-                    const isLunch = row.some(txt => txt.toLowerCase().includes('obed') || txt.toLowerCase().includes('lunch'));
-                    const cellBg = isLunch ? '#F9E79F' : null;
-
-                    sceneBody.push([
-                        { text: row[0], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
-                        { text: row[1], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
-                        { text: row[2], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
-                        { text: row[3], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch },
-                        { text: row[4], margin: [3, 4, 3, 4], fillColor: cellBg, bold: isLunch }
-                    ]);
+                    const isLunch = row.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
+                    
+                    const rowCells = [];
+                    for(let c=0; c<5; c++) {
+                        let hexBg = getHexFromRgb(row[c].bg);
+                        let isDark = hexBg && hexBg.toUpperCase() !== '#F9E79F' && hexBg.toUpperCase() !== '#FFFFFF';
+                        let cellBg = hexBg || (isLunch ? '#F9E79F' : null);
+                        let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
+                        rowCells.push({ text: row[c].text, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
+                    }
+                    sceneBody.push(rowCells);
                 });
                 docDefinition.content.push({
                     table: { headerRows: 1, widths: ['14%', '10%', '28%', '18%', '30%'], body: sceneBody },
-                    layout: tableLayout, margin: [0, 0, 0, 15]
+                    layout: tableLayout, margin: [0, 0, 0, 5]
                 });
             }
 
             const casts = getTableData('herci');
             if (casts.length > 0) {
                 docDefinition.content.push({
-                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: tC.accent, color: 'white', bold: true, alignment: 'center', margin: [0, 4, 0, 4], border: [false, false, false, false] }]] },
+                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }]] },
                     layout: 'noBorders'
                 });
                 const castBody = [];
                 castBody.push([
-                    { text: 'POSTAVA', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'HEREC', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'ODCHOD (PICK UP)', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'KOSTÝMY / MASKY', bold: true, alignment: 'center', margin:[0,4,0,4] },
-                    { text: 'NA PĽACI (ON SET)', bold: true, alignment: 'center', margin:[0,4,0,4] }
+                    { text: 'POSTAVA', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'HEREC', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'ODCHOD (PICK UP)', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'KOSTÝMY / MASKY', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                    { text: 'NA PĽACI (ON SET)', bold: true, alignment: 'center', margin:[0,1,0,1] }
                 ]);
                 casts.forEach(row => {
-                    castBody.push([
-                        { text: row[0], alignment: 'center', margin: [3, 4, 3, 4] },
-                        { text: row[1], alignment: 'center', margin: [3, 4, 3, 4] },
-                        { text: row[2], alignment: 'center', margin: [3, 4, 3, 4] },
-                        { text: row[3], alignment: 'center', margin: [3, 4, 3, 4] },
-                        { text: row[4], alignment: 'center', margin: [3, 4, 3, 4] }
-                    ]);
+                    const rowCells = [];
+                    for(let c=0; c<5; c++) {
+                        let hexBg = getHexFromRgb(row[c].bg);
+                        let isDark = hexBg && hexBg.toUpperCase() !== '#FFFFFF';
+                        let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
+                        rowCells.push({ text: row[c].text, alignment: 'center', margin: [1, 2, 1, 2], fillColor: hexBg || null, color: fontColor, bold: isDark });
+                    }
+                    castBody.push(rowCells);
                 });
                 docDefinition.content.push({
                     table: { headerRows: 1, widths: ['20%', '20%', '20%', '20%', '20%'], body: castBody },
                     layout: {
-                        hLineWidth: function(i, node) { return 1; }, vLineWidth: function(i, node) { return 1; },
+                        hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
                         hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
                         fillColor: function (rowIndex, node, columnIndex) { return (rowIndex === 0) ? '#F2F4F4' : '#FFFFFF'; }
                     },
-                    margin: [0, 0, 0, 15]
+                    margin: [0, 0, 0, 5]
                 });
             }
 
@@ -1144,145 +2098,14 @@
             if (notesSection && notesSection.nextElementSibling) {
                 docDefinition.content.push({
                     text: 'POZNÁMKY PRE ŠTÁB:\n' + notesSection.nextElementSibling.innerText.trim(),
-                    fontSize: 10, margin: [0, 10, 0, 0]
+                    fontSize: 7.5, margin: [0, 2, 0, 0]
                 });
             }
 
-            const fileName = 'Dispozícia_' + (date || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.pdf';
+            const fileName = 'Dispozícia_' + (dateFieldText || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.pdf';
             pdfMake.createPdf(docDefinition).download(fileName);
             btn.innerText = '📄 EXPORT PDF';
         }
-
-        let dragSrcEl = null;
-
-        document.addEventListener('dragstart', function(e) {
-            if (e.target.tagName === 'TR' && e.target.closest('.scenes-table') && !e.target.classList.contains('lunch-row')) {
-                dragSrcEl = e.target;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/html', e.target.innerHTML);
-                e.target.style.opacity = '0.4';
-            }
-        });
-
-        document.addEventListener('dragover', function(e) {
-            if (dragSrcEl) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                const tr = e.target.closest('tr');
-                if (tr && tr.closest('.scenes-table') && !tr.classList.contains('lunch-row') && tr.parentNode === dragSrcEl.parentNode && tr !== dragSrcEl) {
-                    const rect = tr.getBoundingClientRect();
-                    const offset = e.clientY - rect.top;
-                    if (offset > rect.height / 2) {
-                        tr.parentNode.insertBefore(dragSrcEl, tr.nextSibling);
-                    } else {
-                        tr.parentNode.insertBefore(dragSrcEl, tr);
-                    }
-                }
-            }
-        });
-
-        document.addEventListener('dragend', function(e) {
-            if (dragSrcEl) {
-                dragSrcEl.style.opacity = '1';
-                dragSrcEl = null;
-                saveData();
-            }
-        });
-
-        document.addEventListener('input', function(e) {
-            if (e.target.hasAttribute('contenteditable')) {
-                e.target.setAttribute('data-prepisane', 'true');
-            }
-            saveData();
-        });
-
-        document.addEventListener('focus', function(e) {
-            if (e.target.hasAttribute('contenteditable') && e.target.getAttribute('data-prepisane') !== 'true') {
-                e.target.setAttribute('data-prepisane', 'true');
-                if (e.target.innerText.trim() !== '') {
-                    e.target.innerText = '';
-                    saveData();
-                    setTimeout(function() {
-                        e.target.focus();
-                    }, 50);
-                }
-            }
-        }, true);
-
-        document.addEventListener('blur', function(e) {
-            if (e.target.id === 'location-field' || e.target.id === 'date-field') {
-                const locationField = document.getElementById('location-field');
-                const dateField = document.getElementById('date-field');
-                if (locationField && dateField) {
-                    const location = locationField.innerText.trim();
-                    const dateStr = dateField.innerText.trim();
-                    
-                    const isLocSet = location !== "" && location !== "Ulica, Mesto...";
-                    const isDateSet = dateStr !== "" && dateStr !== "DD.MM.RRRR";
-                    
-                    if (e.target.id === 'location-field' && isLocSet && !isDateSet) { 
-                        showToast("Zadaj dátum pre počasie"); 
-                    } else if (isLocSet && isDateSet) { 
-                        fetchWeather(location, dateStr); 
-                    }
-                }
-            }
-        }, true);
-        
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-btn')) {
-                const layoutCell = e.target.closest('.layout-cell'); const dataRow = e.target.closest('.data-table tr');
-                if (layoutCell) { layoutCell.remove(); } else if (dataRow && dataRow.closest('tbody')) { dataRow.remove(); }
-                saveData();
-            }
-            if (e.target.classList.contains('add-btn')) {
-                const layoutTable = e.target.previousElementSibling; const tr = layoutTable.querySelector('tr');
-                const isTitleRow = tr.children[0].colSpan > 1; const targetTr = isTitleRow ? layoutTable.querySelectorAll('tr')[1] : tr;
-                const newCol = document.createElement('td'); newCol.className = 'layout-cell';
-                
-                let innerEdit = `<div class="editable" contenteditable="true"></div>`;
-                const btnText = e.target.innerText.toUpperCase();
-                if (btnText.includes('ODDELENIE') || btnText.includes('TRANSPORT')) {
-                    innerEdit = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
-                }
-                
-                newCol.innerHTML = `<button class="delete-btn">&times;</button><div class="editable-label" contenteditable="true">Nová kolonka</div>${innerEdit}`;
-                targetTr.appendChild(newCol); saveData();
-            }
-            if (e.target.classList.contains('add-row-btn')) {
-                const table = e.target.previousElementSibling; const tbody = table.querySelector('tbody');
-                const trs = table.querySelectorAll('thead tr'); const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
-                const colCount = headerTr.children.length; const newRow = document.createElement('tr');
-                let rowHtml = '';
-                for (let i = 0; i < colCount; i++) {
-                    let cellContent = `<div class="editable" contenteditable="true"></div>`;
-                    if (i === 2) { 
-                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> <span class="split-edit" contenteditable="true">(Miesto)</span></div>`;
-                    } else if (i === 3) {
-                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
-                    } else if (i === 4) {
-                        cellContent = `<div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div>`;
-                    }
-                    if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button>${cellContent}</td>`; } 
-                    else { rowHtml += `<td>${cellContent}</td>`; }
-                }
-                newRow.innerHTML = rowHtml; tbody.appendChild(newRow); saveData();
-            }
-            if (e.target.classList.contains('add-scene-btn')) {
-                const targetId = e.target.getAttribute('data-target');
-                const tbody = document.getElementById(targetId);
-                const newRow = document.createElement('tr');
-                newRow.setAttribute('draggable', 'true');
-                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" style="border: none; background: transparent; padding: 0;"><span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span> - <span class="split-edit" contenteditable="true">HH</span>:<span class="split-edit" contenteditable="true">MM</span></div></td>`;
-                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
-                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
-                rowHtml += `<td><div class="editable" contenteditable="true"></div></td>`;
-                rowHtml += `<td><div class="editable" contenteditable="true"></div><span class="drag-handle" title="Presunúť riadok">☰</span></td>`;
-                newRow.innerHTML = rowHtml;
-                tbody.appendChild(newRow);
-                saveData();
-            }
-        });
 
         window.onload = loadData;
     </script>
