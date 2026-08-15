@@ -398,6 +398,16 @@
             cursor: grabbing;
         }
 
+        .drag-handle, .drag-col-handle {
+            touch-action: none;
+        }
+        
+        .dnd-poly-drag-image {
+            opacity: 0.9 !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
+            background-color: white !important;
+        }
+
         .export-toggle-wrapper { position: relative; margin-top: 15px; margin-bottom: 7.5px; }
         .export-toggle-wrapper:first-of-type { margin-top: 0; }
         .export-toggle-wrapper .section-title { margin: 0; padding-right: 90px; }
@@ -898,13 +908,19 @@
     </div>
 
     <script>
+        let isMobileDragging = false;
         if (typeof MobileDragDrop !== 'undefined') {
             try {
                 MobileDragDrop.polyfill({
                     dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
                     holdToDrag: 250
                 });
-                window.addEventListener('touchmove', function() {}, {passive: false});
+                document.addEventListener('dragstart', function() { isMobileDragging = true; });
+                document.addEventListener('dragend', function() { isMobileDragging = false; });
+                document.addEventListener('drop', function() { isMobileDragging = false; });
+                window.addEventListener('touchmove', function(e) {
+                    if (isMobileDragging) { e.preventDefault(); }
+                }, {passive: false});
             } catch (err) {}
         }
 
