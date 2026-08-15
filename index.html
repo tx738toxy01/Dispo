@@ -898,11 +898,15 @@
     </div>
 
     <script>
-        MobileDragDrop.polyfill({
-            dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
-            holdToDrag: 250
-        });
-        window.addEventListener('touchmove', function() {}, {passive: false});
+        if (typeof MobileDragDrop !== 'undefined') {
+            try {
+                MobileDragDrop.polyfill({
+                    dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
+                    holdToDrag: 250
+                });
+                window.addEventListener('touchmove', function() {}, {passive: false});
+            } catch (err) {}
+        }
 
         const STORAGE_KEY = 'callsheetData_v18';
         let currentEditElement = null;
