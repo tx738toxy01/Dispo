@@ -913,7 +913,8 @@
             try {
                 MobileDragDrop.polyfill({
                     dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
-                    holdToDrag: 250
+                    holdToDrag: 250,
+                    forceApply: true
                 });
                 document.addEventListener('dragstart', function() { isMobileDragging = true; });
                 document.addEventListener('dragend', function() { isMobileDragging = false; });
@@ -1690,8 +1691,19 @@
         });
         
         document.addEventListener('dragend', function(e) {
-            if (dragSrcEl) { dragSrcEl.style.opacity = '1'; dragSrcEl = null; saveData(); }
-            if (dragColEl) { dragColEl.style.opacity = '1'; dragColEl = null; saveData(); }
+            if (dragSrcEl) { dragSrcEl.style.opacity = '1'; dragSrcEl = null; }
+            if (dragColEl) { dragColEl.style.opacity = '1'; dragColEl = null; }
+            document.querySelectorAll('[draggable="true"], .layout-cell').forEach(el => el.style.opacity = '1');
+            isMobileDragging = false;
+            saveData();
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (isMobileDragging || dragSrcEl || dragColEl) {
+                setTimeout(() => {
+                    document.querySelectorAll('[draggable="true"], .layout-cell').forEach(el => el.style.opacity = '1');
+                }, 100);
+            }
         });
 
         function getVal(labelTxt) {
