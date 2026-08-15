@@ -9,6 +9,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 
     <style>
         :root {
@@ -209,14 +212,18 @@
             transition: all 0.2s;
         }
 
-        .editable:empty::before {
-            content: "Hodnota...";
-            font-style: italic;
-            opacity: 0.6;
+.editable:hover {
+            border-color: var(--color-primary);
         }
 
-        .editable:hover {
-            border-color: var(--color-primary);
+        .editable:empty::before {
+            content: "\00a0"; /* Neviditeľná medzera pre udržanie výšky prázdneho políčka */
+            display: block;
+        }
+
+        .example-text {
+            color: #94a3b8 !important;
+            font-style: italic;
         }
 
         .section-title {
@@ -250,6 +257,7 @@
             font-size: var(--font-size-base);
             position: relative;
             word-wrap: break-word;
+            height: 1px;
         }
 
         table.data-table th {
@@ -272,7 +280,9 @@
             background-color: transparent;
             border-color: transparent;
             padding: 0;
-            min-height: auto;
+            min-height: 100%;
+            height: 100%;
+            box-sizing: border-box;
         }
 
         .add-btn, .add-row-btn, .add-scene-btn {
@@ -533,7 +543,7 @@
             }
             body { background-color: white; padding: 0; }
             .document-container { box-shadow: none; max-width: 100%; width: 100%; }
-            .top-controls, .add-btn, .add-row-btn, .add-scene-btn, .delete-btn, .drag-handle, .drag-col-handle, .modal-overlay { display: none !important; }
+            .top-controls, .add-btn, .add-row-btn, .add-scene-btn, .delete-btn, .drag-handle, .drag-col-handle, .modal-overlay, #detective-ui-container { display: none !important; }
             .editable { border: 1px solid transparent !important; background-color: transparent !important; padding-left: 0 !important; padding-right: 0 !important; }
             table.data-table td .editable { background-color: transparent !important; }
             .editable-label { padding: 0 !important; }
@@ -557,6 +567,7 @@
                 <div style="background-color: #64748b; color: white;" onclick="selectTheme('gray', 'Sivá')">Sivá</div>
             </div>
         </div>
+                
         <button class="btn-action btn-primary" onclick="exportPDF()">📄 EXPORT PDF</button>
         <button class="btn-action btn-green btn-excel" onclick="exportExcel()">📊 EXPORT EXCEL</button>
     </div>
@@ -610,13 +621,13 @@
                 <table class="layout-table">
                     <tbody>
                         <tr>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Hlavná Lokácia (Adresa)</div><div class="editable" id="location-field" data-type="location">Ulica, Mesto...</div></td>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Zázemie (Basecamp)</div><div class="editable">Kultúrny dom...</div></td>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Parkovanie</div><div class="editable">Detaily o parkovaní pre štáb</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Hlavná Lokácia (Adresa)</div><div class="editable" id="location-field" data-type="location">Ulica, Mesto...</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Zázemie (Basecamp)</div><div class="editable">Kultúrny dom...</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Parkovanie</div><div class="editable">Detaily o parkovaní pre štáb</div></td>
                         </tr>
                     </tbody>
                 </table>
-                <button class="add-btn">+ PRIDAŤ KOLONKU</button>
+                <button class="add-btn" data-type="locations">+ PRIDAŤ KOLONKU</button>
             </div>
         </div>
 
@@ -657,13 +668,13 @@
                 <table class="layout-table">
                     <tbody>
                         <tr>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Réžia / Kamera</div><div class="editable" data-type="time">08:00</div></td>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Kostýmy / Masky</div><div class="editable" data-type="time">06:30</div></td>
-                            <td class="layout-cell"><button class="delete-btn">&times;</button><div class="editable-label">Rekvizity</div><div class="editable" data-type="time">08:00</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Réžia / Kamera</div><div class="editable" data-type="time">08:00</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Kostýmy / Masky</div><div class="editable" data-type="time">06:30</div></td>
+                            <td class="layout-cell" draggable="true"><span class="drag-col-handle" title="Presunúť">↔</span><button class="delete-btn">&times;</button><div class="editable-label">Rekvizity</div><div class="editable" data-type="time">08:00</div></td>
                         </tr>
                     </tbody>
                 </table>
-                <button class="add-btn">+ PRIDAŤ ODDELENIE</button>
+                <button class="add-btn" data-type="crew">+ PRIDAŤ ODDELENIE</button>
             </div>
 
             <div class="export-toggle-wrapper">
@@ -684,12 +695,17 @@
         </div>
 
         <div class="section-title editable">Časový harmonogram a scény</div>
-        <div class="section-container">
+
+<div id="detective-ui-container" style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center; background: #f1f5f9; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <input type="file" id="script-upload-doc" style="display: none;" accept=".docx, .pdf">
+            <button id="btn-load-script" class="btn-action" style="background-color: #8b5cf6; margin: 0; padding: 6px 12px; flex: none;" onclick="document.getElementById('script-upload-doc').click()">📂 NAČÍTAŤ SCENÁR DO PAMÄTE</button>
+            <div id="script-filename-display" style="font-size: 11px; color: #64748b; margin-left: 10px;">(Dáta sa automaticky doplnia po vpísaní čísla do stĺpca "Obraz č.")</div>
+        </div>
             <table class="data-table scenes-table">
                 <thead>
                     <tr>
                         <th style="width: 12%;"><div class="editable-label">Čas</div></th>
-                        <th style="width: 10%;"><div class="editable-label">Scéna č.</div></th>
+                        <th style="width: 10%;"><div class="editable-label">Obraz č.</div></th>
                         <th style="width: 28%;"><div class="editable-label">Popis akcie / Lokácia</div></th>
                         <th style="width: 20%;"><div class="editable-label">Účinkujúci</div></th>
                         <th style="width: 30%;"><div class="editable-label">Rekvizity / Poznámky</div></th>
@@ -698,14 +714,14 @@
                 <tbody id="morning-tbody">
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:00 - 09:40</div></td>
-                        <td><div class="editable">6/7</div></td>
+                        <td><div class="editable">7</div></td>
                         <td><div class="editable">EXT. Step - Putujú, majú hlad</div></td>
                         <td><div class="editable">Gvendolína, Koloman</div></td>
                         <td><div class="editable">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:40 - 10:20</div></td>
-                        <td><div class="editable">6/8</div></td>
+                        <td><div class="editable">8</div></td>
                         <td><div class="editable">EXT. Step - Predstavenie Jakuba</div></td>
                         <td><div class="editable">Jakub</div></td>
                         <td><div class="editable">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
@@ -714,7 +730,7 @@
                 <tbody class="ignore-export">
                     <tr>
                         <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
-                            <button class="add-scene-btn" data-target="morning-tbody" style="margin-top: 0;">+ PRIDAŤ RIADOK (PRED OBEDOM)</button>
+                            <button class="add-scene-btn" data-target="morning-tbody" style="margin-top: 0;">+ PRIDAŤ OBRAZ (PRED OBEDOM)</button>
                         </td>
                     </tr>
                 </tbody>
@@ -730,7 +746,7 @@
                 <tbody id="afternoon-tbody">
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">13:30 - 14:20</div></td>
-                        <td><div class="editable">6/18</div></td>
+                        <td><div class="editable">18</div></td>
                         <td><div class="editable">EXT. Step - Tlupa loví zajaca</div></td>
                         <td><div class="editable">Koloman, tlupa</div></td>
                         <td><div class="editable">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
@@ -739,39 +755,35 @@
                 <tbody class="ignore-export">
                     <tr>
                         <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
-                            <button class="add-scene-btn" data-target="afternoon-tbody" style="margin-top: 0;">+ PRIDAŤ RIADOK (PO OBEDE)</button>
+                            <button class="add-scene-btn" data-target="afternoon-tbody" style="margin-top: 0;">+ PRIDAŤ OBRAZ (PO OBEDE)</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
 
         <div class="section-title editable">Herci a Účinkujúci (Cast)</div>
         <div class="section-container">
-            <table class="data-table">
+            <table class="data-table cast-table">
                 <thead>
                     <tr>
-                        <th style="width: 20%;"><div class="editable-label">Postava</div></th>
-                        <th style="width: 20%;"><div class="editable-label">Herec</div></th>
+                        <th style="width: 40%;"><div class="editable-label">Účinkujúci</div></th>
                         <th style="width: 20%;"><div class="editable-label">Odchod (Pick Up)</div></th>
                         <th style="width: 20%;"><div class="editable-label">Kostýmy / Masky</div></th>
                         <th style="width: 20%;"><div class="editable-label">Na pľaci (On Set)</div></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Gvendolína</div></td>
-                        <td><div class="editable">Hilda Premúdra</div></td>
+                <tbody id="cast-tbody">
+                    <tr draggable="true">
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Gvendolína / Hilda Premúdra</div></td>
                         <td><div class="editable" data-type="time-loc">06:30 (STV)</div></td>
                         <td><div class="editable" data-type="time-range">06:30 - 08:00</div></td>
-                        <td><div class="editable" data-type="time">09:00</div></td>
+                        <td><div class="editable" data-type="time">09:00</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
-                    <tr>
-                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Koloman</div></td>
-                        <td><div class="editable">Medard Odolný</div></td>
+                    <tr draggable="true">
+                        <td><button class="delete-btn td-delete">&times;</button><div class="editable">Koloman / Medard Odolný</div></td>
                         <td><div class="editable" data-type="time-loc">06:30 (STV)</div></td>
                         <td><div class="editable" data-type="time-range">HH:MM - HH:MM</div></td>
-                        <td><div class="editable" data-type="time">09:00</div></td>
+                        <td><div class="editable" data-type="time">09:00</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -779,10 +791,15 @@
         </div>
 
         <div class="section-title notes-section editable">Poznámky pre štáb</div>
-        <div class="editable" style="min-height: 40px;">Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod.</div>
+        <table class="data-table" style="margin-bottom: 0;">
+            <tbody>
+                <tr>
+                    <td><div class="editable" id="notes-field" style="min-height: 40px; background: transparent; border: none; padding: 0;">Tu môžete vpísať špecifické technické požiadavky, informácie o presunoch a pod.</div></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Modálne okno pre úpravu -->
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-content">
             <div id="modal-title" class="modal-title">Upraviť</div>
@@ -971,13 +988,35 @@
                 if (dateField) { 
                     dateField.innerHTML = getTomorrowDate();
                 } 
+                document.querySelectorAll('.editable').forEach(el => {
+                    if (el.id !== 'date-field' && el.id !== 'weather-field' && !el.classList.contains('section-title') && el.innerText.trim() !== 'OBEDOVÁ PAUZA') {
+                        el.classList.add('example-text');
+                    }
+                });
             }
+            
+            setTimeout(() => {
+                if (localStorage.getItem('savedScriptText')) {
+                    const btn = document.getElementById('btn-load-script');
+                    if (btn) {
+                        btn.innerText = "✅ SCENÁR JE V PAMÄTI";
+                        btn.style.backgroundColor = "#10b981";
+                    }
+                    const savedName = localStorage.getItem('savedScriptName');
+                    const filenameDisplay = document.getElementById('script-filename-display');
+                    if (filenameDisplay && savedName) {
+                        filenameDisplay.innerText = `(${savedName})`;
+                    }
+                }
+            }, 50);
         }
 
         function resetData() {
             if (confirm("Naozaj chcete vymazať všetky údaje a nastavenia farieb?")) { 
                 localStorage.removeItem(STORAGE_KEY); 
                 localStorage.removeItem('callsheetTheme');
+                localStorage.removeItem('savedScriptText');
+                localStorage.removeItem('savedScriptName');
                 location.reload(); 
             }
         }
@@ -1222,6 +1261,46 @@
                 }
             }
             
+            currentEditElement.classList.remove('example-text');
+            
+            const td = currentEditElement.closest('td');
+            const tr = td ? td.closest('tr') : null;
+            
+            if (tr && tr.closest('.scenes-table') && td === tr.cells[1]) {
+                const typedScene = currentEditElement.innerText.trim();
+                const savedScript = localStorage.getItem('savedScriptText');
+                if (typedScene && savedScript && typeof analyzeScript === 'function') {
+                    const targetScenes = typedScene.split(',').map(s => s.replace(/\s+/g, '').replace(/\.$/, '').toLowerCase());
+                    const foundScenes = analyzeScript(savedScript, targetScenes);
+                    
+                    if (foundScenes.length > 0) {
+                        const combinedLoc = foundScenes.map(s => s.location).filter(Boolean).join(' / ');
+                        const combinedCast = Array.from(new Set(foundScenes.flatMap(s => s.cast.split(', ')))).filter(Boolean).join(', ');
+                        const combinedProps = foundScenes.map(s => s.props).filter(Boolean).join(', ');
+                        
+                        const locEdit = tr.cells[2]?.querySelector('.editable');
+                        if (locEdit && combinedLoc) {
+                            locEdit.innerText = combinedLoc;
+                            locEdit.classList.remove('example-text');
+                        }
+                        
+                        const castEdit = tr.cells[3]?.querySelector('.editable');
+                        if (castEdit && combinedCast) {
+                            castEdit.innerText = combinedCast;
+                            castEdit.classList.remove('example-text');
+                        }
+                        
+                        const propsEdit = tr.cells[4]?.querySelector('.editable');
+                        if (propsEdit && combinedProps) {
+                            propsEdit.innerText = combinedProps;
+                            propsEdit.classList.remove('example-text');
+                        }
+
+                        syncCastTableWithScenes();
+                    }
+                }
+            }
+
             saveData();
             closeModal();
         }
@@ -1255,7 +1334,8 @@
                             const div = document.createElement('div');
                             div.className = 'autocomplete-item';
                             const region = item.admin1 ? `, ${item.admin1}` : '';
-                            div.innerText = `${item.name}${region}`;
+                            const country = item.country ? `, ${item.country}` : '';
+                            div.innerText = `${item.name}${region}${country}`;
                             div.onclick = function() {
                                 document.getElementById('loc-city').value = item.name;
                                 resContainer.style.display = 'none';
@@ -1347,7 +1427,11 @@
                         tr.remove();
                     }
                 } else if (dataRow && dataRow.closest('tbody')) { 
+                    const isSceneRow = dataRow.closest('.scenes-table');
                     dataRow.remove(); 
+                    if (isSceneRow) {
+                        syncCastTableWithScenes();
+                    }
                 }
                 saveData();
                 return;
@@ -1368,19 +1452,19 @@
                 const newCol = document.createElement('td'); 
                 newCol.className = 'layout-cell';
                 
-                let innerEdit = `<div class="editable"></div>`;
+                let innerEdit = `<div class="editable example-text"></div>`;
                 const btnText = addBtn.innerText.toUpperCase();
                 let dragHandle = '';
                 
-                if (addBtn.dataset.type === 'project' || addBtn.dataset.type === 'production') {
+                if (addBtn.dataset.type === 'project' || addBtn.dataset.type === 'production' || addBtn.dataset.type === 'locations' || addBtn.dataset.type === 'crew') {
                     newCol.setAttribute('draggable', 'true');
                     dragHandle = `<span class="drag-col-handle" title="Presunúť">↔</span>`;
                 } else if (addBtn.dataset.type === 'notice') {
                     dragHandle = `<span class="drag-col-handle" style="display:none;"></span>`;
                 } else if (btnText.includes('ODDELENIE')) {
-                    innerEdit = `<div class="editable" data-type="time">HH:MM</div>`;
+                    innerEdit = `<div class="editable example-text" data-type="time">HH:MM</div>`;
                 } else if (btnText.includes('TRANSPORT')) {
-                    innerEdit = `<div class="editable" data-type="time-loc">HH:MM</div>`;
+                    innerEdit = `<div class="editable example-text" data-type="time-loc">HH:MM</div>`;
                 }
                 
                 const labelText = addBtn.dataset.type === 'notice' ? 'Nová položka' : 'Nová kolonka';
@@ -1412,15 +1496,14 @@
                 const table = addBtn.previousElementSibling; const tbody = table.querySelector('tbody');
                 const trs = table.querySelectorAll('thead tr'); const headerTr = (trs.length > 1 && trs[0].children[0].colSpan > 1) ? trs[1] : trs[0];
                 const colCount = headerTr.children.length; const newRow = document.createElement('tr');
+                newRow.setAttribute('draggable', 'true');
                 let rowHtml = '';
                 for (let i = 0; i < colCount; i++) {
-                    let cellContent = `<div class="editable"></div>`;
-                    if (i === 2) { 
-                        cellContent = `<div class="editable" data-type="time-loc">HH:MM (Miesto)</div>`;
-                    } else if (i === 3) {
-                        cellContent = `<div class="editable" data-type="time-range">HH:MM - HH:MM</div>`;
-                    } else if (i === 4) {
-                        cellContent = `<div class="editable" data-type="time">HH:MM</div>`;
+                    let cellContent = `<div class="editable example-text"></div>`;
+                    if (colCount === 4) {
+                        if (i === 1) cellContent = `<div class="editable example-text" data-type="time-loc">HH:MM (Miesto)</div>`;
+                        else if (i === 2) cellContent = `<div class="editable example-text" data-type="time-range">HH:MM - HH:MM</div>`;
+                        else if (i === 3) cellContent = `<div class="editable example-text" data-type="time">HH:MM</div><span class="drag-handle" title="Presunúť riadok">☰</span>`;
                     }
                     if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button>${cellContent}</td>`; } 
                     else { rowHtml += `<td>${cellContent}</td>`; }
@@ -1434,11 +1517,11 @@
                 const tbody = document.getElementById(targetId);
                 const newRow = document.createElement('tr');
                 newRow.setAttribute('draggable', 'true');
-                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">HH:MM - HH:MM</div></td>`;
-                rowHtml += `<td><div class="editable"></div></td>`;
-                rowHtml += `<td><div class="editable"></div></td>`;
-                rowHtml += `<td><div class="editable"></div></td>`;
-                rowHtml += `<td><div class="editable"></div><span class="drag-handle" title="Presunúť riadok">☰</span></td>`;
+                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable example-text" data-type="time-range">HH:MM - HH:MM</div></td>`;
+                rowHtml += `<td><div class="editable example-text"></div></td>`;
+                rowHtml += `<td><div class="editable example-text"></div></td>`;
+                rowHtml += `<td><div class="editable example-text"></div></td>`;
+                rowHtml += `<td><div class="editable example-text"></div><span class="drag-handle" title="Presunúť riadok">☰</span></td>`;
                 newRow.innerHTML = rowHtml;
                 tbody.appendChild(newRow);
                 saveData();
@@ -1463,13 +1546,13 @@
                 e.preventDefault();
                 return;
             }
-            if (e.target.tagName === 'TR' && e.target.closest('.scenes-table') && !e.target.classList.contains('lunch-row')) {
+            if (e.target.tagName === 'TR' && (e.target.closest('.scenes-table') || e.target.closest('.cast-table')) && !e.target.classList.contains('lunch-row')) {
                 dragSrcEl = e.target;
                 dOffY = e.clientY - dragSrcEl.getBoundingClientRect().top;
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/html', e.target.innerHTML);
                 e.target.style.opacity = '0.4';
-            } else if (e.target.classList.contains('layout-cell') && (e.target.closest('#project-section') || e.target.closest('#production-section'))) {
+            } else if (e.target.classList.contains('layout-cell') && (e.target.closest('#project-section') || e.target.closest('#production-section') || e.target.closest('#locations-section') || e.target.closest('#crew-section'))) {
                 dragColEl = e.target;
                 dOffX = e.clientX - dragColEl.getBoundingClientRect().left;
                 e.dataTransfer.effectAllowed = 'move';
@@ -1482,27 +1565,28 @@
             e.preventDefault();
             if (dragSrcEl) {
                 e.dataTransfer.dropEffect = 'move';
-                const tbody = dragSrcEl.parentNode;
-                if (!tbody) return;
-                const rows = Array.from(tbody.children).filter(r => !r.classList.contains('lunch-row'));
-                const rectDrag = dragSrcEl.getBoundingClientRect();
-                const simTop = e.clientY - dOffY;
-                const simBottom = simTop + rectDrag.height;
+                const hoverTbody = e.target.closest('#morning-tbody, #afternoon-tbody, #cast-tbody');
                 
-                let target = null;
-                for (let r of rows) {
-                    if (r === dragSrcEl) continue;
-                    const rect = r.getBoundingClientRect();
-                    const targetCenter = rect.top + rect.height / 2;
-                    const isBefore = (r.compareDocumentPosition(dragSrcEl) & Node.DOCUMENT_POSITION_FOLLOWING); 
-                    
-                    if (isBefore && simTop < targetCenter) { target = r; break; } 
-                    else if (!isBefore && simBottom > targetCenter) { target = r; break; }
-                }
-                if (target) {
-                    const isBefore = (target.compareDocumentPosition(dragSrcEl) & Node.DOCUMENT_POSITION_FOLLOWING);
-                    if (isBefore) tbody.insertBefore(dragSrcEl, target);
-                    else tbody.insertBefore(dragSrcEl, target.nextSibling);
+                if (hoverTbody) {
+                    const rows = Array.from(hoverTbody.querySelectorAll('tr')).filter(r => r !== dragSrcEl);
+                    if (rows.length === 0) {
+                        hoverTbody.appendChild(dragSrcEl);
+                    } else {
+                        let target = null;
+                        for (let r of rows) {
+                            const rect = r.getBoundingClientRect();
+                            const targetCenter = rect.top + rect.height / 2;
+                            if (e.clientY < targetCenter) {
+                                target = r;
+                                break;
+                            }
+                        }
+                        if (target) {
+                            hoverTbody.insertBefore(dragSrcEl, target);
+                        } else {
+                            hoverTbody.appendChild(dragSrcEl);
+                        }
+                    }
                 }
             } else if (dragColEl) {
                 e.dataTransfer.dropEffect = 'move';
@@ -1539,14 +1623,24 @@
         function getVal(labelTxt) {
             const labels = Array.from(document.querySelectorAll('.editable-label'));
             const lbl = labels.find(l => l.innerText.toLowerCase().includes(labelTxt.toLowerCase()));
-            if(lbl && lbl.nextElementSibling) return lbl.nextElementSibling.innerText.trim();
+            if(lbl && lbl.nextElementSibling) {
+                const el = lbl.nextElementSibling;
+                return el.classList.contains('example-text') ? '' : el.innerText.trim();
+            }
             return '';
         }
 
         function getTableData(sectionKeyword) {
             const section = Array.from(document.querySelectorAll('.section-title')).find(el => el.innerText.toLowerCase().includes(sectionKeyword));
             if (!section) return [];
-            const table = section.nextElementSibling.querySelector('.data-table');
+            
+            let nextEl = section.nextElementSibling;
+            let table = null;
+            while (nextEl && !nextEl.classList.contains('section-title')) {
+                table = nextEl.classList.contains('data-table') ? nextEl : nextEl.querySelector('.data-table');
+                if (table) break;
+                nextEl = nextEl.nextElementSibling;
+            }
             if (!table) return [];
             
             const rows = [];
@@ -1556,9 +1650,11 @@
                 const rowData = [];
                 tds.forEach(td => {
                     const editable = td.querySelector('.editable');
+                    let text = td.innerText.replace(/[×☰]/g, '').trim();
+                    if (editable && editable.classList.contains('example-text')) text = '';
                     const bg = editable ? editable.style.backgroundColor : td.style.backgroundColor;
                     rowData.push({
-                        text: td.innerText.replace(/[×☰]/g, '').trim(),
+                        text: text,
                         bg: bg || ''
                     });
                 });
@@ -1625,7 +1721,7 @@
             const projCells = document.getElementById('project-section') ? document.getElementById('project-section').querySelectorAll('.layout-cell') : [];
             projCells.forEach(cell => {
                 const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
                 if (!lbl.toLowerCase().includes('názov projektu') && !lbl.toLowerCase().includes('filmovací deň') && val) {
                     extraProjInfo.push(val);
                 }
@@ -1635,11 +1731,16 @@
             ws.mergeCells('A1:G1'); 
             const titleCell = ws.getCell('A1');
             titleCell.value = `DENNÁ DISPOZÍCIA  |  ${dateFieldText.toUpperCase()}`;
-            styleCell(titleCell, DARK_BG, 'FF111827', true, 16, 'center', 'middle');
+            styleCell(titleCell, DARK_BG, 'FF111827', true, 16, 'center', 'middle', { top: thinBorder.top, left: thinBorder.left, right: thinBorder.right, bottom: { style: 'thin', color: { argb: 'FFBDC3C7' } } });
+            for(let c=1; c<=7; c++) ws.getCell(1, c).border = { top: thinBorder.top, left: thinBorder.left, right: thinBorder.right, bottom: thinBorder.bottom };
             ws.getRow(1).height = 25; 
             
-            ws.mergeCells('A2:G2'); styleCell(ws.getCell('A2'), DARK_BG, 'FF111827', true, 12, 'center', 'middle');
-            ws.getCell('A2').value = `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`; ws.getRow(2).height = 20;
+            ws.mergeCells('A2:G2'); 
+            const subTitleCell = ws.getCell('A2');
+            subTitleCell.value = `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`;
+            styleCell(subTitleCell, DARK_BG, 'FF111827', true, 12, 'center', 'middle', thinBorder);
+            for(let c=1; c<=7; c++) ws.getCell(2, c).border = thinBorder;
+            ws.getRow(2).height = 20;
 
             let wfEx = document.getElementById('weather-field');
             let rawWeatherText = wfEx ? wfEx.innerText : '';
@@ -1654,18 +1755,23 @@
 
             let prodInfo = [];
             const prodCells = document.getElementById('production-section') ? document.getElementById('production-section').querySelectorAll('.layout-cell') : [];
-            prodCells.forEach(cell => {
+            prodCells.forEach((cell, idx, arr) => {
                 const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
-                if (lbl && val) prodInfo.push(`${lbl}: ${val}`);
+                const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
+                if (lbl && val) {
+                    prodInfo.push({ text: `${lbl}: `, bold: true, fontSize: 9 });
+                    prodInfo.push({ text: `${val}${idx < arr.length - 1 ? '\n' : ''}`, bold: false, fontSize: 7.5 });
+                }
             });
-            const prodStr = prodInfo.join('\n');
 
-            ws.mergeCells('A4:B4'); styleCell(ws.getCell('A4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('A4').value = "PRODUKCIA";
-            ws.mergeCells('A5:B7'); styleCell(ws.getCell('A5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'top'); ws.getCell('A5').value = prodStr;
+            let prodRichText = [];
+            prodInfo.forEach(p => prodRichText.push({ font: { name: 'Arial', size: p.fontSize, bold: p.bold, color: { argb: TEXT_COLOR } }, text: p.text }));
+            
+            ws.mergeCells('A4:B4'); styleCell(ws.getCell('A4'), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder); ws.getCell('A4').value = "PRODUKCIA";
+            ws.mergeCells('A5:B7'); styleCell(ws.getCell('A5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'top', thinBorder); ws.getCell('A5').value = { richText: prodRichText };
 
             const weatherTitleEx = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : "POČASIE";
-            ws.mergeCells('C4:E4'); styleCell(ws.getCell('C4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('C4').value = weatherTitleEx;
+            ws.mergeCells('C4:E4'); styleCell(ws.getCell('C4'), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder); ws.getCell('C4').value = weatherTitleEx;
             ws.mergeCells('C5:E7'); 
             const weatherCellEx = ws.getCell('C5');
             weatherCellEx.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ACCENT_LIGHT } };
@@ -1689,12 +1795,16 @@
                 };
             }
 
-            ws.mergeCells('F4:G4'); styleCell(ws.getCell('F4'), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell('F4').value = "LOKÁCIA A ZÁZEMIE";
-            ws.mergeCells('F5:G5'); styleCell(ws.getCell('F5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F5').value = "Adresa: " + getVal('Hlavná Lokácia').replace(/\n/g, ', ');
-            ws.mergeCells('F6:G6'); styleCell(ws.getCell('F6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F6').value = "Zázemie: " + getVal('Zázemie');
-            ws.mergeCells('F7:G7'); styleCell(ws.getCell('F7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle'); ws.getCell('F7').value = "Parkovanie: " + getVal('Parkovanie');
+            ws.mergeCells('F4:G4'); styleCell(ws.getCell('F4'), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder); ws.getCell('F4').value = "LOKÁCIE";
+            let adrVal = getVal('Hlavná Lokácia');
+            ws.mergeCells('F5:G5'); styleCell(ws.getCell('F5'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle', thinBorder); ws.getCell('F5').value = adrVal ? "Hlavná lokácia: " + adrVal.replace(/\n/g, ', ') : "";
+            let zazVal = getVal('Zázemie');
+            ws.mergeCells('F6:G6'); styleCell(ws.getCell('F6'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle', thinBorder); ws.getCell('F6').value = zazVal ? "Zázemie: " + zazVal : "";
+            let parkVal = getVal('Parkovanie');
+            ws.mergeCells('F7:G7'); styleCell(ws.getCell('F7'), LIGHT_GRAY, TEXT_COLOR, false, 10, 'left', 'middle', thinBorder); ws.getCell('F7').value = parkVal ? "Parkovanie: " + parkVal : "";
             
             ws.getRow(4).height = 30; ws.getRow(5).height = 24; ws.getRow(6).height = 24; ws.getRow(7).height = 24;
+            for (let r = 4; r <= 7; r++) { for (let c = 1; c <= 7; c++) { ws.getCell(r, c).border = thinBorder; } }
 
             let rowIdx = 9;
             const noticeCells = document.getElementById('notices-section') ? document.getElementById('notices-section').querySelectorAll('.layout-cell') : [];
@@ -1703,7 +1813,7 @@
                 const lblEl = cell.querySelector('.editable-label');
                 const valEl = cell.querySelector('.editable');
                 let lbl = lblEl ? lblEl.innerText.trim() : '';
-                let val = valEl ? valEl.innerText.trim() : '';
+                let val = (valEl && !valEl.classList.contains('example-text')) ? valEl.innerText.trim() : '';
                 
                 if (lbl.toUpperCase() === 'NOVÁ POLOŽKA') lbl = '';
                 
@@ -1718,6 +1828,7 @@
                     lCell.value = lbl.toUpperCase();
                     styleCell(lCell, argbLblColor, 'FF111827', true, 11, 'center', 'middle', thinBorder);
                     ws.getRow(rowIdx).height = 20;
+                    for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                     rowIdx++;
                 }
                 
@@ -1730,6 +1841,7 @@
                     styleCell(vCell, vBg, vFont, !!argbValColor, 11, 'center', 'middle', thinBorder);
                     const lines = (val.match(/\n/g) || []).length + 1;
                     ws.getRow(rowIdx).height = Math.max(25, lines * 15);
+                    for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                     rowIdx++;
                 }
                 
@@ -1739,31 +1851,35 @@
 
             const crewSec = document.getElementById('crew-section');
             if (crewSec && !crewSec.classList.contains('ignored-in-export')) {
-                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell(`A${rowIdx}`).value = "NÁSTUPY NA PĽAC";
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder); ws.getCell(`A${rowIdx}`).value = "NÁSTUPY NA PĽAC";
+                for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                 let crewStr = [];
                 crewSec.querySelectorAll('.layout-cell').forEach(cell => {
                     const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
                     if (lbl && val) crewStr.push(`${lbl}: ${val}`);
                 });
                 rowIdx++;
-                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle', thinBorder);
                 ws.getCell(`A${rowIdx}`).value = crewStr.join('  |  '); ws.getRow(rowIdx).height = 25;
+                for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                 rowIdx++;
             }
 
             const transSec = document.getElementById('transport-section');
             if (transSec && !transSec.classList.contains('ignored-in-export')) {
-                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle'); ws.getCell(`A${rowIdx}`).value = "TRANSPORT";
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder); ws.getCell(`A${rowIdx}`).value = "TRANSPORT";
+                for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                 let transStr = [];
                 transSec.querySelectorAll('.layout-cell').forEach(cell => {
                     const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
+                    const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
                     if (lbl && val) transStr.push(`${lbl}: ${val}`);
                 });
                 rowIdx++;
-                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle');
+                ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), LIGHT_GRAY, TEXT_COLOR, false, 10, 'center', 'middle', thinBorder);
                 ws.getCell(`A${rowIdx}`).value = transStr.join('  |  '); ws.getRow(rowIdx).height = 25;
+                for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                 rowIdx++;
             }
 
@@ -1771,7 +1887,7 @@
 
             const scenes = getTableData('scény');
             if (scenes.length > 0) {
-                const headers = ["Čas", "Scéna č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky"];
+                const headers = ["Čas", "Obraz č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky"];
                 const colSpans = [[1,1], [2,2], [3,3], [4,5], [6,7]];
                 for(let c=0; c<5; c++) {
                     ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
@@ -1813,9 +1929,9 @@
                 ws.mergeCells(`A${rowIdx}:G${rowIdx}`); styleCell(ws.getCell(`A${rowIdx}`), ACCENT, 'FF111827', true, 11, 'center', 'middle', thinBorder);
                 ws.getCell(`A${rowIdx}`).value = "HERCI / CAST"; for(let c=2; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder; rowIdx++;
 
-                const headers = ["Postava", "Herec", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
-                const colSpans = [[1,1], [2,2], [3,4], [5,6], [7,7]];
-                for(let c=0; c<5; c++) {
+                const headers = ["Účinkujúci", "Odchod (Pick Up)", "Kostýmy / Masky", "Na pľaci (On Set)"];
+                const colSpans = [[1,2], [3,4], [5,6], [7,7]];
+                for(let c=0; c<4; c++) {
                     ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                     const cell = ws.getCell(rowIdx, colSpans[c][0]);
                     cell.value = headers[c].toUpperCase();
@@ -1824,7 +1940,7 @@
                 }
                 rowIdx++;
                 casts.forEach(rowData => {
-                    for(let c=0; c<5; c++) {
+                    for(let c=0; c<4; c++) {
                         if(c >= rowData.length) break;
                         ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                         const cell = ws.getCell(rowIdx, colSpans[c][0]);
@@ -1834,7 +1950,7 @@
                         let isCustomDark = argbBg && argbBg !== 'FFFFFFFF';
                         let cellFontColor = argbBg === 'FF333333' ? WHITE : (isCustomDark ? 'FF111827' : TEXT_COLOR);
 
-                        styleCell(cell, argbBg || null, cellFontColor, !!isCustomDark, 10, 'center', 'middle', thinBorder);
+                        styleCell(cell, argbBg || null, cellFontColor, !!isCustomDark, 10, c === 0 ? 'left' : 'center', 'middle', thinBorder);
                         ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
                     }
                     rowIdx++;
@@ -1846,9 +1962,22 @@
             if (notesSection && notesSection.nextElementSibling) {
                 ws.mergeCells(`A${rowIdx}:G${rowIdx}`);
                 ws.getCell(`A${rowIdx}`).value = "POZNÁMKY PRE ŠTÁB\n" + notesSection.nextElementSibling.innerText.trim();
-                styleCell(ws.getCell(`A${rowIdx}`), null, TEXT_COLOR, false, 10, 'left', 'top');
+                styleCell(ws.getCell(`A${rowIdx}`), null, TEXT_COLOR, false, 10, 'left', 'top', thinBorder);
+                for(let c=1; c<=7; c++) ws.getCell(rowIdx, c).border = thinBorder;
                 ws.getRow(rowIdx).height = 60;
+                rowIdx++;
+            } else {
+                rowIdx++;
             }
+
+            ws.mergeCells(`A${rowIdx}:G${rowIdx}`);
+            ws.getCell(`A${rowIdx}`).value = {
+                richText: [
+                    { font: { name: 'Arial', size: 8, color: { argb: 'FF000000' } }, text: 'copyright© barameter.sk' }
+                ]
+            };
+            ws.getCell(`A${rowIdx}`).alignment = { horizontal: 'right', vertical: 'middle' };
+            ws.getRow(rowIdx).height = 25;
 
             const fileName = 'Dispozícia_' + (dateFieldText || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.xlsx';
             const buffer = await wb.xlsx.writeBuffer();
@@ -1857,254 +1986,499 @@
             btn.innerText = '📊 EXPORT EXCEL';
         }
 
-        function exportPDF() {
+function exportPDF() {
             const btn = document.querySelector('.btn-primary');
             btn.innerText = '⚙️ PRIPRAVUJEM...';
 
-            const proj = getVal('Názov projektu') || 'PROJEKT';
-            const dateFieldText = document.getElementById('date-field') ? document.getElementById('date-field').innerText : 'DÁTUM';
-            const day = getVal('Filmovací deň') || '';
+            try {
+                const proj = getVal('Názov projektu') || 'PROJEKT';
+                const dateFieldText = document.getElementById('date-field') ? document.getElementById('date-field').innerText : 'DÁTUM';
+                const day = getVal('Filmovací deň') || '';
 
-            let extraProjInfo = [];
-            const projCells = document.getElementById('project-section') ? document.getElementById('project-section').querySelectorAll('.layout-cell') : [];
-            projCells.forEach(cell => {
-                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
-                if (!lbl.toLowerCase().includes('názov projektu') && !lbl.toLowerCase().includes('filmovací deň') && val) {
-                    extraProjInfo.push(val);
-                }
-            });
-            const extraProjStr = extraProjInfo.length > 0 ? '  |  ' + extraProjInfo.join('  |  ') : '';
-
-            let crewStr = [];
-            const crewSecPdf = document.getElementById('crew-section');
-            if (crewSecPdf && !crewSecPdf.classList.contains('ignored-in-export')) {
-                crewSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
+                let extraProjInfo = [];
+                const projCells = document.getElementById('project-section') ? document.getElementById('project-section').querySelectorAll('.layout-cell') : [];
+                projCells.forEach(cell => {
                     const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
-                    if (lbl && val) crewStr.push(`${lbl}: ${val}`);
+                    const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
+                    if (!lbl.toLowerCase().includes('názov projektu') && !lbl.toLowerCase().includes('filmovací deň') && val) {
+                        extraProjInfo.push(val);
+                    }
                 });
-            }
+                const extraProjStr = extraProjInfo.length > 0 ? '  |  ' + extraProjInfo.join('  |  ') : '';
 
-            let transStr = [];
-            const transSecPdf = document.getElementById('transport-section');
-            if (transSecPdf && !transSecPdf.classList.contains('ignored-in-export')) {
-                transSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
-                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                    const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
-                    if (lbl && val) transStr.push(`${lbl}: ${val}`);
-                });
-            }
-
-            let prodInfo = [];
-            const prodCells = document.getElementById('production-section') ? document.getElementById('production-section').querySelectorAll('.layout-cell') : [];
-            prodCells.forEach(cell => {
-                const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
-                const val = cell.querySelector('.editable') ? cell.querySelector('.editable').innerText.trim() : '';
-                if (lbl && val) prodInfo.push(`${lbl}: ${val}`);
-            });
-            const prodStr = prodInfo.join('\n');
-
-            const weatherSvgs = {
-                '☀️': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f1c40f"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.364 7.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414" stroke="#f39c12" stroke-width="2" stroke-linecap="round"/></svg>',
-                '⛅': '<svg viewBox="0 0 24 24"><circle cx="16" cy="10" r="4" fill="#f1c40f"/><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/></svg>',
-                '☁️': '<svg viewBox="0 0 24 24"><path d="M6 15a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/></svg>',
-                '🌫️': '<svg viewBox="0 0 24 24"><path d="M4 10h16M4 14h16M8 18h8M8 6h8" stroke="#95a5a6" stroke-width="2" stroke-linecap="round"/></svg>',
-                '🌧️': '<svg viewBox="0 0 24 24"><path d="M6 13a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/><path d="M10 16v3m4-3v3" stroke="#3498db" stroke-width="2" stroke-linecap="round"/></svg>',
-                '❄️': '<svg viewBox="0 0 24 24"><path d="M12 2v20m10-10H2m17.07-7.07l-14.14 14.14m14.14 0L4.93 4.93" stroke="#85c1e9" stroke-width="2" stroke-linecap="round"/></svg>',
-                '🌦️': '<svg viewBox="0 0 24 24"><circle cx="16" cy="10" r="4" fill="#f1c40f"/><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1.5"/><path d="M10 17v3m4-3v3" stroke="#3498db" stroke-width="2" stroke-linecap="round"/></svg>',
-                '⛈️': '<svg viewBox="0 0 24 24"><path d="M6 14a4 4 0 0 1 4-4h.5a5 5 0 0 1 9.5 0 4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="#7f8c8d" stroke="#34495e" stroke-width="1.5"/><path d="M13 14l-3 4h4l-3 4" fill="none" stroke="#f1c40f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                '🌡️': '<svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" fill="#ecf0f1" stroke="#e74c3c" stroke-width="2"/><circle cx="11.5" cy="17.5" r="2.5" fill="#e74c3c"/><path d="M11.5 15v-7" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/></svg>'
-            };
-
-            let wfPdf = document.getElementById('weather-field');
-            let rawWeather = wfPdf ? wfPdf.innerText : '';
-            if (rawWeather.includes('automaticky')) rawWeather = '';
-            let matchedEmoji = Object.keys(weatherSvgs).find(emoji => rawWeather.includes(emoji) || rawWeather.includes(emoji.charAt(0)));
-            let cleanWeather = rawWeather.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/gu, '').trim();
-            
-            const tC = getThemeColors();
-            const weatherTitlePdf = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : 'POČASIE';
-            
-            let weatherCell = { fillColor: tC.light, margin: [2, 2, 2, 2], border: [false, false, false, false], stack: [] };
-            if (matchedEmoji && weatherSvgs[matchedEmoji]) {
-                weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 16, alignment: 'center', margin: [0, 0, 0, 2] });
-            }
-            weatherCell.stack.push({ text: cleanWeather.split('|').map(p => p.trim()).join('\n'), alignment: 'center', bold: true });
-
-            const tableLayout = {
-                hLineWidth: function(i, node) { return 0.5; },
-                vLineWidth: function(i, node) { return 0.5; },
-                hLineColor: function(i, node) { return '#BDC3C7'; },
-                vLineColor: function(i, node) { return '#BDC3C7'; },
-                fillColor: function (rowIndex, node, columnIndex) {
-                    if (rowIndex === 0) return tC.accent; 
-                    return (rowIndex % 2 === 0) ? '#F2F4F4' : '#FFFFFF'; 
+                let crewStr = [];
+                const crewSecPdf = document.getElementById('crew-section');
+                if (crewSecPdf && !crewSecPdf.classList.contains('ignored-in-export')) {
+                    crewSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
+                        const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                        const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
+                        if (lbl && val) crewStr.push(`${lbl}: ${val}`);
+                    });
                 }
-            };
 
-            const docDefinition = {
-                pageSize: 'A4',
-                pageOrientation: 'portrait',
-                pageMargins: [10, 10, 10, 10], // Zúžené okraje na minimum (vľavo, hore, vpravo, dole)
-                defaultStyle: { font: 'Roboto', fontSize: 7.5, color: '#2c3e50' },
-                content: [
-                    { 
+                let transStr = [];
+                const transSecPdf = document.getElementById('transport-section');
+                if (transSecPdf && !transSecPdf.classList.contains('ignored-in-export')) {
+                    transSecPdf.querySelectorAll('.layout-cell').forEach(cell => {
+                        const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                        const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
+                        if (lbl && val) transStr.push(`${lbl}: ${val}`);
+                    });
+                }
+
+                let prodInfo = [];
+                const prodCells = document.getElementById('production-section') ? document.getElementById('production-section').querySelectorAll('.layout-cell') : [];
+                prodCells.forEach(cell => {
+                    const lbl = cell.querySelector('.editable-label') ? cell.querySelector('.editable-label').innerText.trim() : '';
+                    const ed = cell.querySelector('.editable'); const val = (ed && !ed.classList.contains('example-text')) ? ed.innerText.trim() : '';
+                    if (lbl && val) {
+                        if (prodInfo.length > 0) prodInfo.push({ text: '\n' });
+                        prodInfo.push({ text: `${lbl}: `, bold: true, fontSize: 9 });
+                        prodInfo.push({ text: val, bold: false, fontSize: 7.5 });
+                    }
+                });
+
+                const weatherSvgs = {
+                    '☀️': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f1c40f" stroke="#2c3e50" stroke-width="0.5"/><path d="M12 5v2M12 17v2M5 12h2M17 12h2M7.05 7.05l1.41 1.41M15.54 15.54l1.41 1.41M16.95 7.05l-1.41 1.41M8.46 15.54l-1.41 1.41" stroke="#d35400" stroke-width="0.65" stroke-linecap="round"/></svg>',
+                    '⛅': '<svg viewBox="0 0 24 24"><circle cx="15" cy="8" r="3.5" fill="#f1c40f" stroke="#2c3e50" stroke-width="0.5"/><path d="M15 3.5v1.2M18.5 8h1.2M17.47 5.53l.85-.85M12.53 5.53l-.85-.85M17.47 10.47l.85.85" stroke="#d35400" stroke-width="0.6" stroke-linecap="round"/><path d="M15 13c0-2.21-1.79-4-4-4-1.1 0-2.1.43-2.83 1.13A3.5 3.5 0 0 0 3 13.5C3 15.43 4.57 17 6.5 17H15c.82 0 1.5-.68 1.5-1.5 0-.28-.08-.54-.23-.77z" fill="#ecf0f1" stroke="#2c3e50" stroke-width="0.5"/></svg>',
+                    '☁️': '<svg viewBox="-2 -2 28 28"><path d="M19.36 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96z" fill="#ecf0f1" stroke="#2c3e50" stroke-width="0.5"/></svg>',
+                    '🌫️': '<svg viewBox="0 0 24 24"><path d="M3 9h18M3 13h18M5 17h14" stroke="#7f8c8d" stroke-width="0.75" stroke-linecap="round"/></svg>',
+                    '🌧️': '<svg viewBox="0 0 24 24"><path d="M16 11c0-2.21-1.79-4-4-4-1.1 0-2.1.43-2.83 1.13A3.5 3.5 0 0 0 4 11.5C4 13.43 5.57 15 7.5 15H16c.82 0 1.5-.68 1.5-1.5 0-.28-.08-.54-.23-.77z" fill="#ecf0f1" stroke="#2c3e50" stroke-width="0.5"/><path d="M7 17v3m4-3v3m4-3v3" stroke="#2980b9" stroke-width="0.65" stroke-linecap="round"/></svg>',
+                    '❄️': '<svg viewBox="0 0 24 24"><path d="M12 2v20m10-10H2m17.07-7.07l-14.14 14.14m14.14 0L4.93 4.93" stroke="#2980b9" stroke-width="0.65" stroke-linecap="round"/></svg>',
+                    '🌦️': '<svg viewBox="0 0 24 24"><circle cx="15" cy="8" r="3.5" fill="#f1c40f" stroke="#2c3e50" stroke-width="0.5"/><path d="M15 3.5v1.2M18.5 8h1.2M17.47 5.53l.85-.85M12.53 5.53l-.85-.85M17.47 10.47l.85.85" stroke="#d35400" stroke-width="0.6" stroke-linecap="round"/><path d="M15 13c0-2.21-1.79-4-4-4-1.1 0-2.1.43-2.83 1.13A3.5 3.5 0 0 0 3 13.5C3 15.43 4.57 17 6.5 17H15c.82 0 1.5-.68 1.5-1.5 0-.28-.08-.54-.23-.77z" fill="#ecf0f1" stroke="#2c3e50" stroke-width="0.5"/><path d="M7 19v2m4-2v2m4-2v2" stroke="#2980b9" stroke-width="0.65" stroke-linecap="round"/></svg>',
+                    '⛈️': '<svg viewBox="-2 -2 28 28"><path d="M19.36 8.04C18.67 4.59 15.64 2 12 2 9.11 2 6.6 3.64 5.35 6.04 2.34 6.36 0 8.91 0 12c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.64-4.96z" fill="#7f8c8d" stroke="#2c3e50" stroke-width="0.5"/><path d="M11 13l-2.5 3.5h3l-2.5 3.5" fill="none" stroke="#f1c40f" stroke-width="0.65" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                    '🌡️': '<svg viewBox="0 0 24 24"><path d="M14 12.76V4a2 2 0 0 0-4 0v8.76a3.5 3.5 0 1 0 4 0z" fill="#ecf0f1" stroke="#c0392b" stroke-width="0.6"/><circle cx="12" cy="16.5" r="2" fill="#c0392b"/><path d="M12 13V8" stroke="#c0392b" stroke-width="0.6" stroke-linecap="round"/></svg>'
+                };
+
+                let wfPdf = document.getElementById('weather-field');
+                let rawWeather = wfPdf ? wfPdf.innerText : '';
+                if (rawWeather.includes('automaticky')) rawWeather = '';
+                let matchedEmoji = Object.keys(weatherSvgs).find(emoji => rawWeather.includes(emoji));
+                let cleanWeather = rawWeather.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{2300}-\u{23FF}\u{2B50}\u{FE0F}]/gu, '').trim();
+                
+                const tC = getThemeColors();
+                const weatherTitlePdf = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : 'POČASIE';
+                
+                let weatherCell = { fillColor: tC.light, margin: [2, 2, 2, 2], border: [true, false, true, true], stack: [] };
+                if (matchedEmoji && weatherSvgs[matchedEmoji]) {
+                    weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 55, alignment: 'center', margin: [0, -7, 0, -7] });
+                }
+                weatherCell.stack.push({ text: cleanWeather.split('|').map(p => p.trim()).join('\n'), alignment: 'center', bold: true });
+
+                const tableLayout = {
+                    hLineWidth: function(i, node) { return 0.5; },
+                    vLineWidth: function(i, node) { return 0.5; },
+                    hLineColor: function(i, node) { return '#BDC3C7'; },
+                    vLineColor: function(i, node) { return '#BDC3C7'; },
+                    fillColor: function (rowIndex, node, columnIndex) {
+                        if (rowIndex === 0) return tC.accent; 
+                        return (rowIndex % 2 === 0) ? '#F2F4F4' : '#FFFFFF'; 
+                    }
+                };
+
+                const blockLayout = {
+                    hLineWidth: function(i, node) { return 0.5; },
+                    vLineWidth: function(i, node) { return 0.5; },
+                    hLineColor: function(i, node) { return '#BDC3C7'; },
+                    vLineColor: function(i, node) { return '#BDC3C7'; }
+                };
+
+                const docDefinition = {
+                    pageSize: 'A4',
+                    pageOrientation: 'portrait',
+                    pageMargins: [10, 10, 10, 20],
+                    footer: function(currentPage, pageCount) {
+                        return {
+                            text: 'copyright© barameter.sk',
+                            color: '#000000',
+                            alignment: 'right',
+                            fontSize: 7,
+                            margin: [0, 5, 10, 0]
+                        };
+                    },
+                    defaultStyle: { font: 'Roboto', fontSize: 7.5, color: '#2c3e50' },
+                    content: [
+                        { 
                         table: { widths: ['*'], body: [
-                            [{ text: `DENNÁ DISPOZÍCIA  |  ${dateFieldText.toUpperCase()}`, fontSize: 12, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 4, 0, 2], border: [false, false, false, false] }],
-                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`, fontSize: 8.5, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 2, 0, 4], border: [false, false, false, false] }]
+                            [{ text: `DENNÁ DISPOZÍCIA  |  ${dateFieldText.toUpperCase()}`, fontSize: 12, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 4, 0, 2], border: [true, true, true, false] }],
+                            [{ text: `${proj.toUpperCase()}  |  ${day}. natáčací deň${extraProjStr}`, fontSize: 8.5, bold: true, color: '#111827', alignment: 'center', fillColor: tC.light, margin: [0, 2, 0, 4], border: [true, false, true, true] }]
                         ]},
-                        layout: 'noBorders',
+                        layout: {
+                            hLineWidth: function(i, node) { return 0.5; },
+                            vLineWidth: function(i, node) { return 0.5; },
+                            hLineColor: function(i, node) { return '#BDC3C7'; },
+                            vLineColor: function(i, node) { return '#BDC3C7'; }
+                        },
                         margin: [0, 0, 0, 5]
                     },
-                    {
-                        table: {
-                            widths: ['32%', '2%', '32%', '2%', '32%'],
-                            body: [
-                                [
-                                    { text: 'PRODUKCIA', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] },
-                                    { text: '', border: [false, false, false, false] },
-                                    { text: weatherTitlePdf, fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] },
-                                    { text: '', border: [false, false, false, false] },
-                                    { text: 'LOKÁCIA A ZÁZEMIE', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }
-                                ],
-                                [
-                                    { text: prodStr, fillColor: '#F2F4F4', margin: [2, 2, 2, 2], border: [false, false, false, false] },
-                                    { text: '', border: [false, false, false, false] },
-                                    weatherCell,
-                                    { text: '', border: [false, false, false, false] },
-                                    { text: `Adresa: ${getVal('Hlavná Lokácia').replace(/\n/g, ', ')}\nZázemie: ${getVal('Zázemie')}\nParkovanie: ${getVal('Parkovanie')}`, fillColor: '#F2F4F4', margin: [2, 2, 2, 2], border: [false, false, false, false] }
+                        {
+                            table: {
+                                widths: ['32%', '2%', '32%', '2%', '32%'],
+                                body: [
+                                    [
+                                        { text: 'PRODUKCIA', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] },
+                                        { text: '', border: [false, false, false, false] },
+                                        { text: weatherTitlePdf, fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] },
+                                        { text: '', border: [false, false, false, false] },
+                                        { text: 'LOKÁCIE', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] }
+                                    ],
+                                    [
+                                        { text: prodInfo, fillColor: '#F2F4F4', margin: [2, 4, 2, 4], border: [true, false, true, true], lineHeight: 1.2 },
+                                        { text: '', border: [false, false, false, false] },
+                                        weatherCell,
+                                        { text: '', border: [false, false, false, false] },
+                                        { text: [
+                                            ...(getVal('Hlavná Lokácia') ? [{ text: 'Hlavná lokácia: ', bold: true, fontSize: 9 }, { text: `${getVal('Hlavná Lokácia').replace(/\n/g, ', ')}\n`, bold: false, fontSize: 7.5 }] : []),
+                                            ...(getVal('Zázemie') ? [{ text: 'Zázemie: ', bold: true, fontSize: 9 }, { text: `${getVal('Zázemie')}\n`, bold: false, fontSize: 7.5 }] : []),
+                                            ...(getVal('Parkovanie') ? [{ text: 'Parkovanie: ', bold: true, fontSize: 9 }, { text: getVal('Parkovanie'), bold: false, fontSize: 7.5 }] : [])
+                                        ], fillColor: '#F2F4F4', margin: [2, 4, 2, 4], border: [true, false, true, true], lineHeight: 1.2 }
+                                    ]
                                 ]
-                            ]
-                        },
-                        layout: 'noBorders',
-                        margin: [0, 0, 0, 5]
-                    }
-                ]
-            };
+                            },
+                            layout: blockLayout,
+                            margin: [0, 0, 0, 5]
+                        }
+                    ]
+                };
 
-            const noticeCells = document.getElementById('notices-section') ? document.getElementById('notices-section').querySelectorAll('.layout-cell') : [];
-            noticeCells.forEach(cell => {
-                const lblEl = cell.querySelector('.editable-label');
-                const valEl = cell.querySelector('.editable');
-                let lbl = lblEl ? lblEl.innerText.trim() : '';
-                let val = valEl ? valEl.innerText.trim() : '';
-                
-                if (lbl.toUpperCase() === 'NOVÁ POLOŽKA') lbl = '';
-                
-                if (!lbl && !val) return;
-
-                const hexLblColor = getHexFromRgb(lblEl ? lblEl.style.backgroundColor : '') || tC.accent;
-                const hexValColor = getHexFromRgb(valEl ? valEl.style.backgroundColor : '');
-                
-                const blockBody = [];
-                if (lbl) {
-                    blockBody.push([{ text: lbl.toUpperCase(), fontSize: 8, bold: true, color: '#111827', alignment: 'center', fillColor: hexLblColor, margin: [0, 2, 0, 2], border: [false, false, false, false] }]);
-                }
-                if (val) {
-                    const fontColor = (hexValColor && hexValColor.toUpperCase() === '#333333') ? 'white' : (hexValColor ? '#111827' : '#2c3e50');
-                    const bgColor = hexValColor || '#F2F4F4';
-                    blockBody.push([{ text: val, fontSize: 8, bold: !!hexValColor, color: fontColor, alignment: 'center', fillColor: bgColor, margin: [0, 2, 0, 2], border: [false, false, false, false] }]);
-                }
-                
-                docDefinition.content.push({ table: { widths: ['*'], body: blockBody }, layout: 'noBorders', margin: [0, 0, 0, 5] });
-            });
-
-            if (crewStr.length > 0) {
-                docDefinition.content.push({
-                    table: { widths: ['*'], body: [
-                        [{ text: 'NÁSTUPY NA PĽAC', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }],
-                        [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [false, false, false, false] }]
-                    ]},
-                    layout: 'noBorders', margin: [0, 0, 0, 5]
-                });
-            }
-
-            if (transStr.length > 0) {
-                docDefinition.content.push({
-                    table: { widths: ['*'], body: [
-                        [{ text: 'TRANSPORT', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }],
-                        [{ text: transStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [false, false, false, false] }]
-                    ]},
-                    layout: 'noBorders', margin: [0, 0, 0, 5]
-                });
-            }
-
-            const scenes = getTableData('scény');
-            if (scenes.length > 0) {
-                const sceneBody = [];
-                sceneBody.push([
-                    { text: 'ČAS', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
-                    { text: 'SCÉNA', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
-                    { text: 'POPIS AKCIE', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
-                    { text: 'ÚČINKUJÚCI', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
-                    { text: 'REKVIZITY', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] }
-                ]);
-                scenes.forEach(row => {
-                    const isLunch = row.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
+                const noticeCells = document.getElementById('notices-section') ? document.getElementById('notices-section').querySelectorAll('.layout-cell') : [];
+                noticeCells.forEach(cell => {
+                    const lblEl = cell.querySelector('.editable-label');
+                    const valEl = cell.querySelector('.editable');
+                    let lbl = lblEl ? lblEl.innerText.trim() : '';
+                    let val = (valEl && !valEl.classList.contains('example-text')) ? valEl.innerText.trim() : '';
                     
-                    const rowCells = [];
-                    for(let c=0; c<5; c++) {
-                        let hexBg = getHexFromRgb(row[c].bg);
-                        let isDark = hexBg && hexBg.toUpperCase() !== '#F9E79F' && hexBg.toUpperCase() !== '#FFFFFF';
-                        let cellBg = hexBg || (isLunch ? '#F9E79F' : null);
-                        let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
-                        rowCells.push({ text: row[c].text, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
-                    }
-                    sceneBody.push(rowCells);
-                });
-                docDefinition.content.push({
-                    table: { headerRows: 1, widths: ['14%', '10%', '28%', '18%', '30%'], body: sceneBody },
-                    layout: tableLayout, margin: [0, 0, 0, 5]
-                });
-            }
+                    if (lbl.toUpperCase() === 'NOVÁ POLOŽKA') lbl = '';
+                    
+                    if (!lbl && !val) return;
 
-            const casts = getTableData('herci');
-            if (casts.length > 0) {
-                docDefinition.content.push({
-                    table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }]] },
-                    layout: 'noBorders'
+                    const hexLblColor = getHexFromRgb(lblEl ? lblEl.style.backgroundColor : '') || tC.accent;
+                    const hexValColor = getHexFromRgb(valEl ? valEl.style.backgroundColor : '');
+                    
+                    const blockBody = [];
+                    if (lbl && val) {
+                        blockBody.push([{ text: lbl.toUpperCase(), fontSize: 8, bold: true, color: '#111827', alignment: 'center', fillColor: hexLblColor, margin: [0, 2, 0, 2], border: [true, true, true, false] }]);
+                        const fontColor = (hexValColor && hexValColor.toUpperCase() === '#333333') ? 'white' : (hexValColor ? '#111827' : '#2c3e50');
+                        const bgColor = hexValColor || '#F2F4F4';
+                        blockBody.push([{ text: val, fontSize: 8, bold: !!hexValColor, color: fontColor, alignment: 'center', fillColor: bgColor, margin: [0, 2, 0, 2], border: [true, false, true, true] }]);
+                    } else if (lbl) {
+                        blockBody.push([{ text: lbl.toUpperCase(), fontSize: 8, bold: true, color: '#111827', alignment: 'center', fillColor: hexLblColor, margin: [0, 2, 0, 2], border: [true, true, true, true] }]);
+                    } else if (val) {
+                        const fontColor = (hexValColor && hexValColor.toUpperCase() === '#333333') ? 'white' : (hexValColor ? '#111827' : '#2c3e50');
+                        const bgColor = hexValColor || '#F2F4F4';
+                        blockBody.push([{ text: val, fontSize: 8, bold: !!hexValColor, color: fontColor, alignment: 'center', fillColor: bgColor, margin: [0, 2, 0, 2], border: [true, true, true, true] }]);
+                    }
+                    
+                    docDefinition.content.push({ table: { widths: ['*'], body: blockBody }, layout: blockLayout, margin: [0, 0, 0, 5] });
                 });
-                const castBody = [];
-                castBody.push([
-                    { text: 'POSTAVA', bold: true, alignment: 'center', margin:[0,1,0,1] },
-                    { text: 'HEREC', bold: true, alignment: 'center', margin:[0,1,0,1] },
+
+                if (crewStr.length > 0) {
+                    docDefinition.content.push({
+                        table: { widths: ['*'], body: [
+                            [{ text: 'NÁSTUPY NA PĽAC', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] }],
+                            [{ text: crewStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [true, false, true, true] }]
+                        ]},
+                        layout: blockLayout, margin: [0, 0, 0, 5]
+                    });
+                }
+
+                if (transStr.length > 0) {
+                    docDefinition.content.push({
+                        table: { widths: ['*'], body: [
+                            [{ text: 'TRANSPORT', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] }],
+                            [{ text: transStr.join('  |  '), fillColor: '#F2F4F4', alignment: 'center', margin: [0, 2, 0, 2], border: [true, false, true, true] }]
+                        ]},
+                        layout: blockLayout, margin: [0, 0, 0, 5]
+                    });
+                }
+
+                const scenes = getTableData('scény');
+                if (scenes.length > 0) {
+                    const sceneBody = [];
+                    sceneBody.push([
+                        { text: 'ČAS', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                        { text: 'OBRAZ', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                        { text: 'POPIS AKCIE', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                        { text: 'ÚČINKUJÚCI', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                        { text: 'REKVIZITY', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] }
+                    ]);
+                    scenes.forEach(row => {
+                        const isLunch = row.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
+                        
+                        const rowCells = [];
+                        for(let c=0; c<5; c++) {
+                            let hexBg = getHexFromRgb(row[c].bg);
+                            let isDark = hexBg && hexBg.toUpperCase() !== '#F9E79F' && hexBg.toUpperCase() !== '#FFFFFF';
+                            let cellBg = hexBg || (isLunch ? '#F9E79F' : null);
+                            let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
+                            rowCells.push({ text: row[c].text, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
+                        }
+                        sceneBody.push(rowCells);
+                    });
+                    docDefinition.content.push({
+                        table: { headerRows: 1, widths: ['14%', '10%', '28%', '18%', '30%'], body: sceneBody },
+                        layout: tableLayout, margin: [0, 0, 0, 5]
+                    });
+                }
+
+                const casts = getTableData('herci');
+                if (casts.length > 0) {
+                    docDefinition.content.push({
+                        table: { widths: ['*'], body: [[{ text: 'HERCI / CAST', fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [false, false, false, false] }]] },
+                        layout: 'noBorders'
+                    });
+                    const castBody = [];
+                    castBody.push([
+                    { text: 'ÚČINKUJÚCI', bold: true, alignment: 'center', margin:[0,1,0,1] },
                     { text: 'ODCHOD (PICK UP)', bold: true, alignment: 'center', margin:[0,1,0,1] },
                     { text: 'KOSTÝMY / MASKY', bold: true, alignment: 'center', margin:[0,1,0,1] },
                     { text: 'NA PĽACI (ON SET)', bold: true, alignment: 'center', margin:[0,1,0,1] }
                 ]);
-                casts.forEach(row => {
-                    const rowCells = [];
-                    for(let c=0; c<5; c++) {
-                        let hexBg = getHexFromRgb(row[c].bg);
-                        let isDark = hexBg && hexBg.toUpperCase() !== '#FFFFFF';
-                        let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
-                        rowCells.push({ text: row[c].text, alignment: 'center', margin: [1, 2, 1, 2], fillColor: hexBg || null, color: fontColor, bold: isDark });
+                    casts.forEach(row => {
+                        const rowCells = [];
+                        for(let c=0; c<4; c++) {
+                            let hexBg = getHexFromRgb(row[c].bg);
+                            let isDark = hexBg && hexBg.toUpperCase() !== '#FFFFFF';
+                            let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
+                            rowCells.push({ text: row[c].text, alignment: c === 0 ? 'left' : 'center', margin: [1, 2, 1, 2], fillColor: hexBg || null, color: fontColor, bold: isDark });
+                        }
+                        castBody.push(rowCells);
+                    });
+                    docDefinition.content.push({
+                        table: { headerRows: 1, widths: ['40%', '20%', '20%', '20%'], body: castBody },
+                        layout: {
+                            hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
+                            hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
+                            fillColor: function (rowIndex, node, columnIndex) { return (rowIndex === 0) ? '#F2F4F4' : '#FFFFFF'; }
+                        },
+                        margin: [0, 0, 0, 5]
+                    });
+                }
+
+                const notesSection = document.querySelector('.notes-section');
+                const notesField = document.getElementById('notes-field');
+                if (notesSection && notesField) {
+                    const notesText = notesField.innerText.trim();
+                    const isExample = notesField.classList.contains('example-text');
+                    
+                    if (notesText && !isExample) {
+                        docDefinition.content.push({
+                            table: { widths: ['*'], body: [
+                                [{ text: notesSection.innerText.toUpperCase(), fillColor: tC.accent, color: '#111827', bold: true, alignment: 'center', margin: [0, 1, 0, 1], border: [true, true, true, false] }],
+                                [{ text: notesText, margin: [2, 2, 2, 2], fillColor: '#FFFFFF', color: '#2c3e50', border: [true, false, true, true] }]
+                            ]},
+                            layout: blockLayout,
+                            margin: [0, 0, 0, 5]
+                        });
                     }
-                    castBody.push(rowCells);
-                });
-                docDefinition.content.push({
-                    table: { headerRows: 1, widths: ['20%', '20%', '20%', '20%', '20%'], body: castBody },
-                    layout: {
-                        hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
-                        hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
-                        fillColor: function (rowIndex, node, columnIndex) { return (rowIndex === 0) ? '#F2F4F4' : '#FFFFFF'; }
-                    },
-                    margin: [0, 0, 0, 5]
+                }
+
+                const fileName = 'Dispozícia_' + (dateFieldText || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.pdf';
+                pdfMake.createPdf(docDefinition).download(fileName);
+                btn.innerText = '📄 EXPORT PDF';
+            } catch (err) {
+                console.error(err);
+                alert('Chyba pri generovaní PDF: ' + err.message);
+                btn.innerText = '📄 EXPORT PDF';
+            }
+        }
+
+        document.addEventListener('change', async function(e) {
+            if (e.target.id === 'script-upload-doc') {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const btn = document.getElementById('btn-load-script');
+                if (btn) {
+                    btn.innerText = "⏳ UČÍM SA...";
+                    btn.style.pointerEvents = "none";
+                }
+                
+                try {
+                    let rawText = "";
+                    if (file.name.toLowerCase().endsWith('.docx')) {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+                        rawText = result.value;
+                    } else if (file.name.toLowerCase().endsWith('.pdf')) {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            rawText += textContent.items.map(item => item.str).join(" ") + "\n";
+                        }
+                    } else {
+                        alert("Tento formát nepoznám. Použi DOCX alebo PDF.");
+                        if (btn) {
+                            btn.innerText = "📂 NAČÍTAŤ SCENÁR DO PAMÄTE";
+                            btn.style.pointerEvents = "auto";
+                        }
+                        return;
+                    }
+                    
+                    localStorage.setItem('savedScriptText', rawText);
+                    localStorage.setItem('savedScriptName', file.name);
+                    
+                    const filenameDisplay = document.getElementById('script-filename-display');
+                    if (filenameDisplay) filenameDisplay.innerText = `(${file.name})`;
+                    
+                    const sceneRows = document.querySelectorAll('.scenes-table tbody:not(.ignore-export) tr:not(.lunch-row)');
+                    sceneRows.forEach(row => {
+                        if (row.cells.length >= 5) {
+                            const sceneNumEdit = row.cells[1].querySelector('.editable');
+                            const locEdit = row.cells[2].querySelector('.editable');
+                            const castEdit = row.cells[3].querySelector('.editable');
+                            const propsEdit = row.cells[4].querySelector('.editable');
+                            
+                            if (sceneNumEdit) sceneNumEdit.innerText = '';
+                            if (locEdit) locEdit.innerText = '';
+                            if (castEdit) castEdit.innerText = '';
+                            if (propsEdit) propsEdit.innerText = '';
+                        }
+                    });
+                    saveData();
+                    
+                    if (btn) {
+                        btn.innerText = "✅ SCENÁR JE V PAMÄTI";
+                        btn.style.backgroundColor = "#10b981";
+                        btn.style.pointerEvents = "auto";
+                    }
+                    
+                } catch (err) {
+                    console.error(err);
+                    alert("Nepodarilo sa prečítať súbor. Skontrolujte formát.");
+                    if (btn) {
+                        btn.innerText = "📂 NAČÍTAŤ SCENÁR DO PAMÄTE";
+                        btn.style.backgroundColor = "#8b5cf6";
+                        btn.style.pointerEvents = "auto";
+                    }
+                }
+                e.target.value = '';
+            }
+        });
+
+function syncCastTableWithScenes() {
+            const savedScript = localStorage.getItem('savedScriptText');
+            if (!savedScript || typeof analyzeScript !== 'function') return;
+
+            const sceneRows = document.querySelectorAll('.scenes-table tbody:not(.ignore-export) tr:not(.lunch-row)');
+            let allTargetScenes = [];
+            sceneRows.forEach(row => {
+                const sceneNumCell = row.cells[1]?.querySelector('.editable');
+                if (sceneNumCell) {
+                    const val = sceneNumCell.innerText.trim();
+                    if (val && !sceneNumCell.classList.contains('example-text')) {
+                        const splitScenes = val.split(',').map(s => s.replace(/\s+/g, '').replace(/\.$/, '').toLowerCase());
+                        allTargetScenes.push(...splitScenes);
+                    }
+                }
+            });
+
+            if (allTargetScenes.length === 0) return;
+
+            const foundScenes = analyzeScript(savedScript, allTargetScenes);
+            const castOccurrences = foundScenes.flatMap(s => s.cast.split(',').map(c => c.trim())).filter(Boolean);
+            const castCounts = {};
+            castOccurrences.forEach(name => {
+                castCounts[name] = (castCounts[name] || 0) + 1;
+            });
+            const combinedCast = Object.keys(castCounts).sort((a, b) => castCounts[b] - castCounts[a]);
+
+            if (combinedCast.length > 0) {
+                const castTable = document.querySelectorAll('.data-table')[1];
+                if (castTable) {
+                    const castTbody = castTable.querySelector('tbody');
+                    const existingRows = Array.from(castTbody.querySelectorAll('tr'));
+                    
+                    const charDataMap = new Map();
+                    existingRows.forEach(row => {
+                        const charCell = row.cells[0]?.querySelector('.editable');
+                        if (charCell) {
+                            const name = charCell.innerText.trim();
+                            if (name && !charCell.classList.contains('example-text')) {
+                                charDataMap.set(name.toLowerCase(), {
+                                    name: name,
+                                    pickup: row.cells[1]?.querySelector('.editable')?.innerText.trim() || '',
+                                    costume: row.cells[2]?.querySelector('.editable')?.innerText.trim() || '',
+                                    onset: row.cells[3]?.querySelector('.editable')?.innerText.trim() || ''
+                                });
+                            }
+                        }
+                    });
+
+                    castTbody.innerHTML = '';
+                    combinedCast.forEach(charName => {
+                        const newRow = document.createElement('tr');
+                        let existing = charDataMap.get(charName.toLowerCase());
+                        let pUp = existing ? existing.pickup : 'HH:MM (Miesto)';
+                        let pUpClass = existing && existing.pickup && existing.pickup !== 'HH:MM (Miesto)' ? '' : 'example-text';
+                        let cost = existing ? existing.costume : 'HH:MM - HH:MM';
+                        let costClass = existing && existing.costume && existing.costume !== 'HH:MM - HH:MM' ? '' : 'example-text';
+                        let onset = existing ? existing.onset : 'HH:MM';
+                        let onsetClass = existing && existing.onset && existing.onset !== 'HH:MM' ? '' : 'example-text';
+
+                        newRow.setAttribute('draggable', 'true');
+                        newRow.innerHTML = `
+                            <td><button class="delete-btn td-delete">&times;</button><div class="editable">${charName}</div></td>
+                            <td><div class="editable ${pUpClass}" data-type="time-loc">${pUp}</div></td>
+                            <td><div class="editable ${costClass}" data-type="time-range">${cost}</div></td>
+                            <td><div class="editable ${onsetClass}" data-type="time">${onset}</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
+                        `;
+                        castTbody.appendChild(newRow);
+                    });
+                }
+            }
+        }
+
+        function analyzeScript(text, targetScenes) {
+            const lines = text.split(/\r?\n/).map(l => l.trim());
+            let results = [];
+            let currentSceneObj = null;
+            let state = "idle";
+            
+            function isMatch(foundNum) {
+                return targetScenes.some(t => {
+                    return foundNum === t || foundNum.startsWith(t + '/') || foundNum === (t + 'a') || foundNum === (t + 'b') || foundNum === (t + 'c');
                 });
             }
-
-            const notesSection = document.querySelector('.notes-section');
-            if (notesSection && notesSection.nextElementSibling) {
-                docDefinition.content.push({
-                    text: 'POZNÁMKY PRE ŠTÁB:\n' + notesSection.nextElementSibling.innerText.trim(),
-                    fontSize: 7.5, margin: [0, 2, 0, 0]
-                });
+            
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                if (!line) continue;
+                
+                let headingMatch = line.match(/^(?:OBRAZ\s*)?(\d+(?:\/\d+)?[a-zA-Z]?)\b.*?(INT\.|EXT\.|INT\b|EXT\b)(.*)/i);
+                
+                if (headingMatch) {
+                    if (currentSceneObj && isMatch(currentSceneObj.number)) {
+                        results.push(currentSceneObj);
+                    }
+                    const sceneNum = headingMatch[1].replace(/\s+/g, '').toLowerCase();
+                    currentSceneObj = {
+                        number: sceneNum,
+                        location: (headingMatch[2] + headingMatch[3]).trim(),
+                        cast: "",
+                        props: ""
+                    };
+                    state = "expecting_cast";
+                } else if (currentSceneObj) {
+                    if (state === "expecting_cast") {
+                        currentSceneObj.cast = line;
+                        state = "looking_for_props";
+                    } else if (state === "looking_for_props") {
+                        let propsMatch = line.match(/\(?rekvizity:\s*(.*?)(?:\)|$)/i);
+                        if (propsMatch) {
+                            currentSceneObj.props = propsMatch[1].trim();
+                            state = "idle";
+                        }
+                    }
+                }
             }
-
-            const fileName = 'Dispozícia_' + (dateFieldText || 'nepomenovana').replace(/[^0-9a-zA-Z]/g, '_') + '.pdf';
-            pdfMake.createPdf(docDefinition).download(fileName);
-            btn.innerText = '📄 EXPORT PDF';
+            
+            if (currentSceneObj && isMatch(currentSceneObj.number)) {
+                results.push(currentSceneObj);
+            }
+            return results;
         }
 
         window.onload = loadData;
