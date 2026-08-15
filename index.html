@@ -1301,12 +1301,19 @@
                     if (foundScenes.length > 0) {
                         const combinedLoc = foundScenes.map(s => s.location).filter(Boolean).join(' / ');
                         const combinedCast = Array.from(new Set(foundScenes.flatMap(s => s.cast.split(', ')))).filter(Boolean).join(', ');
+                        const combinedAction = foundScenes.map(s => s.action).filter(Boolean).join(' / ');
                         const combinedProps = foundScenes.map(s => s.props).filter(Boolean).join(', ');
                         
                         const locEdit = tr.cells[2]?.querySelector('.editable');
                         if (locEdit && combinedLoc) {
                             locEdit.innerText = combinedLoc;
                             locEdit.classList.remove('example-text');
+                        }
+
+                        const actionEdit = tr.cells[3]?.querySelector('.editable');
+                        if (actionEdit && combinedAction) {
+                            actionEdit.innerText = combinedAction;
+                            actionEdit.classList.remove('example-text');
                         }
                         
                         const castEdit = tr.cells[4]?.querySelector('.editable');
@@ -2098,11 +2105,17 @@ function exportPDF() {
                 const tC = getThemeColors();
                 const weatherTitlePdf = document.getElementById('weather-label') ? document.getElementById('weather-label').innerText.toUpperCase() : 'POČASIE';
                 
-                let weatherCell = { fillColor: tC.light, margin: [2, 2, 2, 2], border: [true, false, true, true], stack: [] };
+                let weatherCell = { fillColor: tC.light, margin: [2, 4, 2, 4], border: [true, false, true, true] };
+                let textLines = cleanWeather.split('|').map(p => p.trim()).join('\n');
+                
                 if (matchedEmoji && weatherSvgs[matchedEmoji]) {
-                    weatherCell.stack.push({ svg: weatherSvgs[matchedEmoji], width: 55, alignment: 'center', margin: [0, -7, 0, -7] });
+                    weatherCell.columns = [
+                        { width: '45%', stack: [{ svg: weatherSvgs[matchedEmoji], width: 42, alignment: 'right' }], margin: [0, -2, 6, 0] },
+                        { width: '55%', text: textLines, alignment: 'left', bold: true, fontSize: 9, margin: [0, 1, 0, 0] }
+                    ];
+                } else {
+                    weatherCell.stack = [{ text: textLines, alignment: 'center', bold: true, fontSize: 9, margin: [0, 2, 0, 0] }];
                 }
-                weatherCell.stack.push({ text: cleanWeather.split('|').map(p => p.trim()).join('\n'), alignment: 'center', bold: true });
 
                 const tableLayout = {
                     hLineWidth: function(i, node) { return 0.5; },
@@ -2252,7 +2265,7 @@ function exportPDF() {
                             let cellBg = hexBg || (isLunch ? '#F9E79F' : null);
                             let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
                             let alignH = (c === 1) ? 'center' : 'left';
-                            rowCells.push({ text: row[c].text, alignment: alignH, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
+                            rowCells.push({ text: row[c].text, alignment: alignH, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark, noWrap: c === 0 });
                         }
                         sceneBody.push(rowCells);
                     });
@@ -2286,7 +2299,7 @@ function exportPDF() {
                         castBody.push(rowCells);
                     });
                     docDefinition.content.push({
-                        table: { headerRows: 1, widths: ['*', 'auto', 'auto', 'auto'], body: castBody },
+                        table: { headerRows: 1, widths: ['*', '*', '*', '*'], body: castBody },
                         layout: {
                             hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
                             hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
@@ -2501,12 +2514,17 @@ function syncCastTableWithScenes() {
                         number: sceneNum,
                         location: (headingMatch[2] + headingMatch[3]).trim(),
                         cast: "",
+                        action: "",
                         props: ""
                     };
                     state = "expecting_cast";
                 } else if (currentSceneObj) {
                     if (state === "expecting_cast") {
                         currentSceneObj.cast = line;
+                        state = "expecting_action";
+                    } else if (state === "expecting_action") {
+                        let firstSentence = line.split('.')[0] + (line.includes('.') ? '.' : '');
+                        currentSceneObj.action = firstSentence; 
                         state = "looking_for_props";
                     } else if (state === "looking_for_props") {
                         let propsMatch = line.match(/\(?rekvizity:\s*(.*?)(?:\)|$)/i);
