@@ -399,10 +399,17 @@
             touch-action: none;
         }
         
-        .dnd-poly-drag-image {
-            opacity: 0.9 !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
-            background-color: white !important;
+        .is-moving {
+            opacity: 0.8 !important;
+            outline: 2px dashed var(--color-primary) !important;
+            outline-offset: -2px !important;
+            background-color: #e2e8f0 !important;
+            transform: scale(0.98);
+            transition: transform 0.1s;
+            z-index: 100;
+        }
+        .is-moving td, .is-moving .editable {
+            background-color: transparent !important;
         }
 
         .export-toggle-wrapper { position: relative; margin-top: 15px; margin-bottom: 7.5px; }
@@ -909,64 +916,109 @@
 
         let touchDragEl = null;
         let touchColEl = null;
+        let autoScrollInterval = null;
+        let holdTimer = null;
+        window.wasDragged = false;
 
         document.addEventListener('touchstart', function(e) {
             if (e.target.classList.contains('drag-handle')) {
                 touchDragEl = e.target.closest('tr');
-                if (touchDragEl) {
-                    touchDragEl.style.opacity = '0.4';
-                    e.preventDefault();
-                }
+                if (touchDragEl) { touchDragEl.classList.add('is-moving'); e.preventDefault(); }
+                return;
             } else if (e.target.classList.contains('drag-col-handle')) {
                 touchColEl = e.target.closest('td.layout-cell');
-                if (touchColEl) {
-                    touchColEl.style.opacity = '0.4';
-                    e.preventDefault();
-                }
+                if (touchColEl) { touchColEl.classList.add('is-moving'); e.preventDefault(); }
+                return;
+            }
+
+            let dragTr = e.target.closest('tr[draggable="true"]');
+            let dragTd = e.target.closest('td.layout-cell[draggable="true"]');
+            
+            if (dragTr || dragTd) {
+                holdTimer = setTimeout(() => {
+                    if (dragTr) {
+                        touchDragEl = dragTr;
+                        touchDragEl.classList.add('is-moving');
+                    } else if (dragTd) {
+                        touchColEl = dragTd;
+                        touchColEl.classList.add('is-moving');
+                    }
+                    if (navigator.vibrate) navigator.vibrate(50);
+                }, 350);
             }
         }, {passive: false});
 
-        document.addEventListener('touchmove', function(e) {
-            if (touchDragEl) {
-                e.preventDefault();
-                let touch = e.touches[0];
-                let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (!hoverEl) return;
-                let hoverTr = hoverEl.closest('tr');
-                if (hoverTr && hoverTr !== touchDragEl && hoverTr.parentNode === touchDragEl.parentNode && !hoverTr.classList.contains('lunch-row')) {
-                    let rect = hoverTr.getBoundingClientRect();
-                    if (touch.clientY < rect.top + rect.height / 2) {
-                        hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
-                    } else {
-                        hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
-                    }
+        function handleAutoScroll(y) {
+            const edge = 80;
+            let speed = 0;
+            if (y < edge) speed = -15;
+            else if (y > window.innerHeight - edge) speed = 15;
+
+            if (speed !== 0) {
+                if (!autoScrollInterval) {
+                    autoScrollInterval = setInterval(() => window.scrollBy(0, speed), 20);
                 }
-            } else if (touchColEl) {
+            } else {
+                if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
+            }
+        }
+
+        document.addEventListener('touchmove', function(e) {
+            if (!touchDragEl && !touchColEl && holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
+            if (touchDragEl || touchColEl) {
                 e.preventDefault();
                 let touch = e.touches[0];
+                
+                handleAutoScroll(touch.clientY);
+                
                 let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (!hoverEl) return;
-                let hoverTd = hoverEl.closest('td.layout-cell');
-                if (hoverTd && hoverTd !== touchColEl && hoverTd.parentNode === touchColEl.parentNode) {
-                    let rect = hoverTd.getBoundingClientRect();
-                    if (touch.clientX < rect.left + rect.width / 2) {
-                        hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
-                    } else {
-                        hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                
+                if (touchDragEl) {
+                    let hoverTr = hoverEl.closest('tr');
+                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.parentNode === touchDragEl.parentNode && !hoverTr.classList.contains('lunch-row')) {
+                        let rect = hoverTr.getBoundingClientRect();
+                        if (touch.clientY < rect.top + rect.height / 2) {
+                            hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
+                        } else {
+                            hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
+                        }
+                    }
+                } else if (touchColEl) {
+                    let hoverTd = hoverEl.closest('td.layout-cell');
+                    if (hoverTd && hoverTd !== touchColEl && hoverTd.parentNode === touchColEl.parentNode) {
+                        let rect = hoverTd.getBoundingClientRect();
+                        if (touch.clientX < rect.left + rect.width / 2) {
+                            hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
+                        } else {
+                            hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                        }
                     }
                 }
             }
         }, {passive: false});
 
         document.addEventListener('touchend', function(e) {
-            if (touchDragEl) { touchDragEl.style.opacity = '1'; touchDragEl = null; saveData(); }
-            if (touchColEl) { touchColEl.style.opacity = '1'; touchColEl = null; saveData(); }
+            if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+            if (touchDragEl || touchColEl) {
+                window.wasDragged = true;
+                setTimeout(() => window.wasDragged = false, 100);
+            }
+            if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
+            if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl = null; saveData(); }
+            if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl = null; saveData(); }
         });
 
         document.addEventListener('touchcancel', function(e) {
-            if (touchDragEl) { touchDragEl.style.opacity = '1'; touchDragEl = null; }
-            if (touchColEl) { touchColEl.style.opacity = '1'; touchColEl = null; }
+            if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+            if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
+            if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl = null; }
+            if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl = null; }
         });
+
         let currentEditElement = null;
         let debounceTimer;
         let tempNoticeColor = '';
@@ -1454,6 +1506,12 @@
         });
 
         document.addEventListener('click', function(e) {
+            if (window.wasDragged) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            
             if (e.target.classList.contains('color-dot')) {
                 const isSelected = e.target.classList.contains('selected');
                 document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
@@ -1655,14 +1713,19 @@
                 dOffY = e.clientY - dragSrcEl.getBoundingClientRect().top;
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/html', e.target.innerHTML);
-                e.target.style.opacity = '0.4';
+                e.target.classList.add('is-moving');
             } else if (e.target.classList.contains('layout-cell') && (e.target.closest('#project-section') || e.target.closest('#production-section') || e.target.closest('#locations-section') || e.target.closest('#crew-section'))) {
                 dragColEl = e.target;
                 dOffX = e.clientX - dragColEl.getBoundingClientRect().left;
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/html', e.target.innerHTML);
-                e.target.style.opacity = '0.4';
+                e.target.classList.add('is-moving');
             }
+        });
+
+        document.addEventListener('dragend', function(e) {
+            if (dragSrcEl) { dragSrcEl.classList.remove('is-moving'); dragSrcEl = null; saveData(); }
+            if (dragColEl) { dragColEl.classList.remove('is-moving'); dragColEl = null; saveData(); }
         });
         
         document.addEventListener('dragover', function(e) {
