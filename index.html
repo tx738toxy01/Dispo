@@ -916,18 +916,46 @@
 
         let touchDragEl = null;
         let touchColEl = null;
+        let ghostEl = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
         let autoScrollInterval = null;
         let holdTimer = null;
         window.wasDragged = false;
 
+        function startTouchDrag(el, e) {
+            let touch = e.touches ? e.touches[0] : e;
+            let rect = el.getBoundingClientRect();
+            dragOffsetX = touch.clientX - rect.left;
+            dragOffsetY = touch.clientY - rect.top;
+
+            ghostEl = el.cloneNode(true);
+            ghostEl.style.position = 'fixed';
+            ghostEl.style.left = (touch.clientX - dragOffsetX) + 'px';
+            ghostEl.style.top = (touch.clientY - dragOffsetY) + 'px';
+            ghostEl.style.width = rect.width + 'px';
+            ghostEl.style.height = rect.height + 'px';
+            ghostEl.style.opacity = '0.9';
+            ghostEl.style.pointerEvents = 'none';
+            ghostEl.style.zIndex = '100000';
+            ghostEl.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+            ghostEl.style.backgroundColor = 'white';
+            ghostEl.style.outline = '2px dashed var(--color-primary)';
+            
+            document.body.appendChild(ghostEl);
+
+            el.classList.add('is-moving');
+            el.style.opacity = '0.3';
+        }
+
         document.addEventListener('touchstart', function(e) {
             if (e.target.classList.contains('drag-handle')) {
                 touchDragEl = e.target.closest('tr');
-                if (touchDragEl) { touchDragEl.classList.add('is-moving'); e.preventDefault(); }
+                if (touchDragEl) { startTouchDrag(touchDragEl, e); e.preventDefault(); }
                 return;
             } else if (e.target.classList.contains('drag-col-handle')) {
                 touchColEl = e.target.closest('td.layout-cell');
-                if (touchColEl) { touchColEl.classList.add('is-moving'); e.preventDefault(); }
+                if (touchColEl) { startTouchDrag(touchColEl, e); e.preventDefault(); }
                 return;
             }
 
@@ -938,10 +966,10 @@
                 holdTimer = setTimeout(() => {
                     if (dragTr) {
                         touchDragEl = dragTr;
-                        touchDragEl.classList.add('is-moving');
+                        startTouchDrag(touchDragEl, e);
                     } else if (dragTd) {
                         touchColEl = dragTd;
-                        touchColEl.classList.add('is-moving');
+                        startTouchDrag(touchColEl, e);
                     }
                     if (navigator.vibrate) navigator.vibrate(50);
                 }, 350);
@@ -972,14 +1000,22 @@
                 e.preventDefault();
                 let touch = e.touches[0];
                 
+                if (ghostEl) {
+                    ghostEl.style.left = (touch.clientX - dragOffsetX) + 'px';
+                    ghostEl.style.top = (touch.clientY - dragOffsetY) + 'px';
+                }
+
                 handleAutoScroll(touch.clientY);
                 
+                if (ghostEl) ghostEl.style.display = 'none';
                 let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (ghostEl) ghostEl.style.display = '';
+
                 if (!hoverEl) return;
                 
                 if (touchDragEl) {
                     let hoverTr = hoverEl.closest('tr');
-                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.parentNode === touchDragEl.parentNode && !hoverTr.classList.contains('lunch-row')) {
+                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.closest('table') === touchDragEl.closest('table') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
                         let rect = hoverTr.getBoundingClientRect();
                         if (touch.clientY < rect.top + rect.height / 2) {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
@@ -1001,22 +1037,27 @@
             }
         }, {passive: false});
 
+        function endTouchDrag() {
+            if (ghostEl) { ghostEl.remove(); ghostEl = null; }
+            if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl.style.opacity = '1'; touchDragEl = null; }
+            if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl.style.opacity = '1'; touchColEl = null; }
+        }
+
         document.addEventListener('touchend', function(e) {
             if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
             if (touchDragEl || touchColEl) {
                 window.wasDragged = true;
                 setTimeout(() => window.wasDragged = false, 100);
+                saveData();
             }
             if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
-            if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl = null; saveData(); }
-            if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl = null; saveData(); }
+            endTouchDrag();
         });
 
         document.addEventListener('touchcancel', function(e) {
             if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
             if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
-            if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl = null; }
-            if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl = null; }
+            endTouchDrag();
         });
 
         let currentEditElement = null;
