@@ -976,18 +976,29 @@
             }
         }, {passive: false});
 
-        function handleAutoScroll(y) {
-            const edge = 80;
-            let speed = 0;
-            if (y < edge) speed = -15;
-            else if (y > window.innerHeight - edge) speed = 15;
+        let autoScrollSpeed = 0;
 
-            if (speed !== 0) {
-                if (!autoScrollInterval) {
-                    autoScrollInterval = setInterval(() => window.scrollBy(0, speed), 20);
-                }
+        function handleAutoScroll(y) {
+            const edge = 100;
+            const maxSpeed = 5;
+            
+            if (y < edge) {
+                let ratio = Math.max(0, edge - y) / edge;
+                autoScrollSpeed = -(ratio * maxSpeed);
+            } else if (y > window.innerHeight - edge) {
+                let ratio = Math.max(0, y - (window.innerHeight - edge)) / edge;
+                autoScrollSpeed = ratio * maxSpeed;
             } else {
-                if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
+                autoScrollSpeed = 0;
+            }
+
+            if (autoScrollSpeed !== 0 && !autoScrollInterval) {
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, autoScrollSpeed);
+                }, 16);
+            } else if (autoScrollSpeed === 0 && autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
             }
         }
 
@@ -1015,7 +1026,7 @@
                 
                 if (touchDragEl) {
                     let hoverTr = hoverEl.closest('tr');
-                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.closest('table') === touchDragEl.closest('table') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
+                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.closest('table') === touchDragEl.closest('table') && !hoverTr.closest('thead') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
                         let rect = hoverTr.getBoundingClientRect();
                         if (touch.clientY < rect.top + rect.height / 2) {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
