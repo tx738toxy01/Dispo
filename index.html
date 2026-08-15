@@ -12,9 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/default.css">
-    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0/scroll-behaviour.min.js"></script>
 
     <style>
         :root {
@@ -908,24 +905,68 @@
     </div>
 
     <script>
-        let isMobileDragging = false;
-        if (typeof MobileDragDrop !== 'undefined') {
-            try {
-                MobileDragDrop.polyfill({
-                    dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride,
-                    holdToDrag: 250,
-                    forceApply: true
-                });
-                document.addEventListener('dragstart', function() { isMobileDragging = true; });
-                document.addEventListener('dragend', function() { isMobileDragging = false; });
-                document.addEventListener('drop', function() { isMobileDragging = false; });
-                window.addEventListener('touchmove', function(e) {
-                    if (isMobileDragging) { e.preventDefault(); }
-                }, {passive: false});
-            } catch (err) {}
-        }
-
         const STORAGE_KEY = 'callsheetData_v18';
+
+        let touchDragEl = null;
+        let touchColEl = null;
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('drag-handle')) {
+                touchDragEl = e.target.closest('tr');
+                if (touchDragEl) {
+                    touchDragEl.style.opacity = '0.4';
+                    e.preventDefault();
+                }
+            } else if (e.target.classList.contains('drag-col-handle')) {
+                touchColEl = e.target.closest('td.layout-cell');
+                if (touchColEl) {
+                    touchColEl.style.opacity = '0.4';
+                    e.preventDefault();
+                }
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchmove', function(e) {
+            if (touchDragEl) {
+                e.preventDefault();
+                let touch = e.touches[0];
+                let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!hoverEl) return;
+                let hoverTr = hoverEl.closest('tr');
+                if (hoverTr && hoverTr !== touchDragEl && hoverTr.parentNode === touchDragEl.parentNode && !hoverTr.classList.contains('lunch-row')) {
+                    let rect = hoverTr.getBoundingClientRect();
+                    if (touch.clientY < rect.top + rect.height / 2) {
+                        hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
+                    } else {
+                        hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
+                    }
+                }
+            } else if (touchColEl) {
+                e.preventDefault();
+                let touch = e.touches[0];
+                let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!hoverEl) return;
+                let hoverTd = hoverEl.closest('td.layout-cell');
+                if (hoverTd && hoverTd !== touchColEl && hoverTd.parentNode === touchColEl.parentNode) {
+                    let rect = hoverTd.getBoundingClientRect();
+                    if (touch.clientX < rect.left + rect.width / 2) {
+                        hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
+                    } else {
+                        hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                    }
+                }
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchend', function(e) {
+            if (touchDragEl) { touchDragEl.style.opacity = '1'; touchDragEl = null; saveData(); }
+            if (touchColEl) { touchColEl.style.opacity = '1'; touchColEl = null; saveData(); }
+        });
+
+        document.addEventListener('touchcancel', function(e) {
+            if (touchDragEl) { touchDragEl.style.opacity = '1'; touchDragEl = null; }
+            if (touchColEl) { touchColEl.style.opacity = '1'; touchColEl = null; }
+        });
         let currentEditElement = null;
         let debounceTimer;
         let tempNoticeColor = '';
@@ -1691,19 +1732,8 @@
         });
         
         document.addEventListener('dragend', function(e) {
-            if (dragSrcEl) { dragSrcEl.style.opacity = '1'; dragSrcEl = null; }
-            if (dragColEl) { dragColEl.style.opacity = '1'; dragColEl = null; }
-            document.querySelectorAll('[draggable="true"], .layout-cell').forEach(el => el.style.opacity = '1');
-            isMobileDragging = false;
-            saveData();
-        });
-
-        document.addEventListener('touchend', function(e) {
-            if (isMobileDragging || dragSrcEl || dragColEl) {
-                setTimeout(() => {
-                    document.querySelectorAll('[draggable="true"], .layout-cell').forEach(el => el.style.opacity = '1');
-                }, 100);
-            }
+            if (dragSrcEl) { dragSrcEl.style.opacity = '1'; dragSrcEl = null; saveData(); }
+            if (dragColEl) { dragColEl.style.opacity = '1'; dragColEl = null; saveData(); }
         });
 
         function getVal(labelTxt) {
