@@ -221,6 +221,10 @@
             display: block;
         }
 
+        .editable[data-type="time-range"], .editable[data-type="time"] {
+            white-space: nowrap;
+        }
+
         .example-text {
             color: #94a3b8 !important;
             font-style: italic;
@@ -283,6 +287,18 @@
             min-height: 100%;
             height: 100%;
             box-sizing: border-box;
+        }
+
+        table.scenes-table, table.cast-table {
+            table-layout: auto !important;
+        }
+
+        table.scenes-table th:nth-child(2),
+        table.scenes-table td:nth-child(2) {
+            text-align: center !important;
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            white-space: nowrap !important;
         }
 
         .add-btn, .add-row-btn, .add-scene-btn {
@@ -699,37 +715,40 @@
 <div id="detective-ui-container" style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center; background: #f1f5f9; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
             <input type="file" id="script-upload-doc" style="display: none;" accept=".docx, .pdf">
             <button id="btn-load-script" class="btn-action" style="background-color: #8b5cf6; margin: 0; padding: 6px 12px; flex: none;" onclick="document.getElementById('script-upload-doc').click()">📂 NAČÍTAŤ SCENÁR DO PAMÄTE</button>
-            <div id="script-filename-display" style="font-size: 11px; color: #64748b; margin-left: 10px;">(Dáta sa automaticky doplnia po vpísaní čísla do stĺpca "Obraz č.")</div>
+            <div id="script-filename-display" style="font-size: 11px; color: #64748b; margin-left: 10px;">(Dáta sa automaticky doplnia po vpísaní čísla do stĺpca "Obraz")</div>
         </div>
             <table class="data-table scenes-table">
                 <thead>
                     <tr>
-                        <th style="width: 12%;"><div class="editable-label">Čas</div></th>
-                        <th style="width: 10%;"><div class="editable-label">Obraz č.</div></th>
-                        <th style="width: 28%;"><div class="editable-label">Popis akcie / Lokácia</div></th>
-                        <th style="width: 20%;"><div class="editable-label">Účinkujúci</div></th>
-                        <th style="width: 30%;"><div class="editable-label">Rekvizity / Poznámky</div></th>
+                        <th><div class="editable-label">Čas</div></th>
+                        <th><div class="editable-label">Obraz</div></th>
+                        <th><div class="editable-label">Lokácia</div></th>
+                        <th><div class="editable-label">Popis akcie</div></th>
+                        <th><div class="editable-label">Účinkujúci</div></th>
+                        <th><div class="editable-label">Rekvizity / Poznámky</div></th>
                     </tr>
                 </thead>
                 <tbody id="morning-tbody">
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:00 - 09:40</div></td>
                         <td><div class="editable">7</div></td>
-                        <td><div class="editable">EXT. Step - Putujú, majú hlad</div></td>
+                        <td><div class="editable">EXT. Step</div></td>
+                        <td><div class="editable">Putujú, majú hlad</div></td>
                         <td><div class="editable">Gvendolína, Koloman</div></td>
                         <td><div class="editable">Drevené podložky, koža</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">09:40 - 10:20</div></td>
                         <td><div class="editable">8</div></td>
-                        <td><div class="editable">EXT. Step - Predstavenie Jakuba</div></td>
+                        <td><div class="editable">EXT. Step</div></td>
+                        <td><div class="editable">Predstavenie Jakuba</div></td>
                         <td><div class="editable">Jakub</div></td>
                         <td><div class="editable">Kostené podložky (hlina nie)</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
                 <tbody class="ignore-export">
                     <tr>
-                        <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
+                        <td colspan="6" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
                             <button class="add-scene-btn" data-target="morning-tbody" style="margin-top: 0;">+ PRIDAŤ OBRAZ (PRED OBEDOM)</button>
                         </td>
                     </tr>
@@ -738,23 +757,25 @@
                     <tr class="lunch-row" style="background-color: #F9E79F !important;">
                         <td style="background-color: transparent !important;"><div class="editable" data-type="time-range" style="font-weight:bold; background-color: #F9E79F;">12:30 - 13:30</div></td>
                         <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">-</div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">Zázemie</div></td>
                         <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">OBEDOVÁ PAUZA</div></td>
                         <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;"></div></td>
-                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">Zázemie (Kultúrny dom)</div></td>
+                        <td style="background-color: transparent !important;"><div class="editable" style="font-weight:bold; background-color: #F9E79F;">Kultúrny dom</div></td>
                     </tr>
                 </tbody>
                 <tbody id="afternoon-tbody">
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable" data-type="time-range">13:30 - 14:20</div></td>
                         <td><div class="editable">18</div></td>
-                        <td><div class="editable">EXT. Step - Tlupa loví zajaca</div></td>
+                        <td><div class="editable">EXT. Step</div></td>
+                        <td><div class="editable">Tlupa loví zajaca</div></td>
                         <td><div class="editable">Koloman, tlupa</div></td>
                         <td><div class="editable">Zajac, oštepy 5x</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
                 <tbody class="ignore-export">
                     <tr>
-                        <td colspan="5" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
+                        <td colspan="6" style="border: none !important; background-color: transparent !important; padding: 4px 0 !important; text-align: right !important;">
                             <button class="add-scene-btn" data-target="afternoon-tbody" style="margin-top: 0;">+ PRIDAŤ OBRAZ (PO OBEDE)</button>
                         </td>
                     </tr>
@@ -766,10 +787,10 @@
             <table class="data-table cast-table">
                 <thead>
                     <tr>
-                        <th style="width: 40%;"><div class="editable-label">Účinkujúci</div></th>
-                        <th style="width: 20%;"><div class="editable-label">Odchod (Pick Up)</div></th>
-                        <th style="width: 20%;"><div class="editable-label">Kostýmy / Masky</div></th>
-                        <th style="width: 20%;"><div class="editable-label">Na pľaci (On Set)</div></th>
+                        <th><div class="editable-label">Účinkujúci</div></th>
+                        <th><div class="editable-label">Odchod (Pick Up)</div></th>
+                        <th><div class="editable-label">Kostýmy / Masky</div></th>
+                        <th><div class="editable-label">Na pľaci (On Set)</div></th>
                     </tr>
                 </thead>
                 <tbody id="cast-tbody">
@@ -782,7 +803,7 @@
                     <tr draggable="true">
                         <td><button class="delete-btn td-delete">&times;</button><div class="editable">Koloman / Medard Odolný</div></td>
                         <td><div class="editable" data-type="time-loc">06:30 (STV)</div></td>
-                        <td><div class="editable" data-type="time-range">HH:MM - HH:MM</div></td>
+                        <td><div class="editable" data-type="time-range">00:00 - 00:00</div></td>
                         <td><div class="editable" data-type="time">09:00</div><span class="drag-handle" title="Presunúť riadok">☰</span></td>
                     </tr>
                 </tbody>
@@ -1212,18 +1233,18 @@
                     weatherField.innerHTML = '<span style="color: #94a3b8;">(automaticky podľa mesta lokácie. Ak nemáš internet, pridaj ručne)</span>';
                 }
             } else if (dataType === 'time') {
-                const h = document.getElementById('time-h').value.padStart(2, '0') || 'HH';
-                const m = document.getElementById('time-m').value.padStart(2, '0') || 'MM';
+                const h = document.getElementById('time-h').value.padStart(2, '0') || '00';
+                const m = document.getElementById('time-m').value.padStart(2, '0') || '00';
                 currentEditElement.innerText = `${h}:${m}`;
             } else if (dataType === 'time-range') {
-                const h1 = document.getElementById('tr-h1').value.padStart(2, '0') || 'HH';
-                const m1 = document.getElementById('tr-m1').value.padStart(2, '0') || 'MM';
-                const h2 = document.getElementById('tr-h2').value.padStart(2, '0') || 'HH';
-                const m2 = document.getElementById('tr-m2').value.padStart(2, '0') || 'MM';
+                const h1 = document.getElementById('tr-h1').value.padStart(2, '0') || '00';
+                const m1 = document.getElementById('tr-m1').value.padStart(2, '0') || '00';
+                const h2 = document.getElementById('tr-h2').value.padStart(2, '0') || '00';
+                const m2 = document.getElementById('tr-m2').value.padStart(2, '0') || '00';
                 currentEditElement.innerText = `${h1}:${m1} - ${h2}:${m2}`;
             } else if (dataType === 'time-loc') {
-                const h = document.getElementById('tl-h').value.padStart(2, '0') || 'HH';
-                const m = document.getElementById('tl-m').value.padStart(2, '0') || 'MM';
+                const h = document.getElementById('tl-h').value.padStart(2, '0') || '00';
+                const m = document.getElementById('tl-m').value.padStart(2, '0') || '00';
                 const loc = document.getElementById('tl-loc').value.trim();
                 currentEditElement.innerText = `${h}:${m}${loc ? ' (' + loc + ')' : ''}`;
             } else if (dataType === 'date') {
@@ -1284,13 +1305,13 @@
                             locEdit.classList.remove('example-text');
                         }
                         
-                        const castEdit = tr.cells[3]?.querySelector('.editable');
+                        const castEdit = tr.cells[4]?.querySelector('.editable');
                         if (castEdit && combinedCast) {
                             castEdit.innerText = combinedCast;
                             castEdit.classList.remove('example-text');
                         }
                         
-                        const propsEdit = tr.cells[4]?.querySelector('.editable');
+                        const propsEdit = tr.cells[5]?.querySelector('.editable');
                         if (propsEdit && combinedProps) {
                             propsEdit.innerText = combinedProps;
                             propsEdit.classList.remove('example-text');
@@ -1462,9 +1483,9 @@
                 } else if (addBtn.dataset.type === 'notice') {
                     dragHandle = `<span class="drag-col-handle" style="display:none;"></span>`;
                 } else if (btnText.includes('ODDELENIE')) {
-                    innerEdit = `<div class="editable example-text" data-type="time">HH:MM</div>`;
+                    innerEdit = `<div class="editable example-text" data-type="time">00:00</div>`;
                 } else if (btnText.includes('TRANSPORT')) {
-                    innerEdit = `<div class="editable example-text" data-type="time-loc">HH:MM</div>`;
+                    innerEdit = `<div class="editable example-text" data-type="time-loc">00:00 (Miesto)</div>`;
                 }
                 
                 const labelText = addBtn.dataset.type === 'notice' ? 'Nová položka' : 'Nová kolonka';
@@ -1501,9 +1522,9 @@
                 for (let i = 0; i < colCount; i++) {
                     let cellContent = `<div class="editable example-text"></div>`;
                     if (colCount === 4) {
-                        if (i === 1) cellContent = `<div class="editable example-text" data-type="time-loc">HH:MM (Miesto)</div>`;
-                        else if (i === 2) cellContent = `<div class="editable example-text" data-type="time-range">HH:MM - HH:MM</div>`;
-                        else if (i === 3) cellContent = `<div class="editable example-text" data-type="time">HH:MM</div><span class="drag-handle" title="Presunúť riadok">☰</span>`;
+                        if (i === 1) cellContent = `<div class="editable example-text" data-type="time-loc">00:00 (Miesto)</div>`;
+                        else if (i === 2) cellContent = `<div class="editable example-text" data-type="time-range">00:00 - 00:00</div>`;
+                        else if (i === 3) cellContent = `<div class="editable example-text" data-type="time">00:00</div><span class="drag-handle" title="Presunúť riadok">☰</span>`;
                     }
                     if (i === 0) { rowHtml += `<td><button class="delete-btn td-delete">&times;</button>${cellContent}</td>`; } 
                     else { rowHtml += `<td>${cellContent}</td>`; }
@@ -1517,7 +1538,8 @@
                 const tbody = document.getElementById(targetId);
                 const newRow = document.createElement('tr');
                 newRow.setAttribute('draggable', 'true');
-                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable example-text" data-type="time-range">HH:MM - HH:MM</div></td>`;
+                let rowHtml = `<td><button class="delete-btn td-delete">&times;</button><div class="editable example-text" data-type="time-range">00:00 - 00:00</div></td>`;
+                rowHtml += `<td><div class="editable example-text"></div></td>`;
                 rowHtml += `<td><div class="editable example-text"></div></td>`;
                 rowHtml += `<td><div class="editable example-text"></div></td>`;
                 rowHtml += `<td><div class="editable example-text"></div></td>`;
@@ -1565,10 +1587,22 @@
             e.preventDefault();
             if (dragSrcEl) {
                 e.dataTransfer.dropEffect = 'move';
-                const hoverTbody = e.target.closest('#morning-tbody, #afternoon-tbody, #cast-tbody');
+                let hoverTbody = null;
+                
+                // Namiesto e.target sledujeme dragSrcEl, vďaka čomu presun funguje aj mimo tabuľky
+                if (dragSrcEl.closest('.scenes-table')) {
+                    const lunchRow = document.querySelector('.lunch-row');
+                    if (lunchRow) {
+                        hoverTbody = (e.clientY < lunchRow.getBoundingClientRect().top) 
+                            ? document.getElementById('morning-tbody') 
+                            : document.getElementById('afternoon-tbody');
+                    }
+                } else if (dragSrcEl.closest('.cast-table')) {
+                    hoverTbody = document.getElementById('cast-tbody');
+                }
                 
                 if (hoverTbody) {
-                    const rows = Array.from(hoverTbody.querySelectorAll('tr')).filter(r => r !== dragSrcEl);
+                    const rows = Array.from(hoverTbody.querySelectorAll('tr')).filter(r => r !== dragSrcEl && !r.classList.contains('lunch-row'));
                     if (rows.length === 0) {
                         hoverTbody.appendChild(dragSrcEl);
                     } else {
@@ -1699,7 +1733,7 @@
                 }
             });
 
-            ws.columns = [ { width: 12 }, { width: 14 }, { width: 35 }, { width: 25 }, { width: 15 }, { width: 15 }, { width: 45 } ];
+            ws.columns = [ { width: 12 }, { width: 5 }, { width: 12 }, { width: 32 }, { width: 15 }, { width: 10 }, { width: 56 } ];
 
             const tC = getThemeColors();
             const DARK_BG = tC.exPrimary, ACCENT = tC.exAccent, ACCENT_LIGHT = tC.exLight, LIGHT_GRAY = 'FFF2F4F4', TEXT_COLOR = 'FF2C3E50', WHITE = 'FFFFFFFF', BORDER_COLOR = 'FFBDC3C7';
@@ -1887,9 +1921,9 @@
 
             const scenes = getTableData('scény');
             if (scenes.length > 0) {
-                const headers = ["Čas", "Obraz č.", "Popis akcie / Lokácia", "Účinkujúci", "Rekvizity / Poznámky"];
-                const colSpans = [[1,1], [2,2], [3,3], [4,5], [6,7]];
-                for(let c=0; c<5; c++) {
+                const headers = ["Čas", "Obraz", "Lokácia", "Popis akcie", "Účinkujúci", "Rekvizity / Poznámky"];
+                const colSpans = [[1,1], [2,2], [3,3], [4,4], [5,6], [7,7]];
+                for(let c=0; c<6; c++) {
                     ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                     const cell = ws.getCell(rowIdx, colSpans[c][0]);
                     cell.value = headers[c].toUpperCase();
@@ -1902,7 +1936,7 @@
                     const isLunch = rowData.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
                     const isBold = isLunch;
 
-                    for(let c=0; c<5; c++) {
+                    for(let c=0; c<6; c++) {
                         if(c >= rowData.length) break;
                         ws.mergeCells(rowIdx, colSpans[c][0], rowIdx, colSpans[c][1]);
                         const cell = ws.getCell(rowIdx, colSpans[c][0]);
@@ -1913,7 +1947,8 @@
                         let cellBgColor = argbBg || (isLunch ? YELLOW_LUNCH : null);
                         let cellFontColor = argbBg === 'FF333333' ? WHITE : (isCustomDark ? 'FF111827' : TEXT_COLOR);
                         
-                        styleCell(cell, cellBgColor, cellFontColor, isBold || isCustomDark, 10, 'left', 'top', thinBorder);
+                        let alignH = (c === 1) ? 'center' : 'left';
+                        styleCell(cell, cellBgColor, cellFontColor, isBold || isCustomDark, 10, alignH, 'top', thinBorder);
                         ws.getCell(rowIdx, colSpans[c][1]).border = thinBorder;
                         const lines = (rowData[c].text.match(/\n/g) || []).length + 1 + Math.floor(rowData[c].text.length / (c===4?40:20));
                         if(lines > maxLines) maxLines = lines;
@@ -2198,6 +2233,7 @@ function exportPDF() {
                     sceneBody.push([
                         { text: 'ČAS', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
                         { text: 'OBRAZ', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
+                        { text: 'LOKÁCIA', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
                         { text: 'POPIS AKCIE', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
                         { text: 'ÚČINKUJÚCI', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] },
                         { text: 'REKVIZITY', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] }
@@ -2206,17 +2242,18 @@ function exportPDF() {
                         const isLunch = row.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
                         
                         const rowCells = [];
-                        for(let c=0; c<5; c++) {
+                        for(let c=0; c<6; c++) {
                             let hexBg = getHexFromRgb(row[c].bg);
                             let isDark = hexBg && hexBg.toUpperCase() !== '#F9E79F' && hexBg.toUpperCase() !== '#FFFFFF';
                             let cellBg = hexBg || (isLunch ? '#F9E79F' : null);
                             let fontColor = (hexBg && hexBg.toUpperCase() === '#333333') ? 'white' : (isDark ? '#111827' : '#2c3e50');
-                            rowCells.push({ text: row[c].text, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
+                            let alignH = (c === 1) ? 'center' : 'left';
+                            rowCells.push({ text: row[c].text, alignment: alignH, margin: [1, 2, 1, 2], fillColor: cellBg, color: fontColor, bold: isLunch || isDark });
                         }
                         sceneBody.push(rowCells);
                     });
                     docDefinition.content.push({
-                        table: { headerRows: 1, widths: ['14%', '10%', '28%', '18%', '30%'], body: sceneBody },
+                        table: { headerRows: 1, widths: ['auto', 'auto', 'auto', '*', '*', '*'], body: sceneBody },
                         layout: tableLayout, margin: [0, 0, 0, 5]
                     });
                 }
@@ -2245,7 +2282,7 @@ function exportPDF() {
                         castBody.push(rowCells);
                     });
                     docDefinition.content.push({
-                        table: { headerRows: 1, widths: ['40%', '20%', '20%', '20%'], body: castBody },
+                        table: { headerRows: 1, widths: ['*', 'auto', 'auto', 'auto'], body: castBody },
                         layout: {
                             hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
                             hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
@@ -2325,14 +2362,16 @@ function exportPDF() {
                     
                     const sceneRows = document.querySelectorAll('.scenes-table tbody:not(.ignore-export) tr:not(.lunch-row)');
                     sceneRows.forEach(row => {
-                        if (row.cells.length >= 5) {
+                        if (row.cells.length >= 6) {
                             const sceneNumEdit = row.cells[1].querySelector('.editable');
                             const locEdit = row.cells[2].querySelector('.editable');
-                            const castEdit = row.cells[3].querySelector('.editable');
-                            const propsEdit = row.cells[4].querySelector('.editable');
+                            const actionEdit = row.cells[3].querySelector('.editable');
+                            const castEdit = row.cells[4].querySelector('.editable');
+                            const propsEdit = row.cells[5].querySelector('.editable');
                             
                             if (sceneNumEdit) sceneNumEdit.innerText = '';
                             if (locEdit) locEdit.innerText = '';
+                            if (actionEdit) actionEdit.innerText = '';
                             if (castEdit) castEdit.innerText = '';
                             if (propsEdit) propsEdit.innerText = '';
                         }
@@ -2411,12 +2450,12 @@ function syncCastTableWithScenes() {
                     combinedCast.forEach(charName => {
                         const newRow = document.createElement('tr');
                         let existing = charDataMap.get(charName.toLowerCase());
-                        let pUp = existing ? existing.pickup : 'HH:MM (Miesto)';
-                        let pUpClass = existing && existing.pickup && existing.pickup !== 'HH:MM (Miesto)' ? '' : 'example-text';
-                        let cost = existing ? existing.costume : 'HH:MM - HH:MM';
-                        let costClass = existing && existing.costume && existing.costume !== 'HH:MM - HH:MM' ? '' : 'example-text';
-                        let onset = existing ? existing.onset : 'HH:MM';
-                        let onsetClass = existing && existing.onset && existing.onset !== 'HH:MM' ? '' : 'example-text';
+                        let pUp = existing ? existing.pickup : '00:00 (Miesto)';
+                        let pUpClass = existing && existing.pickup && existing.pickup !== '00:00 (Miesto)' && existing.pickup !== 'HH:MM (Miesto)' ? '' : 'example-text';
+                        let cost = existing ? existing.costume : '00:00 - 00:00';
+                        let costClass = existing && existing.costume && existing.costume !== '00:00 - 00:00' && existing.costume !== 'HH:MM - HH:MM' ? '' : 'example-text';
+                        let onset = existing ? existing.onset : '00:00';
+                        let onsetClass = existing && existing.onset && existing.onset !== '00:00' && existing.onset !== 'HH:MM' ? '' : 'example-text';
 
                         newRow.setAttribute('draggable', 'true');
                         newRow.innerHTML = `
