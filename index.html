@@ -1029,10 +1029,9 @@
                     let table = touchDragEl.closest('.scenes-table');
                     if (table && hoverTr && hoverTr !== touchDragEl && hoverTr.closest('.scenes-table') === table && !hoverTr.closest('thead') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
                         let rect = hoverTr.getBoundingClientRect();
-                        // Ak prejdeš viac ako 35% výšky políčka, riadok hneď uskočí
-                        if (touch.clientY < rect.top + (rect.height * 0.35)) {
+                        if (touch.clientY < rect.top + rect.height / 2) {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
-                        } else if (touch.clientY > rect.bottom - (rect.height * 0.35)) {
+                        } else {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
                         }
                     }
