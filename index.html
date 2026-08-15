@@ -1026,11 +1026,13 @@
                 
                 if (touchDragEl) {
                     let hoverTr = hoverEl.closest('tr');
-                    if (hoverTr && hoverTr !== touchDragEl && hoverTr.closest('table') === touchDragEl.closest('table') && !hoverTr.closest('thead') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
+                    let table = touchDragEl.closest('.scenes-table');
+                    if (table && hoverTr && hoverTr !== touchDragEl && hoverTr.closest('.scenes-table') === table && !hoverTr.closest('thead') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
                         let rect = hoverTr.getBoundingClientRect();
-                        if (touch.clientY < rect.top + rect.height / 2) {
+                        // Ak prejdeš viac ako 35% výšky políčka, riadok hneď uskočí
+                        if (touch.clientY < rect.top + (rect.height * 0.35)) {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
-                        } else {
+                        } else if (touch.clientY > rect.bottom - (rect.height * 0.35)) {
                             hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
                         }
                     }
