@@ -1002,6 +1002,10 @@
             }
         }
 
+        function isOverlapping(rect1, rect2) {
+            return !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom);
+        }
+
         document.addEventListener('touchmove', function(e) {
             if (!touchDragEl && !touchColEl && holdTimer) {
                 clearTimeout(holdTimer);
@@ -1017,32 +1021,58 @@
                 }
 
                 handleAutoScroll(touch.clientY);
-                
-                if (ghostEl) ghostEl.style.display = 'none';
-                let hoverEl = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (ghostEl) ghostEl.style.display = '';
 
-                if (!hoverEl) return;
-                
+                if (!ghostEl) return;
+                let ghostRect = ghostEl.getBoundingClientRect();
+                let ghostCenter = ghostRect.top + (ghostRect.height / 2);
+
                 if (touchDragEl) {
-                    let hoverTr = hoverEl.closest('tr');
-                    let table = touchDragEl.closest('.scenes-table');
-                    if (table && hoverTr && hoverTr !== touchDragEl && hoverTr.closest('.scenes-table') === table && !hoverTr.closest('thead') && !hoverTr.classList.contains('lunch-row') && !hoverTr.closest('.ignore-export')) {
-                        let rect = hoverTr.getBoundingClientRect();
-                        if (touch.clientY < rect.top + rect.height / 2) {
-                            hoverTr.parentNode.insertBefore(touchDragEl, hoverTr);
-                        } else {
-                            hoverTr.parentNode.insertBefore(touchDragEl, hoverTr.nextSibling);
+                    let table = touchDragEl.closest('.scenes-table') || touchDragEl.closest('.cast-table');
+                    if (table) {
+                        let targetTbody = touchDragEl.parentNode;
+                        if (table.classList.contains('scenes-table')) {
+                            const lunchRow = table.querySelector('.lunch-row');
+                            if (lunchRow) {
+                                let lunchCenter = lunchRow.getBoundingClientRect().top + (lunchRow.getBoundingClientRect().height / 2);
+                                targetTbody = (ghostCenter < lunchCenter) ? document.getElementById('morning-tbody') : document.getElementById('afternoon-tbody');
+                            }
+                        } else if (table.classList.contains('cast-table')) {
+                            targetTbody = document.getElementById('cast-tbody');
+                        }
+
+                        let rows = Array.from(targetTbody.querySelectorAll('tr'));
+                        let collision = false;
+                        for (let hoverTr of rows) {
+                            if (hoverTr === touchDragEl) continue;
+                            let targetRect = hoverTr.getBoundingClientRect();
+                            if (isOverlapping(ghostRect, targetRect)) {
+                                if (ghostRect.top < targetRect.top) {
+                                    targetTbody.insertBefore(touchDragEl, hoverTr);
+                                } else {
+                                    targetTbody.insertBefore(touchDragEl, hoverTr.nextSibling);
+                                }
+                                collision = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!collision && touchDragEl.parentNode !== targetTbody) {
+                            targetTbody.appendChild(touchDragEl);
                         }
                     }
                 } else if (touchColEl) {
-                    let hoverTd = hoverEl.closest('td.layout-cell');
-                    if (hoverTd && hoverTd !== touchColEl && hoverTd.parentNode === touchColEl.parentNode) {
-                        let rect = hoverTd.getBoundingClientRect();
-                        if (touch.clientX < rect.left + rect.width / 2) {
-                            hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
-                        } else {
-                            hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                    let cells = Array.from(touchColEl.parentNode.children);
+                    for (let hoverTd of cells) {
+                        if (hoverTd !== touchColEl) {
+                            let targetRect = hoverTd.getBoundingClientRect();
+                            if (isOverlapping(ghostRect, targetRect)) {
+                                if (ghostRect.left < targetRect.left) {
+                                    hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
+                                } else {
+                                    hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                                }
+                                break;
+                            }
                         }
                     }
                 }
@@ -1785,39 +1815,43 @@
             e.preventDefault();
             if (dragSrcEl) {
                 e.dataTransfer.dropEffect = 'move';
-                let hoverTbody = null;
+                let table = dragSrcEl.closest('.scenes-table') || dragSrcEl.closest('.cast-table');
                 
-                // Namiesto e.target sledujeme dragSrcEl, vďaka čomu presun funguje aj mimo tabuľky
-                if (dragSrcEl.closest('.scenes-table')) {
-                    const lunchRow = document.querySelector('.lunch-row');
-                    if (lunchRow) {
-                        hoverTbody = (e.clientY < lunchRow.getBoundingClientRect().top) 
-                            ? document.getElementById('morning-tbody') 
-                            : document.getElementById('afternoon-tbody');
+                if (table) {
+                    let ghostTop = e.clientY - dOffY;
+                    let ghostBottom = ghostTop + dragSrcEl.getBoundingClientRect().height;
+                    let ghostCenter = ghostTop + (dragSrcEl.getBoundingClientRect().height / 2);
+                    
+                    let targetTbody = dragSrcEl.parentNode;
+                    if (table.classList.contains('scenes-table')) {
+                        const lunchRow = table.querySelector('.lunch-row');
+                        if (lunchRow) {
+                            let lunchCenter = lunchRow.getBoundingClientRect().top + (lunchRow.getBoundingClientRect().height / 2);
+                            targetTbody = (ghostCenter < lunchCenter) ? document.getElementById('morning-tbody') : document.getElementById('afternoon-tbody');
+                        }
+                    } else if (table.classList.contains('cast-table')) {
+                        targetTbody = document.getElementById('cast-tbody');
                     }
-                } else if (dragSrcEl.closest('.cast-table')) {
-                    hoverTbody = document.getElementById('cast-tbody');
-                }
-                
-                if (hoverTbody) {
-                    const rows = Array.from(hoverTbody.querySelectorAll('tr')).filter(r => r !== dragSrcEl && !r.classList.contains('lunch-row'));
-                    if (rows.length === 0) {
-                        hoverTbody.appendChild(dragSrcEl);
-                    } else {
-                        let target = null;
-                        for (let r of rows) {
-                            const rect = r.getBoundingClientRect();
-                            const targetCenter = rect.top + rect.height / 2;
-                            if (e.clientY < targetCenter) {
-                                target = r;
-                                break;
+
+                    let rows = Array.from(targetTbody.querySelectorAll('tr'));
+                    let collision = false;
+                    for (let r of rows) {
+                        if (r === dragSrcEl) continue;
+                        const rect = r.getBoundingClientRect();
+                        
+                        if (ghostTop < rect.bottom && ghostBottom > rect.top) {
+                            if (ghostTop < rect.top) {
+                                targetTbody.insertBefore(dragSrcEl, r);
+                            } else {
+                                targetTbody.insertBefore(dragSrcEl, r.nextSibling);
                             }
+                            collision = true;
+                            break;
                         }
-                        if (target) {
-                            hoverTbody.insertBefore(dragSrcEl, target);
-                        } else {
-                            hoverTbody.appendChild(dragSrcEl);
-                        }
+                    }
+
+                    if (!collision && dragSrcEl.parentNode !== targetTbody) {
+                        targetTbody.appendChild(dragSrcEl);
                     }
                 }
             } else if (dragColEl) {
@@ -1829,20 +1863,18 @@
                 const simLeft = e.clientX - dOffX;
                 const simRight = simLeft + rectDrag.width;
                 
-                let target = null;
                 for (let c of cells) {
                     if (c === dragColEl) continue;
                     const rect = c.getBoundingClientRect();
-                    const targetCenter = rect.left + rect.width / 2;
-                    const isBefore = (c.compareDocumentPosition(dragColEl) & Node.DOCUMENT_POSITION_FOLLOWING);
                     
-                    if (isBefore && simLeft < targetCenter) { target = c; break; } 
-                    else if (!isBefore && simRight > targetCenter) { target = c; break; }
-                }
-                if (target) {
-                    const isBefore = (target.compareDocumentPosition(dragColEl) & Node.DOCUMENT_POSITION_FOLLOWING);
-                    if (isBefore) tr.insertBefore(dragColEl, target);
-                    else tr.insertBefore(dragColEl, target.nextSibling);
+                    if (simLeft < rect.right && simRight > rect.left) {
+                        if (simLeft < rect.left) {
+                            tr.insertBefore(dragColEl, c);
+                        } else {
+                            tr.insertBefore(dragColEl, c.nextSibling);
+                        }
+                        break;
+                    }
                 }
             }
         });
