@@ -1003,7 +1003,14 @@
         }
 
         function isOverlapping(rect1, rect2) {
-            return !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom);
+            let thresholdY = rect2.height * 0.2;
+            let thresholdX = rect2.width * 0.2;
+            return !(
+                rect1.right < rect2.left + thresholdX || 
+                rect1.left > rect2.right - thresholdX || 
+                rect1.bottom < rect2.top + thresholdY || 
+                rect1.top > rect2.bottom - thresholdY
+            );
         }
 
         document.addEventListener('touchmove', function(e) {
@@ -1014,6 +1021,16 @@
             if (touchDragEl || touchColEl) {
                 e.preventDefault();
                 let touch = e.touches[0];
+                
+                if (typeof window.lastTouchY === 'undefined') window.lastTouchY = touch.clientY;
+                let movingDown = touch.clientY > window.lastTouchY;
+                let movingUp = touch.clientY < window.lastTouchY;
+                window.lastTouchY = touch.clientY;
+                
+                if (typeof window.lastTouchX === 'undefined') window.lastTouchX = touch.clientX;
+                let movingRight = touch.clientX > window.lastTouchX;
+                let movingLeft = touch.clientX < window.lastTouchX;
+                window.lastTouchX = touch.clientX;
                 
                 if (ghostEl) {
                     ghostEl.style.left = (touch.clientX - dragOffsetX) + 'px';
@@ -1046,13 +1063,17 @@
                             if (hoverTr === touchDragEl) continue;
                             let targetRect = hoverTr.getBoundingClientRect();
                             if (isOverlapping(ghostRect, targetRect)) {
-                                if (ghostRect.top < targetRect.top) {
-                                    targetTbody.insertBefore(touchDragEl, hoverTr);
-                                } else {
+                                let isBefore = (touchDragEl.compareDocumentPosition(hoverTr) & Node.DOCUMENT_POSITION_FOLLOWING);
+                                
+                                if (isBefore && movingDown) {
                                     targetTbody.insertBefore(touchDragEl, hoverTr.nextSibling);
+                                    collision = true;
+                                    break;
+                                } else if (!isBefore && movingUp) {
+                                    targetTbody.insertBefore(touchDragEl, hoverTr);
+                                    collision = true;
+                                    break;
                                 }
-                                collision = true;
-                                break;
                             }
                         }
                         
@@ -1066,12 +1087,15 @@
                         if (hoverTd !== touchColEl) {
                             let targetRect = hoverTd.getBoundingClientRect();
                             if (isOverlapping(ghostRect, targetRect)) {
-                                if (ghostRect.left < targetRect.left) {
-                                    hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
-                                } else {
+                                let isBefore = (touchColEl.compareDocumentPosition(hoverTd) & Node.DOCUMENT_POSITION_FOLLOWING);
+                                
+                                if (isBefore && movingRight) {
                                     hoverTd.parentNode.insertBefore(touchColEl, hoverTd.nextSibling);
+                                    break;
+                                } else if (!isBefore && movingLeft) {
+                                    hoverTd.parentNode.insertBefore(touchColEl, hoverTd);
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
@@ -1080,6 +1104,8 @@
         }, {passive: false});
 
         function endTouchDrag() {
+            window.lastTouchY = undefined;
+            window.lastTouchX = undefined;
             if (ghostEl) { ghostEl.remove(); ghostEl = null; }
             if (touchDragEl) { touchDragEl.classList.remove('is-moving'); touchDragEl.style.opacity = '1'; touchDragEl = null; }
             if (touchColEl) { touchColEl.classList.remove('is-moving'); touchColEl.style.opacity = '1'; touchColEl = null; }
@@ -1815,6 +1841,12 @@
             e.preventDefault();
             if (dragSrcEl) {
                 e.dataTransfer.dropEffect = 'move';
+                
+                if (typeof window.lastDragY === 'undefined') window.lastDragY = e.clientY;
+                let movingDown = e.clientY > window.lastDragY;
+                let movingUp = e.clientY < window.lastDragY;
+                window.lastDragY = e.clientY;
+
                 let table = dragSrcEl.closest('.scenes-table') || dragSrcEl.closest('.cast-table');
                 
                 if (table) {
@@ -1833,20 +1865,30 @@
                         targetTbody = document.getElementById('cast-tbody');
                     }
 
-                    let rows = Array.from(targetTbody.querySelectorAll('tr'));
+                    let rows = Array.from(targetTbody.querySelectorAll('tr:not(.lunch-row):not(.ignore-export)'));
                     let collision = false;
+                    
                     for (let r of rows) {
                         if (r === dragSrcEl) continue;
                         const rect = r.getBoundingClientRect();
                         
                         if (ghostTop < rect.bottom && ghostBottom > rect.top) {
-                            if (ghostTop < rect.top) {
-                                targetTbody.insertBefore(dragSrcEl, r);
-                            } else {
-                                targetTbody.insertBefore(dragSrcEl, r.nextSibling);
+                            let isBefore = (dragSrcEl.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING);
+                            let thresholdY = rect.height * 0.2;
+                            
+                            if (isBefore && movingDown) { 
+                                if (ghostBottom > rect.top + thresholdY) {
+                                    targetTbody.insertBefore(dragSrcEl, r.nextSibling);
+                                    collision = true;
+                                    break;
+                                }
+                            } else if (!isBefore && movingUp) { 
+                                if (ghostTop < rect.bottom - thresholdY) {
+                                    targetTbody.insertBefore(dragSrcEl, r);
+                                    collision = true;
+                                    break;
+                                }
                             }
-                            collision = true;
-                            break;
                         }
                     }
 
@@ -1856,24 +1898,38 @@
                 }
             } else if (dragColEl) {
                 e.dataTransfer.dropEffect = 'move';
+                
+                if (typeof window.lastDragX === 'undefined') window.lastDragX = e.clientX;
+                let movingRight = e.clientX > window.lastDragX;
+                let movingLeft = e.clientX < window.lastDragX;
+                window.lastDragX = e.clientX;
+
                 const tr = dragColEl.parentNode;
                 if (!tr) return;
                 const cells = Array.from(tr.children);
-                const rectDrag = dragColEl.getBoundingClientRect();
-                const simLeft = e.clientX - dOffX;
-                const simRight = simLeft + rectDrag.width;
+                
+                let simLeft = e.clientX - dOffX;
+                let simRight = simLeft + dragColEl.getBoundingClientRect().width;
                 
                 for (let c of cells) {
                     if (c === dragColEl) continue;
                     const rect = c.getBoundingClientRect();
                     
                     if (simLeft < rect.right && simRight > rect.left) {
-                        if (simLeft < rect.left) {
-                            tr.insertBefore(dragColEl, c);
-                        } else {
-                            tr.insertBefore(dragColEl, c.nextSibling);
+                        let isBefore = (dragColEl.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING);
+                        let thresholdX = rect.width * 0.2;
+                        
+                        if (isBefore && movingRight) { 
+                            if (simRight > rect.left + thresholdX) {
+                                tr.insertBefore(dragColEl, c.nextSibling);
+                                break;
+                            }
+                        } else if (!isBefore && movingLeft) { 
+                            if (simLeft < rect.right - thresholdX) {
+                                tr.insertBefore(dragColEl, c);
+                                break;
+                            }
                         }
-                        break;
                     }
                 }
             }
