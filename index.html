@@ -1003,8 +1003,8 @@
         }
 
         function isOverlapping(rect1, rect2) {
-            let thresholdY = rect2.height * 0.2;
-            let thresholdX = rect2.width * 0.2;
+            let thresholdY = rect2.height * 0.4;
+            let thresholdX = rect2.width * 0.4;
             return !(
                 rect1.right < rect2.left + thresholdX || 
                 rect1.left > rect2.right - thresholdX || 
@@ -1874,7 +1874,7 @@
                         
                         if (ghostTop < rect.bottom && ghostBottom > rect.top) {
                             let isBefore = (dragSrcEl.compareDocumentPosition(r) & Node.DOCUMENT_POSITION_FOLLOWING);
-                            let thresholdY = rect.height * 0.2;
+                            let thresholdY = rect.height * 0.4;
                             
                             if (isBefore && movingDown) { 
                                 if (ghostBottom > rect.top + thresholdY) {
@@ -1917,7 +1917,7 @@
                     
                     if (simLeft < rect.right && simRight > rect.left) {
                         let isBefore = (dragColEl.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING);
-                        let thresholdX = rect.width * 0.2;
+                        let thresholdX = rect.width * 0.4;
                         
                         if (isBefore && movingRight) { 
                             if (simRight > rect.left + thresholdX) {
