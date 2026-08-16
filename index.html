@@ -2736,7 +2736,15 @@ function exportPDF() {
                         for (let i = 1; i <= pdf.numPages; i++) {
                             const page = await pdf.getPage(i);
                             const textContent = await page.getTextContent();
-                            rawText += textContent.items.map(item => item.str).join(" ") + "\n";
+                            let lastY = null;
+                            textContent.items.forEach(item => {
+                                if (lastY !== null && Math.abs(item.transform[5] - lastY) > 4) {
+                                    rawText += "\n";
+                                }
+                                rawText += item.str;
+                                lastY = item.transform[5];
+                            });
+                            rawText += "\n";
                         }
                     } else {
                         alert("Tento formát nepoznám. Použi DOCX alebo PDF.");
