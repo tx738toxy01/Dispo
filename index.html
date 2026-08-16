@@ -15,14 +15,14 @@
 
     <style>
         :root {
-            --doc-padding: 25px;
-            --gap-size: 8px;
-            --font-size-base: 12px;
-            --font-size-small: 9px;
-            --table-pad: 5px;
-            --title-size: 18px;
-            --section-margin: 15px;
-            --input-min-height: 16px;
+            --doc-padding: 30px;
+            --gap-size: 10px;
+            --font-size-base: 16px;
+            --font-size-small: 12px;
+            --table-pad: 8px;
+            --title-size: 24px;
+            --section-margin: 20px;
+            --input-min-height: 22px;
             
             --color-primary: #3b82f6;
             --color-bg-light: #f9f9f9;
@@ -55,8 +55,8 @@
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 8px 4px;
-            font-size: 11px;
+            padding: 10px 6px;
+            font-size: 14px;
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
@@ -115,7 +115,7 @@
             z-index: 1000;
             margin-top: 4px;
             overflow: hidden;
-            font-size: 11px;
+            font-size: 14px;
             border: 1px solid var(--color-border);
         }
 
@@ -1978,6 +1978,7 @@
                         bg: bg || ''
                     });
                 });
+                rowData.isLunch = tr.classList.contains('lunch-row');
                 rows.push(rowData);
             });
             return rows;
@@ -2019,7 +2020,7 @@
                 }
             });
 
-            ws.columns = [ { width: 12 }, { width: 5 }, { width: 12 }, { width: 32 }, { width: 15 }, { width: 10 }, { width: 56 } ];
+            ws.columns = [ { width: 12 }, { width: 5 }, { width: 20 }, { width: 24 }, { width: 15 }, { width: 10 }, { width: 56 } ];
 
             const tC = getThemeColors();
             const DARK_BG = tC.exPrimary, ACCENT = tC.exAccent, ACCENT_LIGHT = tC.exLight, LIGHT_GRAY = 'FFF2F4F4', TEXT_COLOR = 'FF2C3E50', WHITE = 'FFFFFFFF', BORDER_COLOR = 'FFBDC3C7';
@@ -2219,8 +2220,24 @@
                 rowIdx++;
                 scenes.forEach(rowData => {
                     let maxLines = 1;
-                    const isLunch = rowData.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
+                    const isLunch = rowData.isLunch;
                     const isBold = isLunch;
+
+                    // Kalkulacka na orezanie Popisu akcie
+                    if (!isLunch && rowData[3] && rowData[4] && rowData[5]) {
+                        let castL = rowData[4].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 30)), 0);
+                        let propsL = rowData[5].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 35)), 0);
+                        let actL = rowData[3].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 32)), 0);
+                        
+                        if (propsL > 2) {
+                            rowData[5].text = rowData[5].text.replace(/\n/g, ' ').substring(0, 45).trim() + "... (viz scenár)";
+                            propsL = 2;
+                        }
+
+                        if (castL < 3 && propsL < 3 && actL > 2) {
+                            rowData[3].text = rowData[3].text.replace(/\n/g, ' ').substring(0, 62).trim() + "...";
+                        }
+                    }
 
                     for(let c=0; c<6; c++) {
                         if(c >= rowData.length) break;
@@ -2416,11 +2433,12 @@ function exportPDF() {
                     pageMargins: [10, 10, 10, 20],
                     footer: function(currentPage, pageCount) {
                         return {
-                            text: 'copyright© barameter.sk',
-                            color: '#000000',
-                            alignment: 'right',
-                            fontSize: 7,
-                            margin: [0, 5, 10, 0]
+                            columns: [
+                                { text: '', width: '30%' },
+                                { text: currentPage < pageCount ? '... pokračovanie na ďalšej strane ...' : '', color: '#e74c3c', alignment: 'center', fontSize: 7, width: '40%', italics: true },
+                                { text: 'copyright© barameter.sk', color: '#000000', alignment: 'right', fontSize: 7, width: '30%' }
+                            ],
+                            margin: [10, 5, 10, 0]
                         };
                     },
                     defaultStyle: { font: 'Roboto', fontSize: 7.5, color: '#2c3e50' },
@@ -2531,8 +2549,24 @@ function exportPDF() {
                         { text: 'REKVIZITY', color: '#111827', bold: true, alignment: 'center', margin:[0,1,0,1] }
                     ]);
                     scenes.forEach(row => {
-                        const isLunch = row.some(item => item.text.toLowerCase().includes('obed') || item.text.toLowerCase().includes('lunch'));
+                        const isLunch = row.isLunch;
                         
+                        // Kalkulacka na orezanie Popisu akcie pre PDF
+                        if (!isLunch && row[3] && row[4] && row[5]) {
+                            let castL = row[4].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 30)), 0);
+                            let propsL = row[5].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 35)), 0);
+                            let actL = row[3].text.split('\n').reduce((a, l) => a + Math.max(1, Math.ceil(l.length / 32)), 0);
+                            
+                            if (propsL > 2) {
+                                row[5].text = row[5].text.replace(/\n/g, ' ').substring(0, 45).trim() + "... (viz scenár)";
+                                propsL = 2;
+                            }
+
+                            if (castL < 3 && propsL < 3 && actL > 2) {
+                                row[3].text = row[3].text.replace(/\n/g, ' ').substring(0, 62).trim() + "...";
+                            }
+                        }
+
                         const rowCells = [];
                         for(let c=0; c<6; c++) {
                             let hexBg = getHexFromRgb(row[c].bg);
@@ -2545,7 +2579,7 @@ function exportPDF() {
                         sceneBody.push(rowCells);
                     });
                     docDefinition.content.push({
-                        table: { headerRows: 1, widths: ['auto', 'auto', 'auto', '*', '*', '*'], body: sceneBody },
+                        table: { headerRows: 1, dontBreakRows: true, widths: ['auto', 'auto', '20%', '24%', '*', '*'], body: sceneBody },
                         layout: tableLayout, margin: [0, 0, 0, 5]
                     });
                 }
@@ -2574,7 +2608,7 @@ function exportPDF() {
                         castBody.push(rowCells);
                     });
                     docDefinition.content.push({
-                        table: { headerRows: 1, widths: ['*', '*', '*', '*'], body: castBody },
+                        table: { headerRows: 1, dontBreakRows: true, widths: ['*', '*', '*', '*'], body: castBody },
                         layout: {
                             hLineWidth: function(i, node) { return 0.5; }, vLineWidth: function(i, node) { return 0.5; },
                             hLineColor: function(i, node) { return '#BDC3C7'; }, vLineColor: function(i, node) { return '#BDC3C7'; },
@@ -2794,19 +2828,21 @@ function syncCastTableWithScenes() {
                     };
                     state = "expecting_cast";
                 } else if (currentSceneObj) {
+                    // Najprv skontrolujeme, či riadok neobsahuje rekvizity (bez ohľadu na poradie)
+                    let propsMatch = line.match(/\(?rekvizity:\s*(.*?)(?:\)|$)/i);
+                    if (propsMatch) {
+                        currentSceneObj.props = propsMatch[1].trim();
+                        continue; // Preskočíme zbytok a ideme na ďalší riadok
+                    }
+
+                    // Ak to nie sú rekvizity, priradíme to podľa poradia
                     if (state === "expecting_cast") {
                         currentSceneObj.cast = line;
                         state = "expecting_action";
                     } else if (state === "expecting_action") {
                         let firstSentence = line.split('.')[0] + (line.includes('.') ? '.' : '');
                         currentSceneObj.action = firstSentence; 
-                        state = "looking_for_props";
-                    } else if (state === "looking_for_props") {
-                        let propsMatch = line.match(/\(?rekvizity:\s*(.*?)(?:\)|$)/i);
-                        if (propsMatch) {
-                            currentSceneObj.props = propsMatch[1].trim();
-                            state = "idle";
-                        }
+                        state = "idle";
                     }
                 }
             }
