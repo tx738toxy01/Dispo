@@ -586,6 +586,32 @@
             .editable-label { padding: 0 !important; }
             tr, td, .section-title { page-break-inside: avoid; break-inside: avoid; }
         }
+
+        .toast {
+            visibility: hidden;
+            min-width: 280px;
+            background-color: #e74c3c;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 20px;
+            position: fixed;
+            z-index: 1000000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
     </style>
 </head>
 <body>
@@ -911,8 +937,17 @@
         </div>
     </div>
 
+    <div id="toast" class="toast">Hlásenie</div>
+
     <script>
         const STORAGE_KEY = 'callsheetData_v18';
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
 
         let touchDragEl = null;
         let touchColEl = null;
@@ -1501,7 +1536,39 @@
                     if (wLabel) wLabel.innerText = city ? `Počasie pre ${city}` : 'Počasie pre...';
                 }
             } else {
-                currentEditElement.innerText = document.getElementById('modal-textarea').value.trim();
+                const pendingText = document.getElementById('modal-textarea').value.trim();
+                
+                const td = currentEditElement.closest('td');
+                const tr = td ? td.closest('tr') : null;
+                
+                if (tr && tr.closest('.scenes-table') && td === tr.cells[1] && pendingText) {
+                    const newScenes = pendingText.split(',').map(s => s.replace(/\s+/g, '').toLowerCase()).filter(Boolean);
+                    const allSceneCells = document.querySelectorAll('.scenes-table tbody:not(.ignore-export) tr:not(.lunch-row) td:nth-child(2) .editable');
+                    
+                    let duplicateFound = false;
+                    let dupName = '';
+
+                    for (let cell of allSceneCells) {
+                        if (cell === currentEditElement || cell.classList.contains('example-text')) continue;
+                        const cellScenes = cell.innerText.split(',').map(s => s.replace(/\s+/g, '').toLowerCase()).filter(Boolean);
+                        
+                        for (let ns of newScenes) {
+                            if (cellScenes.includes(ns)) {
+                                duplicateFound = true;
+                                dupName = ns;
+                                break;
+                            }
+                        }
+                        if (duplicateFound) break;
+                    }
+
+                    if (duplicateFound) {
+                        showToast(`POZOR: Obraz ${dupName.toUpperCase()} už v dispozícii máš!`);
+                        return;
+                    }
+                }
+                
+                currentEditElement.innerText = pendingText;
             }
 
             if (tempNoticeColor) {
