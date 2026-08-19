@@ -1154,13 +1154,17 @@
 
         document.addEventListener('touchend', function(e) {
             if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+            let needsSave = false;
             if (touchDragEl || touchColEl) {
                 window.wasDragged = true;
                 setTimeout(() => window.wasDragged = false, 100);
-                saveData();
+                needsSave = true;
             }
             if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
             endTouchDrag();
+            if (needsSave) {
+                saveData();
+            }
         });
 
         document.addEventListener('touchcancel', function(e) {
@@ -1281,6 +1285,10 @@
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) { 
                 document.getElementById('dynamic-content').innerHTML = savedData; 
+                document.querySelectorAll('.is-moving').forEach(el => {
+                    el.classList.remove('is-moving');
+                    el.style.opacity = '1';
+                });
             } else { 
                 const dateField = document.getElementById('date-field'); 
                 if (dateField) { 
